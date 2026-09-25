@@ -155,19 +155,47 @@ if [[ -z "${opt_name:-}" ]]; then
 fi
 echo "Testing vendor option: $opt_name (default=$opt_default, alternative=$opt_alt)"
 
+# One job at a time: each capture must hold exactly one job, so wait for the
+# previous job to leave the queue and for the sink to listen before submitting.
+wait_for_idle_queue() {
+  local jobs=""
+  for _ in $(seq 1 240); do
+    jobs="$(podman exec "$NAME" gutenprint-printer-app -u "$PRINTER_URI" jobs)"
+    [[ "$jobs" != *pending* && "$jobs" != *processing* ]] && return 0
+    sleep 0.5
+  done
+  printf '%s\n' "$jobs" >&2
+  fail "print queue did not drain"
+}
+
+wait_for_sink() {
+  for _ in $(seq 1 100); do
+    [[ -n "$(ss -Htln "sport = :${SINK_PORT}")" ]] && return 0
+    sleep 0.1
+  done
+  fail "socket sink did not listen on port ${SINK_PORT}"
+}
+
+dump_diagnostics() {
+  podman ps -a --filter "name=^${NAME}\$" --format '{{.Status}}' >&2 || true
+  podman logs --tail 50 "$NAME" >&2 || true
+  podman exec "$NAME" gutenprint-printer-app -u "$PRINTER_URI" jobs >&2 || true
+  podman unshare cat "$STATE_DIR/gutenprint-printer-app.log" >&2 || true
+}
+
 print_with_sink() {
   local option_setting="$1" out_file="$2"
+  local -a options=()
+  [[ -z "$option_setting" ]] || options=(-o "$option_setting")
+  wait_for_idle_queue
   python3 tests/socket-sink.py "$SINK_PORT" "$out_file" &
   SINK_PID=$!
-  sleep 0.2
-  if [[ -n "$option_setting" ]]; then
-    podman exec "$NAME" gutenprint-printer-app submit \
-      -u "$PRINTER_URI" -o "$option_setting" \
-      /usr/share/gutenprint-printer-app/testpage.pdf >/dev/null
-  else
-    podman exec "$NAME" gutenprint-printer-app submit \
-      -u "$PRINTER_URI" \
-      /usr/share/gutenprint-printer-app/testpage.pdf >/dev/null
+  wait_for_sink
+  if ! podman exec "$NAME" gutenprint-printer-app submit \
+    -u "$PRINTER_URI" "${options[@]}" \
+    /usr/share/gutenprint-printer-app/testpage.pdf >/dev/null; then
+    dump_diagnostics
+    fail "could not submit the test page with option setting '${option_setting:-<defaults>}'"
   fi
   local received=0
   for _ in $(seq 1 180); do
@@ -176,7 +204,12 @@ print_with_sink() {
   done
   wait "$SINK_PID" 2>/dev/null || true
   SINK_PID=""
-  [[ "$received" -eq 1 ]] || fail "no socket output captured for option setting '$option_setting'"
+  [[ "$received" -eq 1 ]] || { dump_diagnostics; fail "no socket output captured for option setting '$option_setting'"; }
+  wait_for_idle_queue
+  local jobs
+  jobs="$(podman exec "$NAME" gutenprint-printer-app -u "$PRINTER_URI" jobs)"
+  [[ "$(head -n 1 <<<"$jobs")" == *completed* ]] \
+    || { printf '%s\n' "$jobs" >&2; fail "job with option setting '${option_setting:-<defaults>}' did not complete"; }
 }
 
 print_with_sink "" "$BASELINE_SINK"
