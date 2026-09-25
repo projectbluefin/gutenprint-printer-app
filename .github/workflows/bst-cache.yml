@@ -1,0 +1,107 @@
+name: BuildStream cache refill
+
+on:
+  push:
+    branches: [testing]
+    paths:
+      - project.conf
+      - elements/**
+      - include/**
+      - patches/**
+      - files/**
+      - Makefile
+      - gutenprint-printer-app.c
+      - gutenprint-printer-app.1
+      - gutenprint-printer-app.service
+      - testpage.ps
+      - ci/buildstream.conf
+      - .github/workflows/bst-cache.yml
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  refill:
+    name: Refill (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-26.04
+          - arch: aarch64
+            runner: ubuntu-26.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    # Never cancel: a running refill must reach its save step. A burst of
+    # pushes collapses to one running plus one pending refill per arch.
+    concurrency:
+      group: bst-cache-${{ matrix.arch }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@d438492cf8a250514fa2d34b30bc3c0dc37c65ff # v2
+        with:
+          tool: just
+      - name: Install host dependencies
+        run: sudo apt-get update && sudo apt-get install --yes fuse3 podman
+      - name: Compute BuildStream cache key
+        id: bst-key
+        env:
+          INPUTS_HASH: ${{ hashFiles('project.conf', 'elements/**', 'include/**', 'patches/**', 'files/**', 'Makefile', 'gutenprint-printer-app.c', 'gutenprint-printer-app.1', 'gutenprint-printer-app.service', 'testpage.ps') }}
+        run: echo "hash=${INPUTS_HASH}" >> "$GITHUB_OUTPUT"
+      - name: Restore BuildStream cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cache/buildstream/cas
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/source_protos
+          key: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
+          restore-keys: |
+            bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-
+            bst-v1-${{ matrix.arch }}-
+      - name: Build image
+        run: just bst --config /src/ci/buildstream.conf --network-retries 5 build oci/gutenprint-printer-app.bst
+      - name: Measure cache
+        id: size
+        run: |
+          mb="$(du -sm --total ~/.cache/buildstream/cas ~/.cache/buildstream/artifacts ~/.cache/buildstream/source_protos 2>/dev/null | tail -1 | cut -f1)"
+          echo "mb=${mb}" >> "$GITHUB_OUTPUT"
+          echo "### BuildStream cache (${{ matrix.arch }}): ${mb} MB" >> "$GITHUB_STEP_SUMMARY"
+          # Both arches must fit the 10 GB repo cache: save at most 4500 MB per arch.
+          if [ "${mb}" -le 4500 ]; then
+            echo "fits=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::BuildStream cache is ${mb} MB (> 4500 MB); not saving"
+          fi
+      - name: Save BuildStream cache
+        id: save
+        if: steps.size.outputs.fits == 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cache/buildstream/cas
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/source_protos
+          key: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
+      - name: Prune older BuildStream caches
+        if: steps.save.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PREFIX: bst-v1-${{ matrix.arch }}-
+          KEEP: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
+        run: |
+          gh cache list --key "$PREFIX" --ref "$GITHUB_REF" --limit 100 --json id,key \
+            --jq '.[] | select(.key != env.KEEP) | .id' |
+            while read -r id; do
+              echo "Deleting cache ${id}"
+              gh cache delete "$id"
+            done

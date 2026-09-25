@@ -1,0 +1,6 @@
+# actionlint does not yet know the ubuntu-26.04 runner images. Until upstream
+# adds them, list them here so actionlint accepts these runner labels.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
+    - ubuntu-26.04-arm

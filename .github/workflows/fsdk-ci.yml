@@ -20,9 +20,9 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            runner: ubuntu-24.04
+            runner: ubuntu-26.04
           - arch: aarch64
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-26.04-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
     permissions:
@@ -41,9 +41,29 @@ jobs:
       - name: Validate BuildStream graph
         if: env.FULL_BUILD != 'true'
         run: just validate
+      # Restore only: pull_request and merge_group caches are scoped to their
+      # own ref, so bst-cache.yml on testing is the only writer.
+      - name: Compute BuildStream cache key
+        id: bst-key
+        if: env.FULL_BUILD == 'true'
+        env:
+          INPUTS_HASH: ${{ hashFiles('project.conf', 'elements/**', 'include/**', 'patches/**', 'files/**', 'Makefile', 'gutenprint-printer-app.c', 'gutenprint-printer-app.1', 'gutenprint-printer-app.service', 'testpage.ps') }}
+        run: echo "hash=${INPUTS_HASH}" >> "$GITHUB_OUTPUT"
+      - name: Restore BuildStream cache
+        if: env.FULL_BUILD == 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cache/buildstream/cas
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/source_protos
+          key: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
+          restore-keys: |
+            bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-
+            bst-v1-${{ matrix.arch }}-
       - name: Build image
         if: env.FULL_BUILD == 'true'
-        run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst
+        run: just bst --config /src/ci/buildstream.conf --network-retries 5 build oci/gutenprint-printer-app.bst
       - name: Build actual image and print Epson raster to socket sink
         if: env.FULL_BUILD == 'true'
         run: just verify

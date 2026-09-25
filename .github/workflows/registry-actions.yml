@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   metadata:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -71,10 +71,10 @@ jobs:
         include:
           - arch: x86_64
             platform: amd64
-            runner: ubuntu-24.04
+            runner: ubuntu-26.04
           - arch: aarch64
             platform: arm64
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-26.04-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
     permissions:
@@ -133,7 +133,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, aarch64]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
@@ -164,7 +164,7 @@ jobs:
 
   publish:
     needs: [metadata, publish-arch]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

@@ -249,6 +249,11 @@ for testing only. CI on pull requests only validates the BuildStream graph
 the image and run `just verify` on native x86_64 and aarch64 without
 registry write credentials.
 
+Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
+from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
+pushes to `testing` that touch BuildStream inputs, nightly, and on demand. It builds with
+`ci/buildstream.conf` (saved only when an arch fits in 4.5 GB) and prunes older entries. To reset, run `gh cache delete --all`.
+
 Only the organization Renovate runner updates the stable Gutenprint OCI
 source: `renovate.json` proposes an atomic tag, dereferenced Git commit and
 matching package revision in `include/source-pins.yml` against `testing`.
