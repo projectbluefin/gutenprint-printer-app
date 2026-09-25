@@ -62,6 +62,6 @@ config:
               'org.opencontainers.image.licenses': 'Apache-2.0 AND GPL-2.0-or-later'
               'org.opencontainers.image.version': '${version}'
               'io.projectbluefin.gutenprint.ref': '${gutenprint_ref}'
-              'io.projectbluefin.fsdk.version': '26.08rc.1'
-              'io.projectbluefin.fsdk.ref': 'e076d4978ee6945763486f6ebd755d189460e4e7'
+              'io.projectbluefin.fsdk.version': '26.08.1'
+              'io.projectbluefin.fsdk.ref': 'b02b59ffe19a49a402f357fd5fcb1d552ebc50d7'
       EOF

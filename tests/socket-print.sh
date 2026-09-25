@@ -13,7 +13,7 @@ sink_pid=""
 cleanup() {
   podman rm -f "$name" >/dev/null 2>&1 || true
   [[ -z "$sink_pid" ]] || { kill "$sink_pid" 2>/dev/null || true; wait "$sink_pid" 2>/dev/null || true; }
-  rm -rf "$state_dir"
+  podman unshare rm -rf "$state_dir"
   rm -f "$output_file" "$cookie_file"
 }
 trap cleanup EXIT

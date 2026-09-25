@@ -10,7 +10,7 @@ state_dir="$(mktemp -d)"
 
 cleanup() {
   podman rm -f "$name" "$failure_name" "$invalid_name" >/dev/null 2>&1 || true
-  rm -rf "$state_dir"
+  podman unshare rm -rf "$state_dir"
 }
 trap cleanup EXIT
 

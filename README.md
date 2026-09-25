@@ -223,6 +223,11 @@ network-printer web form. Gutenprint contributes the real raster filter,
 dye-sublimation USB backend, PPD generator, expert and simplified PPDs,
 and `escputil`. The shipped application selects expert PPDs.
 
+The source build explicitly stages GLib's `glib-mkenums` and Python for
+`autogen.sh`; CUPS PPD generators install into `/usr/bin` because FSDK owns
+`/usr/sbin` as a symlink. On first boot, the app copies the shared CUPS and
+Gutenprint USB quirks into its persistent state without overwriting edits.
+
 The application source is Apache-2.0; bundled Gutenprint drivers are
 GPL-2.0-or-later. Release metadata records both, while the signed SPDX SBOM
 provides the complete transitive license inventory.

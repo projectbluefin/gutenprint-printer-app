@@ -12,6 +12,8 @@ build-depends:
   - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/bison.bst
   - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/flex.bst
   - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/gettext.bst
+  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/glib.bst
+  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/python3.bst
 
 depends:
   - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/cups.bst
@@ -48,6 +50,8 @@ config:
     # Upstream creates backend/filter/driver in cups-config --serverbin by
     # default. Never write over the shared FSDK CUPS artifact's directories.
     - make DESTDIR="%{install-root}" cups_conf_serverbin=/usr/lib/gutenprint-printer-app install
+    - mv "%{install-root}/usr/sbin/"* "%{install-root}/usr/bin/"
+    - rmdir "%{install-root}/usr/sbin"
     - chmod 0755 "%{install-root}/usr/lib/gutenprint-printer-app/backend/gutenprint53+usb"
     - install -d "%{install-root}/usr/lib/gutenprint-printer-app/backend"
     - mv "%{install-root}/usr/share/cups/usb/net.sf.gimp-print.usb-quirks" "%{install-root}/usr/lib/gutenprint-printer-app/backend/"
