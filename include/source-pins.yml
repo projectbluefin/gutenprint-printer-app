@@ -1,0 +1,4 @@
+variables:
+  gutenprint-version: "5.3.6-4"
+  gutenprint-tag: "debian/5.3.6-2026-02-01T02-18-9b0bdf87-4"
+  gutenprint-ref: "5131fd401a6f4221a623125dd8b710b365ad83d3"

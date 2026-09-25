@@ -1,0 +1,75 @@
+name: Validate FSDK Gutenprint OCI image
+
+on:
+  push:
+    branches: [testing, stable]
+    paths:
+      - '.github/workflows/fsdk-ci.yml'
+      - '.github/workflows/registry-actions.yml'
+      - '.github/workflows/promote-stable.yml'
+      - 'project.conf'
+      - 'include/**'
+      - 'elements/**'
+      - 'files/**'
+      - 'tests/**'
+      - 'Justfile'
+      - 'Makefile'
+      - 'gutenprint-printer-app.c'
+      - 'gutenprint-printer-app.1'
+      - 'gutenprint-printer-app.service'
+      - 'testpage.ps'
+  pull_request:
+    branches: [testing, stable]
+    paths:
+      - '.github/workflows/fsdk-ci.yml'
+      - '.github/workflows/registry-actions.yml'
+      - '.github/workflows/promote-stable.yml'
+      - 'project.conf'
+      - 'include/**'
+      - 'elements/**'
+      - 'files/**'
+      - 'tests/**'
+      - 'Justfile'
+      - 'Makefile'
+      - 'gutenprint-printer-app.c'
+      - 'gutenprint-printer-app.1'
+      - 'gutenprint-printer-app.service'
+      - 'testpage.ps'
+  workflow_dispatch:
+
+concurrency:
+  group: fsdk-gutenprint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  verify:
+    name: Native image and socket print (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@d438492cf8a250514fa2d34b30bc3c0dc37c65ff # v2
+        with:
+          tool: just
+      - name: Install host dependencies
+        run: sudo apt-get update && sudo apt-get install --yes fuse3 podman
+      - name: Resolve pinned source graph
+        run: just validate
+      - name: Fetch immutable sources
+        run: just fetch
+      - name: Build actual image and print Epson raster to socket sink
+        run: just verify

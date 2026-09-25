@@ -211,148 +211,88 @@ You can edit the
 `/var/snap/gutenprint-printer-app/common/cups/snmp.conf` file for
 configuring SNMP network printer discovery.
 
-## THE ROCK (OCI CONTAINER IMAGE)
+## FSDK OCI Printer Application
 
-### Install from Docker Hub
-#### Prerequisites
+This repository's BuildStream OCI image is built from the Gutenprint source
+pinned in `include/source-pins.yml` and the immutable
+`projectbluefin/ghostscript-printer-app` FSDK junction in
+`elements/ghostscript-fsdk.bst`. The junction is the **only CUPS owner**:
+it supplies the FSDK CUPS, libcupsfilters and cups-filters patch chain, plus
+the PAPPL build with `PAPPL_MAX_VENDOR=256` and the `cups:socket` manual
+network-printer web form. Gutenprint contributes the real raster filter,
+dye-sublimation USB backend, PPD generator, expert and simplified PPDs,
+and `escputil`. The shipped application selects expert PPDs.
 
-1. **Docker Installed**: Ensure Docker is installed on your system. You can download it from the [official Docker website](https://www.docker.com/get-started).
-```sh
-  sudo snap install docker
-```
+The application source is Apache-2.0; bundled Gutenprint drivers are
+GPL-2.0-or-later. Release metadata records both, while the signed SPDX SBOM
+provides the complete transitive license inventory.
 
-#### Step-by-Step Guide
-
-You can pull the `gutenprint-printer-app` Docker image from either the GitHub Container Registry or Docker Hub.
-
-**From GitHub Container Registry** <br>
-To pull the image from the GitHub Container Registry, run the following command:
-```sh
-  sudo docker pull ghcr.io/openprinting/gutenprint-printer-app:latest
-```
-
-Create a Docker volume:
-```sh
-  sudo docker volume create gutenprint-printer-app
-```
-
-To run the container after pulling the image from the GitHub Container Registry, use:
-```sh
-  sudo docker run -d \
-      --name gutenprint-printer-app \
-      --network host \
-      -e PORT=<port> \
-      -v gutenprint-printer-app:/var/lib/gutenprint-printer-app \
-      -v /dev/bus/usb:/dev/bus/usb:ro \
-      --device-cgroup-rule='c 189:* rmw' \
-      ghcr.io/openprinting/gutenprint-printer-app:latest
-```
-
-**From Docker Hub** <br>
-Alternatively, you can pull the image from Docker Hub, by running:
-```sh
-  sudo docker pull openprinting/gutenprint-printer-app
-```
-
-Create a Docker volume:
-```sh
-  sudo docker volume create gutenprint-printer-app
-```
-
-To run the container after pulling the image from Docker Hub, use:
-```sh
-  sudo docker run -d \
-      --name gutenprint-printer-app \
-      --network host \
-      -e PORT=<port> \
-      -v gutenprint-printer-app:/var/lib/gutenprint-printer-app \
-      -v /dev/bus/usb:/dev/bus/usb:ro \
-      --device-cgroup-rule='c 189:* rmw' \
-      openprinting/gutenprint-printer-app:latest
-```
-
-- `PORT` is an optional environment variable used to start the printer-app on a specified port. If not provided, it will start on the default port 8000 or, if port 8000 is busy, on 8001 and so on.
-- **The container must be started in `--network host` mode** to allow the Printer-Application instance inside the container to access and discover printers available in the local network where the host system is in.
-- Alternatively using the internal network of the Docker instance (`-p <port>:8000` instead of `--network host -e PORT=<port>`) only gives access to local printers running on the host system itself.
-- `-v gutenprint-printer-app:/var/lib/gutenprint-printer-app` maps a volume for persistent storage.
-- The following volume and device settings are crucial for USB printer access:
-  - `-v /dev/bus/usb:/dev/bus/usb:ro` mounts the host's USB device directory read-only inside the container for USB printer access.
-  - `--device-cgroup-rule='c 189:* rmw'` allows the container to read, write, and mknod to USB devices.
-
-### Setting Up and Running gutenprint-printer-app locally
-
-#### Prerequisites
-
-**Docker Installed**: Ensure Docker is installed on your system. You can download it from the [official Docker website](https://www.docker.com/get-started) or from the Snap Store:
-```sh
-  sudo snap install docker
-```
-
-**Rockcraft**: Rockcraft should be installed. You can install Rockcraft using the following command:
-```sh
-  sudo snap install rockcraft --classic
-```
-
-**Skopeo**: Skopeo should be installed to compile `*.rock` files into Docker images. It comes bundled with Rockcraft, so no separate installation is required.
-
-#### Step-by-Step Guide
-
-**Build gutenprint-printer-app rock**
-
-The first step is to build the Rock from the `rockcraft.yaml`. This image will contain all the configurations and dependencies required to run gutenprint-printer-app.
-
-Open your terminal and navigate to the directory containing your `rockcraft.yaml`, then run the following command:
+Install `just`, Podman and FUSE 3. Build and exercise the native image with:
 
 ```sh
-  rockcraft pack -v
+just validate
+just fetch
+just verify
 ```
 
-**Compile to Docker Image**
+`just verify` builds the OCI image, checks the nonroot HTTP/HTTPS appliance,
+and prints a real IPP test page through the Gutenprint ESC/P2 raster filter
+and CUPS socket backend into a byte-capturing sink. No local printer is
+required. It also checks that the configured queue survives restart.
+The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
+for testing only. Testing pull requests build and run the same checks on
+native x86_64 and aarch64 without registry write credentials.
 
-Once the rock is built, you need to compile docker image from it.
+Only the organization Renovate runner updates the stable Gutenprint OCI
+source: `renovate.json` proposes an atomic tag, dereferenced Git commit and
+matching package revision in `include/source-pins.yml` against `testing`.
+Proposals are never auto-merged; the real-image print gate decides whether
+they can be promoted. Upstream's separate Snap/Rockcraft source updater does
+not own these BuildStream pins.
+
+After a verified `testing` revision has been promoted to `stable`, tag
+`v<gutenprint-version>` (for example `v5.3.6-4`). The tag must match
+`include/source-pins.yml`, and the stable-only release workflow rejects
+existing registry tags. It publishes an immutable multiarchitecture
+`ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` index
+with a signed image, signed SPDX SBOM, and GitHub provenance attestation.
+There is no mutable `latest`, `edge`, or `stable` FSDK image tag. Inspect
+and pin the released `sha256:` index digest when deploying.
+
+The OCI process runs as UID/GID `65532:65532`. For rootless Podman,
+prepare its dedicated state directory and run on an unused port:
 
 ```sh
-  sudo rockcraft.skopeo --insecure-policy copy oci-archive:<rock_image> docker-daemon:gutenprint-printer-app:latest
+mkdir -p .state/gutenprint
+podman unshare chown -R 65532:65532 .state/gutenprint
+podman run --rm --name gutenprint-printer-app \
+  --network host -e PORT=18050 \
+  -v "$PWD/.state/gutenprint:/var/lib/gutenprint-printer-app:Z" \
+  ghcr.io/projectbluefin/gutenprint-printer-app:build
 ```
 
-Create a Docker volume:
-```sh
-  sudo docker volume create gutenprint-printer-app
-```
+Open `http://127.0.0.1:18050/`; the IPP endpoint also serves HTTPS. Avahi
+advertises Gutenprint printers under their app-specific service identity;
+the state, SNMP configuration, USB quirks and PPDs stay in **this app's**
+volume. To run alongside other Printer Applications, assign each a different
+port and state directory. Admins should assign each physical printer to
+one application only: the same USB device must not be presented to multiple
+instances, and manually configured DNS-SD advertisements must be unique.
 
-**Run the gutenprint-printer-app Docker Container**
+For real USB devices, add `--device /dev/bus/usb --group-add keep-groups`
+to the rootless Podman command. The host user must already have permission
+to open the intended USB device through udev and device groups; do not use
+privileged containers to conceal an access failure. Test a discovered
+printer with the correct Gutenprint driver and verify the print on paper
+before claiming USB/network discovery, ink, firmware, media or color
+compatibility. The synthetic socket-sink CI proof does **not** validate
+physical hardware.
 
-```sh
-  sudo docker run -d \
-      --name gutenprint-printer-app \
-      --network host \
-      -e PORT=<port> \
-      -v gutenprint-printer-app:/var/lib/gutenprint-printer-app \
-      -v /dev/bus/usb:/dev/bus/usb:ro \
-      --device-cgroup-rule='c 189:* rmw' \
-      gutenprint-printer-app:latest
-```
-- `PORT` is an optional environment variable used to start the printer-app on a specified port. If not provided, it will start on the default port 8000 or, if port 8000 is busy, on 8001 and so on.
-- **The container must be started in `--network host` mode** to allow the Printer-Application instance inside the container to access and discover printers available in the local network where the host system is in.
-- Alternatively using the internal network of the Docker instance (`-p <port>:8000` instead of `--network host -e PORT=<port>`) only gives access to local printers running on the host system itself.
-- `-v gutenprint-printer-app:/var/lib/gutenprint-printer-app` maps a volume for persistent storage.
-- The following volume and device settings are crucial for USB printer access:
-  - `-v /dev/bus/usb:/dev/bus/usb:ro` mounts the host's USB device directory read-only inside the container for USB printer access.
-  - `--device-cgroup-rule='c 189:* rmw'` allows the container to read, write, and mknod to USB devices.
+The old `rockcraft.yaml` is retained for the upstream Rockcraft packaging
+workflow, but Rockcraft no longer publishes this fork's FSDK OCI releases.
 
-#### Setting up
-
-Enter the web interface
-
-```sh
-http://localhost:<port>/
-```
-
-Use the web interface to add a printer. Supply a name, select the
-discovered printer, then select make and model. Also set the installed
-accessories, loaded media and the option defaults. If the printer is a
-PostScript printer, accessory configuration and option defaults can
-also often get polled from the printer.
+The following automatically updated list describes upstream Snap/Rockcraft
+parts, not the source-pinned FSDK image above.
 
 <!-- Begin Included Components -->
 ## Included Components

@@ -1,3 +1,7 @@
 *.snap
 *.rock
 .DS_Store
+.bst/
+.bst2/
+.build-out/
+*.spdx.json

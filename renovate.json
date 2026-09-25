@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["local>projectbluefin/renovate-config"],
+  "baseBranches": ["testing"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^include\\/source-pins\\.yml$/"],
+      "matchStrings": [
+        "gutenprint-version: \"[^\"]+\"\\ngutenprint-tag: \"(?<currentValue>debian/[^\"]+)\"\\ngutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
+      ],
+      "packageNameTemplate": "https://salsa.debian.org/printing-team/gutenprint.git",
+      "depNameTemplate": "Gutenprint CUPS driver",
+      "datasourceTemplate": "git-tags",
+      "versioningTemplate": "regex:^debian/(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-.*-(?<build>\\d+)$",
+      "autoReplaceStringTemplate": "gutenprint-version: \"{{{replace '^debian/(\\d+\\.\\d+\\.\\d+)-.*-(\\d+)$' '$1-$2' newValue}}}\"\n  gutenprint-tag: \"{{{newValue}}}\"\n  gutenprint-ref: \"{{{newDigest}}}\"",
+      "description": "Update the tag, dereferenced commit, and packaged version together."
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["git-tags"],
+      "matchPackageNames": ["https://salsa.debian.org/printing-team/gutenprint.git"],
+      "allowedVersions": "/^debian\\/5\\.3\\.\\d+-.*-\\d+$/",
+      "automerge": false
+    }
+  ]
+}
