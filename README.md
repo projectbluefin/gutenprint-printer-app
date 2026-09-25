@@ -411,6 +411,11 @@ Apple Raster, PWG Raster):
 TESTPAGE=/path/to/my/testpage/my_testpage.ps PPD_PATHS=/path/to/my/ppds:/my/second/place ./gutenprint-printer-app server
 ```
 
+The test page shipped in the OCI image is the PDF that the application
+actually prints, `testpage.pdf`, generated at image build time from this
+project's own `testpage.ps`. What that file must be, where it must land and
+how it is verified is recorded in [docs/testpage.md](docs/testpage.md).
+
 
 ## LEGAL STUFF
 

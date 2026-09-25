@@ -1,0 +1,95 @@
+name: Test page CI
+
+# Real-image verification for issue #18: the built image must ship a real PDF
+# test page that is generated from this project's own source PostScript, at
+# the exact path the application prints from -- and it must not be another
+# project's borrowed test page. A cheap static guard runs first and fails fast
+# on a recipe regression without any build tooling; the runtime job then
+# builds the real rock and checks the artefact inside it, including rendering
+# it with the image's own Ghostscript (no printer, no synthetic echo).
+on:
+  push:
+    branches: [testing]
+    paths:
+      - .github/workflows/testpage-ci.yml
+      - rockcraft.yaml
+      - snap/snapcraft.yaml
+      - elements/**
+      - testpage.ps
+      - gutenprint-printer-app.c
+      - Makefile
+      - tests/check-testpage-producer.sh
+      - tests/testpage-payload.sh
+      - docs/testpage.md
+  pull_request:
+    branches: [testing]
+    paths:
+      - .github/workflows/testpage-ci.yml
+      - rockcraft.yaml
+      - snap/snapcraft.yaml
+      - elements/**
+      - testpage.ps
+      - gutenprint-printer-app.c
+      - Makefile
+      - tests/check-testpage-producer.sh
+      - tests/testpage-payload.sh
+      - docs/testpage.md
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  static-guard:
+    name: Guard the test-page producer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check the recipes still generate the test page from source
+        run: bash tests/check-testpage-producer.sh
+
+  testpage-verify:
+    name: Build & verify the shipped test page
+    needs: static-guard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install build tools
+        run: |
+          sudo snap install rockcraft --classic
+          sudo apt-get update
+          sudo apt-get install --yes podman skopeo fuse3
+
+      - name: Build rock
+        uses: canonical/craft-actions/rockcraft-pack@main
+        id: rockcraft
+
+      - name: Load rock into podman
+        run: |
+          set -euo pipefail
+          ROCK="${{ steps.rockcraft.outputs.rock }}"
+          skopeo copy --insecure-policy oci-archive:"${ROCK}" docker-archive:/tmp/gutenprint.tar
+          podman load -i /tmp/gutenprint.tar
+          IMG="$(podman images --format '{{.Repository}}:{{.Tag}}' | grep gutenprint-printer-app | head -n1)"
+          podman tag "$IMG" gutenprint-printer-app:build
+
+      - name: Run test-page verification
+        run: bash tests/testpage-payload.sh
+        env:
+          IMAGE: gutenprint-printer-app:build
