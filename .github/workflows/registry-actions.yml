@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   metadata:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -137,7 +137,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, aarch64]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
@@ -168,7 +168,7 @@ jobs:
 
   publish:
     needs: [metadata, publish-arch]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
