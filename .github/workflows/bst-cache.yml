@@ -32,9 +32,9 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            runner: ubuntu-26.04
+            runner: ubuntu-24.04
           - arch: aarch64
-            runner: ubuntu-26.04-arm
+            runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
     # Never cancel: a running refill must reach its save step. A burst of
