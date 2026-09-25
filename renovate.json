@@ -7,7 +7,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^include\\/source-pins\\.yml$/"],
       "matchStrings": [
-        "gutenprint-version: \"[^\"]+\"\\ngutenprint-tag: \"(?<currentValue>debian/[^\"]+)\"\\ngutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
+        "gutenprint-version: \"[^\"]+\"\\n  gutenprint-tag: \"(?<currentValue>debian/[^\"]+)\"\\n  gutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
       ],
       "packageNameTemplate": "https://salsa.debian.org/printing-team/gutenprint.git",
       "depNameTemplate": "Gutenprint CUPS driver",
