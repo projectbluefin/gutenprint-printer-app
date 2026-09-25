@@ -127,8 +127,9 @@ ok "$legacy is not shipped"
 # --- 4. The image's own interpreter consumes and renders it ---------------
 
 # The source of truth for "not blank": render the image's own test page and a
-# deliberately empty page through the same device chain and compare. A blank
-# page compresses to almost nothing, so this needs no magic size threshold.
+# deliberately empty page through the same device chain and compare them. The
+# cups device writes uncompressed raster, so both are the same size and only
+# their pixels can tell them apart.
 render() {
   podman run --rm -i --entrypoint /usr/bin/gs "$image" \
     -q -dSAFER -dBATCH -dNOPAUSE -dFIXEDMEDIA -sPAPERSIZE=letter -sDEVICE=cups \
@@ -148,15 +149,16 @@ if grep -qiE 'error|unrecoverable|not found' gs.err; then
   fail "Ghostscript reported an error rendering $pdf"
 fi
 test -s page.ras || fail "rendering $pdf produced no raster"
-head -c 4 page.ras | grep -qE '^RaS[0-9]' || fail "rendering $pdf produced no CUPS raster job"
+# The sync word is written in host byte order: "RaS3" or, little-endian, "3SaR".
+head -c 4 page.ras | grep -qE '^(RaS[0-9]|[0-9]SaR)' || fail "rendering $pdf produced no CUPS raster job"
 
 printf '%s\n' '%!PS-Adobe-3.0' '%%BoundingBox: 0 0 612 792' '%%Pages: 1' 'showpage' \
   | render - > blank.ras 2>/dev/null
 
-page_size="$(stat -c %s page.ras)"
-blank_size="$(stat -c %s blank.ras)"
-(( page_size > blank_size )) \
-  || fail "the rendered test page ($page_size bytes) is no larger than a blank page ($blank_size bytes)"
-ok "the image's Ghostscript rendered $pdf to a non-blank CUPS raster ($page_size bytes vs $blank_size for a blank page)"
+[[ "$(stat -c %s page.ras)" -eq "$(stat -c %s blank.ras)" ]] \
+  || fail "the test page and a blank page rendered to different raster geometry"
+differing="$(cmp -l page.ras blank.ras | wc -l || true)"
+(( differing > 0 )) || fail "the rendered test page is identical to a blank page"
+ok "the image's Ghostscript rendered $pdf to a non-blank CUPS raster ($differing bytes differ from a blank page)"
 
 printf 'OK: the shipped test page is this project'"'"'s own, valid, renderable PDF (no printer involved)\n'
