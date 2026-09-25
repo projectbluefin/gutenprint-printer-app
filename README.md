@@ -355,6 +355,44 @@ PostScript printer, accessory configuration and option defaults can
 also often get polled from the printer.
 
 <!-- Begin Included Components -->
+### USB printer backends and permissions
+
+The OCI image ships two CUPS-style USB backends next to the raster filters:
+CUPS' generic `usb` backend and Gutenprint's dye-sublimation backend
+`gutenprint53+usb`, which speaks the proprietary USB protocols of dye-sub
+printers. Both live in `/usr/lib/gutenprint-printer-app/backend/`, together
+with the vendor USB quirk tables `org.cups.usb-quirks` and
+`net.sf.gimp-print.usb-quirks`.
+
+The Printer Application runs as the unprivileged `_daemon_` user, so both
+backends are owned by `root` with mode `4755`: executable by every user, plus
+the set-user-ID bit which is what lets them reach the printer's USB device
+nodes. Gutenprint installs its backend with mode `700`, because upstream
+expects root to start it directly, so the image has to widen it explicitly.
+Without that, `_daemon_` cannot start the dyesub backend at all and all
+dye-sublimation support is silently lost. `rockcraft.yaml` applies this via
+`scripts/harden-usb-backends.sh`, which also fails the image build if either
+backend or either quirk table did not make it into the image.
+
+Because the container runs unprivileged, USB printing additionally needs the
+device settings from the run instructions above (`-v /dev/bus/usb:/dev/bus/usb:ro`
+and `--device-cgroup-rule='c 189:* rmw'`). Without them the backends find no
+device nodes and report no printers rather than failing.
+
+To verify the payload of a built image, run the checker inside it, so that the
+backends and `ldd` resolve against the image's own libraries:
+
+```
+docker run --rm --entrypoint /bin/sh \
+    -v "$PWD/tests:/tests:ro" \
+    gutenprint-printer-app:latest /tests/check-usb-backend-payload.sh
+```
+
+It checks that both backends and both quirk tables are present with the right
+permissions, that every linked library resolves, and that device discovery
+with no printer attached terminates safely. Physical paper output still needs
+real hardware.
+
 ## Included Components
   - pappl v1.4.9
   - qpdf v11.10.1

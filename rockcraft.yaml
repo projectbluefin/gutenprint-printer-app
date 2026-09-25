@@ -703,9 +703,13 @@ parts:
       chown 584792:584792 $CRAFT_PRIME/gutenprint-printer-app.log
       chmod 644 $CRAFT_PRIME/gutenprint-printer-app.log
 
-      # Setting up permissions to USB backend
-      USB_BACKEND="$CRAFT_PRIME/usr/lib/gutenprint-printer-app/backend/usb"
-      chmod u+s "$USB_BACKEND"
+      # Give both CUPS-style USB backends the ownership and the
+      # set-user-ID bit which "_daemon_" needs to reach the printer's USB
+      # device nodes. Gutenprint installs its dye-sublimation backend mode
+      # 700, so plain "chmod u+s" would leave it unexecutable for the run
+      # user. This also fails the build if the dye-sublimation backend or
+      # the vendor USB quirk tables did not make it into the image.
+      sh "$CRAFT_PROJECT_DIR/scripts/harden-usb-backends.sh" "$CRAFT_PRIME"
     after: [gutenprint-printer-app, avahi, pappl-retrofit, pappl, libcupsfilters, libppd, gutenprint]
 
   scripts:

@@ -1,0 +1,43 @@
+name: USB backend payload
+
+on:
+  pull_request:
+    branches: [testing]
+  push:
+    branches: [testing]
+  workflow_dispatch:
+    inputs:
+      image:
+        description: OCI image reference of a built gutenprint-printer-app rock
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Package the USB backends and the quirk tables
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Lint the shell helpers
+        run: |
+          shellcheck scripts/harden-usb-backends.sh \
+            tests/check-usb-backend-payload.sh
+
+  image-payload:
+    # Building this rock needs a long Rockcraft run, so run the image-level
+    # checks on demand against an already published image.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check the payload inside the built image
+        run: |
+          docker run --rm --entrypoint /bin/sh \
+            -v "$PWD/tests:/tests:ro" \
+            "${{ inputs.image }}" /tests/check-usb-backend-payload.sh
