@@ -66,6 +66,7 @@ verify:
 sbom:
     #!/usr/bin/env bash
     set -euo pipefail
+    mkdir -p "${HOME}/.cache/buildstream"
     git_sha="$(git rev-parse HEAD)"
     podman run --rm \
         --privileged \

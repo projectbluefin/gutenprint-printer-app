@@ -278,9 +278,15 @@ not own these BuildStream pins.
 After a verified `testing` revision has been promoted to `stable`, tag
 `v<gutenprint-version>` (for example `v5.3.6-4`). The tag must match
 `include/source-pins.yml`, and the stable-only release workflow rejects
-existing registry tags. It publishes an immutable multiarchitecture
+existing registry tags. Because registry tags are immutable, an OCI-only
+rebuild of the same Debian revision gets a `.N` suffix (for example
+`5.3.6-4.1`); Renovate drops it when it pins the next Debian revision. The
+workflow publishes an immutable multiarchitecture
 `ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` index
 with a signed image, signed SPDX SBOM, and GitHub provenance attestation.
+It pushes, signs (index and both architecture manifests), attests and verifies
+everything by digest, and creates the version tags only after every check
+passes, so a failed release leaves no tagged, unsigned image.
 There is no mutable `latest`, `edge`, or `stable` FSDK image tag. Inspect
 and pin the released `sha256:` index digest when deploying.
 
