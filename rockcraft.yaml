@@ -100,7 +100,9 @@ parts:
     source: https://github.com/openprinting/pappl-retrofit
     source-type: git
     # source-tag: '1.0b2'
-    source-depth: 1
+    # 1.0b2 predates the libcupsfilters 2.x API; pin the audited commit
+    # instead of building the floating upstream default branch.
+    source-commit: 1626b338fc8b92a99c2c1a483ac39c739d71b305
 # ext:updatesnap
 #   version-format:
 #     ignore: true
@@ -571,6 +573,9 @@ parts:
     plugin: autotools
     source: https://github.com/avahi/avahi.git
     source-type: git
+    # Pin the commit today's builds already use; the floating default
+    # branch made the build non-reproducible and trust upstream HEAD.
+    source-commit: ef903fb0a29bc4394c5a76309405e5a827a4e390
     autotools-configure-parameters:
       - --prefix=/usr
       - --disable-qt3
