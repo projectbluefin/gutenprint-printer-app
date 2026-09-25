@@ -28,6 +28,9 @@ config:
         >> /layer/etc/group
       rm -rf /layer/run/dbus /layer/run/avahi-daemon /layer/run/gutenprint-printer-app
       rm -rf /layer/usr/lib/debug /layer/usr/share/cups/ipptool
+      # pappl-retrofit's own A4 sample test page; the app prints
+      # /usr/share/gutenprint-printer-app/testpage.pdf built from testpage.ps.
+      rm -rf /layer/usr/share/legacy-printer-app
       rm -f /layer/usr/bin/cupsd /layer/usr/bin/ippeveprinter
       chmod 0777 /layer/run
       install -d -m 1777 /layer/tmp

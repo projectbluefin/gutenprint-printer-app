@@ -13,7 +13,10 @@ build-depends:
 
 config:
   build-commands:
-    - gs -q -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=testpage.pdf testpage.ps
+    # testpage.ps sizes itself from the device page, so pin the US Letter
+    # geometry its %%BoundingBox declares instead of Ghostscript's default.
+    - gs -q -dSAFER -dBATCH -dNOPAUSE -dFIXEDMEDIA -sPAPERSIZE=letter -sDEVICE=pdfwrite -sOutputFile=testpage.pdf testpage.ps
+    - test -s testpage.pdf
   install-commands:
     - install -D -m 0755 container-entrypoint.sh "%{install-root}/usr/libexec/gutenprint-printer-app/container-entrypoint"
     - install -D -m 0644 testpage.pdf "%{install-root}/usr/share/gutenprint-printer-app/testpage.pdf"

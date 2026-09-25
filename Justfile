@@ -57,6 +57,7 @@ verify:
     tests/cups-owner.sh
     tests/appliance.sh
     tests/socket-print.sh
+    tests/testpage-payload.sh
 
 sbom:
     #!/usr/bin/env bash

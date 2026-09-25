@@ -124,17 +124,13 @@ parts:
       - perl-base
     stage-packages:
       - libusb-1.0-0
-    # pappl-retrofit installs its own test page as
-    # usr/share/legacy-printer-app/testpage.{ps,pdf} (Makefile.am:196-203,
-    # datadir=/usr/share). That PDF is a legacy-printer-app artefact: an A4
-    # page pointing at the pappl-retrofit issue tracker. gutenprint-printer-app
-    # must print its own test page, so the PDF is generated from this
-    # project's testpage.ps in the "gutenprint-printer-app" part below and
-    # the whole legacy resourcedir stays unprimed here.
+    organize:
+      usr/share/legacy-printer-app/testpage.pdf: usr/share/gutenprint-printer-app/testpage.pdf
     prime:
       - lib/*/lib*.so*
       - usr/lib/lib*.so*
       - usr/lib/*/lib*.so*
+      - usr/share/gutenprint-printer-app/testpage.pdf
       - -var
       - -usr/var
       - -usr/bin/legacy-printer-app
@@ -561,27 +557,8 @@ parts:
       VERSION="`craftctl get version`"
       make -j"8" LDFLAGS="$LDFLAGS -ljpeg" VERSION="$VERSION"
       make -j"8" install LDFLAGS="$LDFLAGS -ljpeg" VERSION="$VERSION" DESTDIR="$CRAFT_PART_INSTALL"
-      # "make install" ships the test page as PostScript, but the application
-      # asks PAPPL to print the PDF:
-      # TESTPAGE "testpage.pdf" (gutenprint-printer-app.c:45) is joined with
-      # TESTPAGE_DIR, which defaults to /usr/share/<SYSTEM_PACKAGE_NAME>
-      # (pappl-retrofit.c:4746), i.e. /usr/share/gutenprint-printer-app.
-      # Convert this project's own testpage.ps into that PDF with
-      # Ghostscript's pdfwrite device, pinned to the page geometry the source
-      # declares (testpage.ps:7 "%%BoundingBox: 0 0 612 792", US Letter), so
-      # the printed test page is this project's and is not whatever default
-      # paper size the build host happens to use.
-      gs -q -dSAFER -dBATCH -dNOPAUSE -dFIXEDMEDIA -sPAPERSIZE=letter \
-        -sDEVICE=pdfwrite -sOutputFile=testpage.pdf testpage.ps
-      test -s testpage.pdf
-      install -D -m 0644 testpage.pdf \
-        "$CRAFT_PART_INSTALL/usr/share/gutenprint-printer-app/testpage.pdf"
       #craftctl default
     build-packages:
-      # Build-time converter only; the image's own Ghostscript is deliberately
-      # built raster/PostScript-only (see the "ghostscript" part) and is never
-      # asked to write PDFs.
-      - ghostscript
       - libusb-1.0-0-dev
     stage-packages:
       - libusb-1.0-0
