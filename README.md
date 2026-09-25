@@ -341,6 +341,15 @@ parts, not the source-pinned FSDK image above.
   - gutenprint debian/5.3.4.20220624T01008808d602-4
 <!-- End Included Components -->
 
+## COLOUR CALIBRATION
+
+The image retains Gutenprint's calibration utility (`cups-calibrate`), the scan
+target it opens (`/usr/share/cups/calibrate.ppm`) and the translated catalogues
+its PPD generator reads at run time. See
+[docs/calibration-payload.md](docs/calibration-payload.md) for the retention
+contract, the hardware-free way CI verifies it on a real image, and the
+localization that is intentionally not shipped.
+
 ## BUILDING WITHOUT PACKAGING OR INSTALLATION
 
 You can also do a "quick-and-dirty" build without snapping and without
