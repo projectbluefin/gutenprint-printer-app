@@ -62,6 +62,9 @@ jobs:
         with:
           app-id: ${{ secrets.MERGERAPTOR_APP_ID }}
           private-key: ${{ secrets.MERGERAPTOR_PRIVATE_KEY }}
+          # A fork's per-repo installation lookup (GET /repos/{owner}/{repo}/installation) 404s;
+          # owner: switches to the owner-level lookup, which resolves from a fork (fsdk-containers#331).
+          owner: ${{ github.repository_owner }}
       - name: Propose the update
         if: steps.track.outputs.changed == 'true'
         env:
