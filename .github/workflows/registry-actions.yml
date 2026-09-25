@@ -88,8 +88,8 @@ jobs:
           tool: just
       - name: Install host dependencies
         run: sudo apt-get update && sudo apt-get install --yes fuse3 jq podman
-      - name: Fetch pinned sources
-        run: just fetch
+      - name: Build image
+        run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst
       - name: Build and verify full OCI job to real socket sink
         run: just verify
       - name: Validate source labels before any registry write

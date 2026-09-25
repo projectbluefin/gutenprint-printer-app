@@ -236,7 +236,6 @@ Install `just`, Podman and FUSE 3. Build and exercise the native image with:
 
 ```sh
 just validate
-just fetch
 just verify
 ```
 
@@ -245,8 +244,10 @@ and prints a real IPP test page through the Gutenprint ESC/P2 raster filter
 and CUPS socket backend into a byte-capturing sink. No local printer is
 required. It also checks that the configured queue survives restart.
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
-for testing only. Testing pull requests build and run the same checks on
-native x86_64 and aarch64 without registry write credentials.
+for testing only. CI on pull requests only validates the BuildStream graph
+(`just validate`). The merge queue and manual `workflow_dispatch` runs build
+the image and run `just verify` on native x86_64 and aarch64 without
+registry write credentials.
 
 Only the organization Renovate runner updates the stable Gutenprint OCI
 source: `renovate.json` proposes an atomic tag, dereferenced Git commit and

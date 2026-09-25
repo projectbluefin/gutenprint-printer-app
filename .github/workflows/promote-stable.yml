@@ -38,8 +38,8 @@ jobs:
           tool: just
       - name: Install host dependencies
         run: sudo apt-get update && sudo apt-get install --yes fuse3 podman
-      - name: Fetch and verify real OCI printer image
-        run: just fetch && just verify
+      - name: Build and verify real OCI printer image
+        run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst && just verify
 
   promote:
     needs: verify

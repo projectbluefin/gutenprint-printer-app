@@ -6,7 +6,7 @@ sources:
   - kind: git_repo
     url: github:projectbluefin/ghostscript-printer-app.git
     track: testing
-    ref: v10.07.1-1-10-gd2ce02dc8965a66df2716266d14e155b1fb02b75
+    ref: v10.07.1-1-5-gdaf785716b1531e89236e6c8a4c6f82737d11e40
 
 config:
   options:
