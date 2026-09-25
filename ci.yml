@@ -1,0 +1,96 @@
+name: CI
+
+# Credential-free PR validation: build the real gutenprint rock on both native
+# architectures and exercise it with a print-to-socket-sink job. No registry
+# credentials are read and no image is pushed from this workflow; OCI release
+# publishing stays isolated in registry-actions.yml (push to main/stable only).
+on:
+  push:
+    branches: [testing]
+    paths:
+      - .github/workflows/ci.yml
+      - rockcraft.yaml
+      - Makefile
+      - gutenprint-printer-app.c
+      - scripts/
+      - patches/
+      - tests/
+  pull_request:
+    branches: [testing]
+    paths:
+      - .github/workflows/ci.yml
+      - rockcraft.yaml
+      - Makefile
+      - gutenprint-printer-app.c
+      - scripts/
+      - patches/
+      - tests/
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  build-verify:
+    name: Build & verify (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install build tools
+        run: |
+          sudo snap install rockcraft --classic
+          sudo apt-get update
+          sudo apt-get install --yes podman skopeo fuse3
+
+      - name: Build rock
+        uses: canonical/craft-actions/rockcraft-pack@main
+        id: rockcraft
+
+      - name: Load rock into podman
+        run: |
+          set -euo pipefail
+          ROCK="${{ steps.rockcraft.outputs.rock }}"
+          skopeo copy --insecure-policy oci-archive:"${ROCK}" docker-archive:/tmp/gutenprint.tar
+          podman load -i /tmp/gutenprint.tar
+          IMG="$(podman images --format '{{.Repository}}:{{.Tag}}' | grep gutenprint-printer-app | head -n1)"
+          podman tag "$IMG" gutenprint-printer-app:build
+
+      - name: Run print-to-socket-sink verification
+        run: bash tests/core-payload.sh
+        env:
+          IMAGE: gutenprint-printer-app:build
+          PORT: "18000"
+
+  build-snap:
+    # Legacy packaging path, kept isolated from the native image verification
+    # above and allowed to fail without blocking shipping behavior.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build Snap package
+        id: snapcraft
+        continue-on-error: true
+        uses: snapcore/action-build@v1
