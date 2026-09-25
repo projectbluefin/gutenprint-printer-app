@@ -23,7 +23,18 @@ validate:
     just bst show --deps all oci/gutenprint-printer-app.bst
 
 fetch:
-    just bst source fetch --ignore-project-source-remotes --source-remote https://cache.projectbluefin.io:11001 --deps all oci/gutenprint-printer-app.bst
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for attempt in 1 2 3; do
+        if just bst source fetch --ignore-project-source-remotes \
+            --source-remote https://cache.projectbluefin.io:11001 \
+            --deps all oci/gutenprint-printer-app.bst; then
+            exit 0
+        fi
+        echo "source fetch failed (attempt ${attempt}/3)" >&2
+        if [[ "$attempt" -lt 3 ]]; then sleep 15; fi
+    done
+    exit 1
 
 build:
     just bst build oci/gutenprint-printer-app.bst
