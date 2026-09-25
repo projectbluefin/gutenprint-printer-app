@@ -6,36 +6,35 @@ inside the image. This document records what is retained, where it comes from
 upstream, how CI proves it is usable on a real image **without a printer**, and
 which parts of Gutenprint's localization are intentionally *not* shipped.
 
-Upstream reference: `salsa.debian.org/printing-team/gutenprint`, pinned by
-`rockcraft.yaml`/`snap/snapcraft.yaml` at
-`debian/5.3.4.20220624T01008808d602-4`. Line numbers below are from that ref.
+Upstream reference: `salsa.debian.org/printing-team/gutenprint`, pinned in
+`include/source-pins.yml` at `debian/5.3.6-2026-02-01T02-18-9b0bdf87-4`
+(commit `5131fd401a6f4221a623125dd8b710b365ad83d3`) and built by
+`elements/printer-app/gutenprint.bst`. Line numbers below are from that ref.
 
 ## What is retained, and why it is where it is
 
 | Path in the image | Source | Why it must be there |
 | --- | --- | --- |
 | `/usr/bin/cups-calibrate` | `bin_PROGRAMS = cups-calibrate` (`src/cups/Makefile.am:82`) | The calibration tool itself. |
-| `/usr/share/cups/calibrate.ppm` | `CUPS_PKG = calibrate.ppm` (`src/cups/Makefile.am:150`) installed through `pkgdatadir = $(cups_conf_datadir)` (`:33`) | Pass #4 of the tool opens `CUPS_DATADIR "/calibrate.ppm"` (`src/cups/cups-calibrate.c:780`). CUPS is built with `--prefix=/usr`, so `CUPS_DATADIR` is `/usr/share/cups`; if the file is not primed the tool still runs and pass #4 silently produces nothing. |
-| `/usr/share/locale/<lang>/gutenprint_<lang>.po` | `install-data-local` (`src/cups/Makefile.am:174,188-192`) copies `po/*.po` | The PPD generator reads them back at run time: `PACKAGE_LOCALE_DIR` (`src/cups/i18n.c:129`) with the path formula `"%s/%s/gutenprint_%s.po"` (`:137`). 27 catalogues ship in the pinned ref, including `de`, `fr`, `es`, `it`, `ja`, `zh_CN`, `pt`, `ru`. |
-| `/usr/share/ppd/gutenprint.5.3` | `src/cups/gutenprint.c` (the CUPS driverd helper), mapped by both recipes' `organize:` | Dynamic PPD generation. `list` prints `"gutenprint.5.3://<driver>/expert"` (`:220`); `cat <uri>[/<lang>]` extracts the language from the second path segment (`:156`) and reloads the catalogue with `stp_i18n_load(language)` (`src/cups/genppd.c:1224`). |
+| `/usr/share/cups/calibrate.ppm` | `CUPS_PKG = calibrate.ppm` (`src/cups/Makefile.am:150`) installed through `pkgdatadir = $(cups_conf_datadir)` (`:33`) | Pass #4 of the tool opens `CUPS_DATADIR "/calibrate.ppm"` (`src/cups/cups-calibrate.c:782`). CUPS is built with `--prefix=/usr`, so `CUPS_DATADIR` is `/usr/share/cups`; if the file is not primed the tool still runs and pass #4 silently produces nothing. |
+| `/usr/share/locale/<lang>/gutenprint_<lang>.po` | `install-data-local` (`src/cups/Makefile.am:174,188-192`) copies `po/*.po` | The PPD generator reads them back at run time: `PACKAGE_LOCALE_DIR` (`src/cups/i18n.c:129`) with the path formula `"%s/%s/gutenprint_%s.po"` (`:137`). 30 catalogues ship in the image, including `de`, `fr`, `es`, `it`, `ja`, `zh_CN`, `pt`, `ru`. |
+| `/usr/share/ppd/gutenprint.5.3` | `src/cups/gutenprint.c` (the CUPS driverd helper), installed as `/usr/lib/gutenprint-printer-app/driver/gutenprint.5.3` and linked here by `elements/printer-app/runtime-files.bst` | Dynamic PPD generation. `list` prints `"gutenprint.5.3://<driver>/expert"` (`:220`); `cat <uri>[/<lang>]` extracts the language from the second path segment (`:156`) and reloads the catalogue with `stp_i18n_load(language)` (`src/cups/genppd.c:1277`). |
 
-Both packaging recipes prime these paths explicitly
-(`rockcraft.yaml:487-495`, `snap/snapcraft.yaml:499-507`) and configure
-Gutenprint with `--enable-nls`, `--enable-translated-cups-ppds`,
-`--enable-simplified-cups-ppds` and `--disable-cups-ppds`
-(`rockcraft.yaml:449-468`, `snap/snapcraft.yaml:470-478`).
-
-`tests/check-calibration-retention.sh` guards exactly this contract, before any
-build: if a prime entry or a configure flag is dropped, the image would still
-build, every other check would still pass, and calibration would quietly lose
-its scan target. The guard also fails if a future BuildStream/FSDK element
-excludes the `locale` split domain (which would strip the catalogues' runtime
-path) or if a composed OCI layer deletes any of these paths.
+`elements/printer-app/gutenprint.bst` configures Gutenprint with
+`--enable-nls`, `--enable-translated-cups-ppds`,
+`--enable-simplified-cups-ppds` and `--disable-cups-ppds`, and
+`elements/printer-app/core-runtime.bst` keeps the `locale` split domain (it
+excludes only `debug`, `devel`, `doc`, `static-blocklist`, `tests` and
+`vm-only`). If a configure flag, split rule or layer `rm` dropped any of these
+paths, the image would still build; the real-image check below is what fails.
 
 ## How CI verifies it on a real image, without a printer
 
-`tests/calibration-payload.sh` runs inside the built image
-(`.github/workflows/calibration-ci.yml`) and asserts:
+`just verify` runs `tests/calibration-payload.sh` against the built image, on
+native x86_64 and aarch64 in the merge queue. The appliance ships no grep, sed
+or awk, so only the image's own programs (`cups-calibrate`, the PPD generator,
+`ldd`) run inside it; the shipped files and their output are inspected on the
+host. It asserts:
 
 1. `/usr/bin/cups-calibrate` is executable and its shared-library closure
    resolves (`ldd` reports no `not found`).
@@ -50,17 +49,17 @@ path) or if a composed OCI layer deletes any of these paths.
    unknown locale (`xx_YY`) falls back to untranslated output with no error.
 5. A hardware-free invocation of `cups-calibrate` reaches pass #4 — the only
    pass that reads `calibrate.ppm` — and emits the shipped asset's pixel data,
-   compared hex digit for hex digit (`src/cups/cups-calibrate.c:801,814`).
+   compared hex digit for hex digit (`src/cups/cups-calibrate.c:801,816`).
 
 Nothing is printed: there is no printer, no paper, and the test says so.
 
 ### Why the invocation is intercepted rather than submitted
 
-The image deliberately ships no CUPS client: passes are submitted by the tool
-through `popen("lp -s ...")` (`src/cups/cups-calibrate.c:115`), and `lp` is not
-in the image (the upstream snap does not ship it either — the application's own
-print path goes through PAPPL, not the `lp` CLI). So the verification puts a
-capturing `lp` earlier on `PATH`, feeds the tool's interactive prompts from a
+The tool submits each pass through `popen("lp -s ...")`
+(`src/cups/cups-calibrate.c:117`). The image carries CUPS' `lp` client, but the
+appliance runs no CUPS scheduler for it to submit to: the application's own
+print path goes through PAPPL, not the `lp` CLI. So the verification puts a
+capturing `lp` ahead of it on `PATH`, feeds the tool's interactive prompts from a
 fixed answer file, and inspects the PostScript stream the tool itself produced.
 That is interception of genuine tool output, not a synthetic echo of expected
 bytes: the comparison target is the asset the image actually contains, and the
@@ -79,7 +78,7 @@ rather than looking for a prebuilt one. `--enable-translated-cups-ppds`
 is unconditional and independent of the legacy PPD trees.
 
 Consequence worth knowing: `*LanguageVersion:` is the translated form of the
-literal string `"English"` (`src/cups/genppd.c:313-316` tells translators to put
+literal string `"English"` (`src/cups/genppd.c:321-323` tells translators to put
 the English name of *their* language there), so `po/de.po` maps
 `msgid "English"` to `msgstr "German"`. A German PPD saying
 `*LanguageVersion: German` is correct upstream behaviour, not a mislabelled
@@ -99,12 +98,12 @@ payload bytes, while the header declares 576 × 192 × 3 = 331,776 payload bytes
 (110,585 complete pixels plus 1 trailing byte). This is upstream's file, not a
 packaging defect:
 
-- Debian 5.3.3 orig tarball and the pinned 5.3.4 ref ship the byte-identical
+- Debian 5.3.3 orig tarball and the pinned 5.3.6 ref ship the byte-identical
   object (git blob `fc5bccc03a7128b2f8758d4890197c92153ebebb`, sha256
   `1db13cbbdb7ebab9f2af0795ce5d65b199130a0f9cd17fedaa9b8cba3d5c7323`).
 
 Pass #4 reads `width * height` pixels without checking for EOF
-(`src/cups/cups-calibrate.c:803-826`), so those final pixels are emitted as
+(`src/cups/cups-calibrate.c:805-816`), so those final pixels are emitted as
 wide `FFFFFFFF` groups: the last seven pixels of the *visual confirmation*
 page (bottom-right of the final scanline) are stray. The numeric profile is unaffected — its values come from
 the operator's measured pass #1-#3 entries, not from this preview image.
@@ -119,21 +118,8 @@ same assertions hold with no `FFFFFFFF` tail and the note simply disappears.
 ## Reproducing the verification locally
 
 ```sh
-# static contract, no build needed
-bash tests/check-calibration-retention.sh
-
-# real image (podman required; the rock takes a while to build)
-sudo snap install rockcraft --classic
-sudo rockcraft pack
-sudo skopeo copy --insecure-policy oci-archive:gutenprint-printer-app_*.rock \
-  docker-archive:/tmp/gutenprint.tar
-podman load -i /tmp/gutenprint.tar
-podman tag "$(podman images --format '{{.Repository}}:{{.Tag}}' \
-  | grep gutenprint-printer-app | head -n1)" gutenprint-printer-app:build
-
-IMAGE=gutenprint-printer-app:build bash tests/calibration-payload.sh
+just build
+tests/calibration-payload.sh
 ```
 
-`.github/workflows/calibration-ci.yml` does exactly this, gated behind the
-static guard so a recipe regression fails in seconds instead of after a full
-rock build.
+`just verify` runs it after building the image.

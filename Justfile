@@ -55,6 +55,7 @@ verify:
     just build
     tests/no-devel.sh
     tests/cups-owner.sh
+    tests/calibration-payload.sh
     tests/appliance.sh
     tests/socket-print.sh
     tests/testpage-payload.sh

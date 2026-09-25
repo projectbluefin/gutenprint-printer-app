@@ -3,7 +3,7 @@
 # Hardware-free verification that the built image retains the Gutenprint
 # colour-calibration utility and the data it needs (issue #13).
 #
-# What this proves, inside a real image:
+# What this proves, against the real image:
 #   1. /usr/bin/cups-calibrate is present, executable and its ELF runtime
 #      closure resolves.
 #   2. The CUPS data directory compiled into the utility
@@ -18,55 +18,63 @@
 #      (src/cups/Makefile.am:189) and the PPD generator reads them back from
 #      PACKAGE_LOCALE_DIR (/usr/share/locale, src/cups/i18n.c:128-137).
 #
+# The appliance ships no grep, sed or awk, so only the image's own programs
+# (cups-calibrate, the PPD generator, ldd) run inside it; their output and the
+# shipped files are inspected on the host.
+#
 # What this does NOT claim: nothing is printed. There is no printer and no
-# paper in this test, and the image deliberately ships no CUPS client, so the
-# calibration tool's job submission is intercepted and inspected rather than
-# submitted to a queue. Print-to-socket-sink behaviour is verified separately.
+# paper in this test, and the appliance runs no CUPS scheduler for `lp` to
+# submit to, so the calibration tool's job submission is intercepted and
+# inspected rather than submitted to a queue. Print-to-socket-sink behaviour is verified separately.
 # Calibration asset/rendering limitations that are real shipping behaviour are
 # reported, not hidden - see docs/calibration-payload.md.
 #
 # Usage: IMAGE=<image-ref> tests/calibration-payload.sh
 set -euo pipefail
 
-image="${IMAGE:-gutenprint-printer-app:build}"
-
-if ! podman image exists "$image"; then
-  printf 'FAIL: image %s is not loaded; build it first (see docs/calibration-payload.md)\n' "$image" >&2
-  exit 1
-fi
-
-printf 'Verifying calibration payload in %s (no printer involved)\n' "$image"
-
-podman run --rm -i --entrypoint /usr/bin/bash "$image" -s <<'IN_IMAGE'
-set -euo pipefail
+image="${IMAGE:-ghcr.io/projectbluefin/gutenprint-printer-app:build}"
 
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 ok() { printf 'OK: %s\n' "$*"; }
 
-# The image is the appliance, not a debug image, so make a missing inspection
-# tool an explicit failure instead of a confusing downstream error.
-for tool in awk od tr stat grep cut sed head mktemp timeout ldd; do
-  command -v "$tool" >/dev/null 2>&1 || fail "the image does not provide '$tool', needed to verify the payload"
-done
+podman image exists "$image" || fail "image $image is not loaded; build it first (just build)"
+
+printf 'Verifying calibration payload in %s (no printer involved)\n' "$image"
 
 calibrate=/usr/bin/cups-calibrate
 asset=/usr/share/cups/calibrate.ppm
+driver=/usr/share/ppd/gutenprint.5.3
+
+work="$(mktemp -d)"
+ctr="$(podman create "$image" /none)"
+cleanup() {
+  podman rm "$ctr" >/dev/null 2>&1 || true
+  rm -rf "$work"
+}
+trap cleanup EXIT
+in_image() {
+  local entrypoint="$1"
+  shift
+  podman run --rm -i --entrypoint "$entrypoint" "$image" "$@"
+}
 
 # --- 1. Utility present, executable, runtime closure resolves ---------------
 
-test -x "$calibrate" || fail "$calibrate is missing or not executable"
-deps="$(ldd "$calibrate" 2>&1)"
+in_image /usr/bin/bash -c "test -x $calibrate" || fail "$calibrate is missing or not executable"
+deps="$(in_image /usr/bin/ldd "$calibrate" 2>&1)" || fail "ldd failed on $calibrate: $deps"
 [[ "$deps" != *"not found"* ]] || fail "$calibrate has unresolved shared libraries: $deps"
 ok "cups-calibrate is present and its shared library closure resolves"
 
 # --- 2. Compiled-in CUPS data directory agrees with the retained asset ------
 
-grep -a -F -q "$asset" "$calibrate" \
+podman cp "$ctr:$calibrate" "$work/cups-calibrate"
+grep -a -F -q "$asset" "$work/cups-calibrate" \
   || fail "$calibrate does not embed the CUPS data path $asset"
-test -s "$asset" || fail "$asset is missing or empty"
+podman cp "$ctr:$asset" "$work/calibrate.ppm" 2>/dev/null || fail "$asset is missing"
+test -s "$work/calibrate.ppm" || fail "$asset is empty"
 
 read -r magic width height maxval header_bytes < <(
-  od -An -tu1 -v -N 512 "$asset" | awk '
+  od -An -tu1 -v -N 512 "$work/calibrate.ppm" | awk '
     { for (i = 1; i <= NF; i++) b[++n] = $i }
     END {
       i = 1; tok = 0
@@ -88,7 +96,7 @@ read -r magic width height maxval header_bytes < <(
 [[ "$width" =~ ^[0-9]+$ && "$height" =~ ^[0-9]+$ ]] || fail "$asset has non-numeric dimensions '$width'x'$height'"
 (( width > 0 && height > 0 )) || fail "$asset has empty dimensions ${width}x${height}"
 
-file_bytes="$(stat -c %s "$asset")"
+file_bytes="$(stat -c %s "$work/calibrate.ppm")"
 payload_bytes=$(( file_bytes - header_bytes ))
 declared_payload=$(( width * height * 3 ))
 (( payload_bytes <= declared_payload )) \
@@ -97,7 +105,7 @@ shortfall=$(( declared_payload - payload_bytes ))
 (( shortfall < width * 3 )) \
   || fail "$asset is short by $shortfall bytes, at least a full ${width}-pixel scanline; the asset is damaged"
 
-asset_hex="$(od -An -tx1 -v "$asset" | tr -d ' \n' | tr 'a-f' 'A-F')"
+asset_hex="$(od -An -tx1 -v "$work/calibrate.ppm" | tr -d ' \n' | tr 'a-f' 'A-F')"
 [[ "${#asset_hex}" -eq $(( file_bytes * 2 )) ]] || fail "could not hex-encode $asset"
 pixels_hex="${asset_hex:$(( header_bytes * 2 ))}"
 
@@ -112,39 +120,53 @@ fi
 # --- 3. Translated Gutenprint catalogues are retained ----------------------
 
 locale_root=/usr/share/locale
-core_langs=(ca da de el es fi fr hu it ja nb nl pl pt ru sk sv tr uk vi zh_CN)
+# One line per catalogue: path, size, and whether it carries a msgid entry
+# (bash builtins only: the image has no grep).
+in_image /usr/bin/bash -s > "$work/catalogs" <<'IN_IMAGE'
+shopt -s nullglob
+for catalog in /usr/share/locale/*/gutenprint_*.po; do
+  has_msgid=0
+  while IFS= read -r line; do
+    if [[ "$line" == 'msgid '* ]]; then
+      has_msgid=1
+      break
+    fi
+  done < "$catalog"
+  printf '%s %s %s\n' "$catalog" "$(stat -c %s "$catalog")" "$has_msgid"
+done
+IN_IMAGE
+
+core_langs=(ca da de el es 'fi' fr hu it ja nb nl pl pt ru sk sv tr uk vi zh_CN)
 missing=()
 for lang in "${core_langs[@]}"; do
-  [[ -s "$locale_root/$lang/gutenprint_$lang.po" ]] || missing+=("$lang")
+  grep -q "^$locale_root/$lang/gutenprint_$lang.po [1-9]" "$work/catalogs" || missing+=("$lang")
 done
 if (( ${#missing[@]} > 0 )); then
-  fail "translated Gutenprint catalogues missing for: ${missing[*]} (upstream primes usr/share/locale)"
+  fail "translated Gutenprint catalogues missing for: ${missing[*]} (upstream installs usr/share/locale)"
 fi
 
-catalogs=("$locale_root"/*/gutenprint_*.po)
-[[ -e "${catalogs[0]}" ]] || fail "no gutenprint_*.po catalogues under $locale_root"
-if (( ${#catalogs[@]} < 20 )); then
-  fail "only ${#catalogs[@]} translated Gutenprint catalogues retained, expected at least 20"
-fi
-for catalog in "${catalogs[@]}"; do
-  [[ -s "$catalog" ]] || fail "$catalog is empty"
-  grep -q '^msgid ' "$catalog" || fail "$catalog carries no msgid entries"
-done
-ok "${#catalogs[@]} translated Gutenprint catalogues retained under $locale_root"
+catalog_count="$(wc -l < "$work/catalogs")"
+(( catalog_count >= 20 )) \
+  || fail "only $catalog_count translated Gutenprint catalogues retained, expected at least 20"
+while read -r catalog size has_msgid; do
+  (( size > 0 )) || fail "$catalog is empty"
+  (( has_msgid == 1 )) || fail "$catalog carries no msgid entries"
+done < "$work/catalogs"
+ok "$catalog_count translated Gutenprint catalogues retained under $locale_root"
 
 # --- 4. The shipped PPD generator consumes those catalogues ----------------
 
-driver=/usr/share/ppd/gutenprint.5.3
-test -x "$driver" || fail "$driver (Gutenprint PPD generator) is missing"
-uri="$("$driver" list | head -n 1 | cut -d'"' -f2)"
+in_image /usr/bin/bash -c "test -x $driver" || fail "$driver (Gutenprint PPD generator) is missing"
+in_image "$driver" list > "$work/ppd-list" || fail "$driver list failed"
+uri="$(head -n 1 "$work/ppd-list" | cut -d'"' -f2)"
 [[ "$uri" =~ ^gutenprint\..*://.+/expert$ ]] || fail "unexpected PPD generator entry '$uri'"
 
-c_ppd="$("$driver" cat "$uri")"
+c_ppd="$(in_image "$driver" cat "$uri")"
 [[ "$c_ppd" == *"*LanguageVersion: English"* ]] \
   || fail "untranslated PPD has no '*LanguageVersion: English' line"
 [[ "$c_ppd" == *"*StpLocale"* ]] || fail "untranslated PPD has no '*StpLocale' line"
 
-de_ppd="$("$driver" cat "$uri/de")"
+de_ppd="$(in_image "$driver" cat "$uri/de")"
 [[ "$de_ppd" == *"*LanguageVersion: German"* ]] \
   || fail "German PPD was not translated; $locale_root/de/gutenprint_de.po is not being consumed"
 grep -qE 'StpLocale:[[:space:]]*"de"' <<<"$de_ppd" || fail "German PPD does not record its locale"
@@ -162,7 +184,7 @@ ok "PPD generator consumes the retained catalogues (German PPD says '$translated
 # A locale without a catalogue must fall back to untranslated output without
 # error rather than failing or silently mangling the PPD; see
 # docs/calibration-payload.md for the source-backed policy.
-xx_ppd="$("$driver" cat "$uri/xx_YY")" \
+xx_ppd="$(in_image "$driver" cat "$uri/xx_YY")" \
   || fail "PPD generator failed for an unknown locale instead of falling back"
 [[ "$xx_ppd" == *"*LanguageVersion: English"* ]] \
   || fail "unknown locale did not fall back to untranslated output"
@@ -171,36 +193,33 @@ ok "unknown locale xx_YY falls back to untranslated output without error"
 
 # --- 5. Hardware-free calibration invocation loads the asset ---------------
 
+capture="$work/passes.ps"
+set +e
+in_image /usr/bin/bash -s > "$capture" 2> "$work/stderr" <<'IN_IMAGE'
+set -euo pipefail
 shim_dir="$(mktemp -d)"
-trap 'rm -rf "$shim_dir"' EXIT
-capture="$shim_dir/passes.ps"
-
-cat > "$shim_dir/lp" <<'SHIM_EOF'
-#!/usr/bin/env bash
-# Job submission interceptor. The image ships libcups and the backends but no
-# CUPS client, and this test has no printer, so the calibration tool's
-# PostScript stream is captured for inspection instead of being submitted.
-cat >> "$CALIBRATION_CAPTURE"
-SHIM_EOF
+# Job submission interceptor, ahead of the image's own lp on PATH. The
+# appliance runs no CUPS scheduler and this test has no printer, so the
+# calibration tool's PostScript stream is captured instead of submitted.
+printf '%s\n' '#!/usr/bin/bash' 'cat >> "$CALIBRATION_CAPTURE"' > "$shim_dir/lp"
 chmod 0755 "$shim_dir/lp"
-
 # Answers for the tool's interactive prompts: no printer/resolution/media
 # overrides, skip passes 1-3 ("n"), a hex digit for every measured calibration
 # value, then ENTER to continue into pass #4 - the only pass that reads
 # calibrate.ppm - and finally "n" to decline saving a profile.
 printf '%s\n' '' '' '' n 5 5 5 n 5 n 5 5 5 '' n n > "$shim_dir/answers"
-
-set +e
-PATH="$shim_dir:$PATH" CALIBRATION_CAPTURE="$capture" \
-  timeout 300 "$calibrate" < "$shim_dir/answers" > "$shim_dir/stdout" 2> "$shim_dir/stderr"
+PATH="$shim_dir:$PATH" CALIBRATION_CAPTURE="$shim_dir/passes.ps" \
+  timeout 300 /usr/bin/cups-calibrate < "$shim_dir/answers" > /dev/null
+cat "$shim_dir/passes.ps"
+IN_IMAGE
 status=$?
 set -e
 if [[ "$status" -ne 0 ]]; then
-  sed -n '1,40p' "$shim_dir/stderr" >&2
+  sed -n '1,40p' "$work/stderr" >&2
   fail "cups-calibrate exited $status"
 fi
-if grep -qE 'not found|cannot open|No such file|error while loading|Permission denied' "$shim_dir/stderr"; then
-  sed -n '1,40p' "$shim_dir/stderr" >&2
+if grep -qE 'not found|cannot open|No such file|error while loading|Permission denied' "$work/stderr"; then
+  sed -n '1,40p' "$work/stderr" >&2
   fail "cups-calibrate reported a missing library or asset"
 fi
 test -s "$capture" || fail "cups-calibrate emitted no calibration pass output"
@@ -236,4 +255,3 @@ for ((i = 0; i < remaining_pixels; i++)); do expected_hex+="FFFFFFFFFFFFFFFFFFFF
 ok "hardware-free pass #4 loaded calibrate.ppm and emitted all $(( width * height )) pixels (${#capture_hex} hex digits)"
 
 printf 'OK: Gutenprint calibration utility, data and catalogues verified in a real image (no printer involved)\n'
-IN_IMAGE
