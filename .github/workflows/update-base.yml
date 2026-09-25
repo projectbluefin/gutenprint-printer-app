@@ -1,0 +1,91 @@
+name: Update fsdk-containers base
+
+# Keep the fsdk-containers junction (and with it FSDK and the shared printing
+# base) current. FSDK is reached only through fsdk-containers, so this is the
+# one dependency updater for it.
+on:
+  schedule:
+    - cron: '3 8 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: update-base
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    name: Track fsdk-containers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BST_FLAGS: --config /src/ci/buildstream.conf
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: testing
+          persist-credentials: false
+      - uses: taiki-e/install-action@d438492cf8a250514fa2d34b30bc3c0dc37c65ff # v2
+        with:
+          tool: just
+      - name: Install host dependencies
+        run: sudo apt-get update && sudo apt-get install --yes fuse3 podman
+      - name: Track fsdk-containers
+        id: track
+        run: |
+          set -euo pipefail
+          junction=elements/fsdk-containers.bst
+          commit() { sed -n -E 's/^ +ref: .*([0-9a-f]{40})$/\1/p' "$junction"; }
+          old="$(commit)"
+          just bst source track fsdk-containers.bst
+          new="$(commit)"
+          [[ "$old" =~ ^[0-9a-f]{40}$ && "$new" =~ ^[0-9a-f]{40}$ ]]
+          # Keep the ref a plain commit: git_repo's project-wide git-describe
+          # format would otherwise rewrite the same commit as a change.
+          git checkout -- "$junction"
+          if [[ "$new" == "$old" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            sed -i -E "s/^( +ref: ).*$/\1${new}/" "$junction"
+            {
+              echo "changed=true"
+              echo "old=${old}"
+              echo "new=${new}"
+            } >> "$GITHUB_OUTPUT"
+          fi
+      - name: Mint Mergeraptor token
+        if: steps.track.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.MERGERAPTOR_APP_ID }}
+          private-key: ${{ secrets.MERGERAPTOR_PRIVATE_KEY }}
+      - name: Propose the update
+        if: steps.track.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          OLD: ${{ steps.track.outputs.old }}
+          NEW: ${{ steps.track.outputs.new }}
+        run: |
+          set -euo pipefail
+          branch=deps/fsdk-containers
+          title="chore(deps): update fsdk-containers to ${NEW:0:12}"
+          git config user.name 'mergeraptor[bot]'
+          git config user.email '267480593+mergeraptor[bot]@users.noreply.github.com'
+          git switch --create "$branch"
+          git add elements/fsdk-containers.bst
+          git commit --signoff -m "$title"
+          basic="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$basic"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $basic" \
+            push --force "https://github.com/${REPOSITORY}.git" "HEAD:refs/heads/$branch"
+          body="Moves the fsdk-containers junction (FSDK and the shared printing base) from ${OLD} to ${NEW}: https://github.com/projectbluefin/fsdk-containers/compare/${OLD}...${NEW}"
+          if existing="$(gh pr list --head "$branch" --base testing --state open --json number --jq '.[0].number')" && [[ -n "$existing" ]]; then
+            gh pr edit "$existing" --title "$title" --body "$body"
+            printf 'Updated dependency PR #%s\n' "$existing"
+          else
+            gh pr create --base testing --head "$branch" --title "$title" --body "$body"
+          fi

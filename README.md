@@ -214,14 +214,25 @@ configuring SNMP network printer discovery.
 ## FSDK OCI Printer Application
 
 This repository's BuildStream OCI image is built from the Gutenprint source
-pinned in `include/source-pins.yml` and the immutable
-`projectbluefin/ghostscript-printer-app` FSDK junction in
-`elements/ghostscript-fsdk.bst`. The junction is the **only CUPS owner**:
-it supplies the FSDK CUPS, libcupsfilters and cups-filters patch chain, plus
-the PAPPL build with `PAPPL_MAX_VENDOR=256` and the `cups:socket` manual
-network-printer web form. Gutenprint contributes the real raster filter,
-dye-sublimation USB backend, PPD generator, expert and simplified PPDs,
-and `escputil`. The shipped application selects expert PPDs.
+pinned in `include/source-pins.yml` on the shared printing base
+`printing/base.bst` from `projectbluefin/fsdk-containers`, junctioned at a
+pinned commit in `elements/fsdk-containers.bst`. The base is the **only CUPS
+owner**: it supplies the patched FSDK CUPS, libcupsfilters, cups-filters,
+libppd, Ghostscript, mutool and nonroot avahi-daemon, plus the PAPPL build
+with `PAPPL_MAX_VENDOR=256` and the `cups:socket` manual network-printer web
+form, and pappl-retrofit. FSDK itself is reached only through that junction
+(`fsdk-containers.bst:freedesktop-sdk.bst:...`). Gutenprint contributes the
+real raster filter, dye-sublimation USB backend, PPD generator, expert and
+simplified PPDs, and `escputil`. The shipped application selects expert PPDs.
+The final image is composed from runtime domains only, and `just verify`
+fails if headers, static or libtool archives, pkg-config or CMake files reach
+it.
+
+CI seeds the base from the cosign-verified
+`ghcr.io/projectbluefin/printing-base-devel:<arch>-<key>` BuildStream bundle
+before building, and builds it locally when no verified bundle exists.
+`.github/workflows/update-base.yml` tracks fsdk-containers `main` daily and
+proposes the new pin against `testing`.
 
 The source build explicitly stages GLib's `glib-mkenums` and Python for
 `autogen.sh`; CUPS PPD generators install into `/usr/bin` because FSDK owns
@@ -252,7 +263,10 @@ registry write credentials.
 Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
 from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
 pushes to `testing` that touch BuildStream inputs, nightly, and on demand. It builds with
-`ci/buildstream.conf` (saved only when an arch fits in 4.5 GB) and prunes older entries. To reset, run `gh cache delete --all`.
+`ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache fails the refill) and prunes older entries. To reset, run `gh cache delete --all`.
+Every CI `bst` call runs with `BST_FLAGS=--config /src/ci/buildstream.conf`,
+which the `just bst` recipe passes through. That config fetches sources only
+from the Bluefin source cache.
 
 Only the organization Renovate runner updates the stable Gutenprint OCI
 source: `renovate.json` proposes an atomic tag, dereferenced Git commit and

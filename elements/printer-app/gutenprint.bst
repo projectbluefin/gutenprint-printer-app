@@ -8,17 +8,17 @@ sources:
     ref: "%{gutenprint-ref}"
 
 build-depends:
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/bison.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/flex.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/gettext.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/glib.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/python3.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/bison.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/flex.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/gettext.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/glib.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/python3.bst
 
 depends:
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/cups.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/libusb.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/zlib.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/cups.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/libusb.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/zlib.bst
 
 config:
   configure-commands:
@@ -55,3 +55,12 @@ config:
     - chmod 0755 "%{install-root}/usr/lib/gutenprint-printer-app/backend/gutenprint53+usb"
     - install -d "%{install-root}/usr/lib/gutenprint-printer-app/backend"
     - mv "%{install-root}/usr/share/cups/usb/net.sf.gimp-print.usb-quirks" "%{install-root}/usr/lib/gutenprint-printer-app/backend/"
+
+public:
+  bst:
+    split-rules:
+      # The default devel rule takes pkgconfig/*.pc but leaves the directory,
+      # which would reach the runtime-only image as an empty pkgconfig dir.
+      devel:
+        (>):
+          - '%{libdir}/pkgconfig'

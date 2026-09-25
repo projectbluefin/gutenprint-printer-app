@@ -1,5 +1,5 @@
 kind: manual
-description: Build the Gutenprint Printer Application against the shared FSDK printing stack.
+description: Build the Gutenprint Printer Application against the shared fsdk-containers printing base.
 
 sources:
   - kind: local
@@ -14,11 +14,10 @@ sources:
     path: testpage.ps
 
 build-depends:
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
 
 depends:
-  - ghostscript-fsdk.bst:printer-app/pappl-retrofit.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/ghostscript.bst
+  - fsdk-containers.bst:printing/base.bst
 
 config:
   build-commands:

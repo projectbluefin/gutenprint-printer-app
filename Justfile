@@ -8,6 +8,8 @@ default:
 bst *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
+    # BST_FLAGS adds global bst options; CI sets it to
+    # `--config /src/ci/buildstream.conf`.
     mkdir -p "${HOME}/.cache/buildstream"
     podman run --rm \
         --privileged \
@@ -17,7 +19,7 @@ bst *ARGS:
         -v "${HOME}/.cache/buildstream:/root/.cache/buildstream:rw" \
         -w /src \
         "{{ bst2_image }}" \
-        bash -c 'bst "$@"' -- --no-interactive {{ ARGS }}
+        bash -c 'bst "$@"' -- --no-interactive ${BST_FLAGS:-} {{ ARGS }}
 
 validate:
     just bst show --deps all oci/gutenprint-printer-app.bst
@@ -51,6 +53,7 @@ export:
 
 verify:
     just build
+    tests/no-devel.sh
     tests/cups-owner.sh
     tests/appliance.sh
     tests/socket-print.sh

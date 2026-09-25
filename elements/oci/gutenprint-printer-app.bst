@@ -1,10 +1,10 @@
 kind: script
 
 build-depends:
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:bootstrap/bash.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:bootstrap/coreutils.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/oci-builder.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/sed.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:bootstrap/bash.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:bootstrap/coreutils.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/oci-builder.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/sed.bst
   - filename: printer-app/version.bst
     config:
       location: /metadata

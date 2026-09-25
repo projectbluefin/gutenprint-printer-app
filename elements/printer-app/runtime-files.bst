@@ -8,11 +8,8 @@ sources:
   - kind: local
     path: testpage.ps
 build-depends:
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/cups-daemon-only.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/cups-filters.bst
-  - ghostscript-fsdk.bst:printer-app/pappl-retrofit.bst
-  - ghostscript-fsdk.bst:freedesktop-sdk.bst:components/ghostscript.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+  - fsdk-containers.bst:printing/base.bst
 
 config:
   build-commands:

@@ -29,6 +29,9 @@ jobs:
       contents: read
     env:
       FULL_BUILD: ${{ github.event_name != 'pull_request' }}
+      # Every bst call, including those inside just recipes, uses the CI
+      # user config (source cache override, network retries).
+      BST_FLAGS: --config /src/ci/buildstream.conf
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -37,7 +40,7 @@ jobs:
         with:
           tool: just
       - name: Install host dependencies
-        run: sudo apt-get update && sudo apt-get install --yes fuse3 podman
+        run: sudo apt-get update && sudo apt-get install --yes fuse3 podman skopeo jq
       - name: Validate BuildStream graph
         if: env.FULL_BUILD != 'true'
         run: just validate
@@ -61,9 +64,58 @@ jobs:
           restore-keys: |
             bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-
             bst-v1-${{ matrix.arch }}-
+      - name: Install cosign
+        if: env.FULL_BUILD == 'true'
+        continue-on-error: true
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      # Seed printing/base.bst from the signed printing-base-devel bundle
+      # (fsdk-containers docs/skills/printing-base.md, rule 4). Never fails
+      # the job: any error falls through to a local build of the base.
+      - name: Seed printing base
+        if: env.FULL_BUILD == 'true'
+        continue-on-error: true
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -uo pipefail
+          base=fsdk-containers.bst:printing/base.bst
+          show() {
+            just bst -o arch "$ARCH" show --deps none --format "$1" "$base" 2>/dev/null |
+              tail -n 1 | sed 's/\x1b\[[0-9;]*m//g'
+          }
+          KEY="$(show '%{full-key}')"
+          if [[ ! "$KEY" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::warning::printing base: cannot compute the ${ARCH} key; building it locally"
+            exit 0
+          fi
+          if [[ "$(show '%{state}')" == cached ]]; then
+            echo "printing base ${ARCH}-${KEY} is already cached"
+            exit 0
+          fi
+          if ! ARCH="$ARCH" KEY="$KEY" bash -euo pipefail <<'SEED'
+          REPO=ghcr.io/projectbluefin/printing-base-devel
+          DIGEST="$(skopeo inspect --format '{{.Digest}}' "docker://${REPO}:${ARCH}-${KEY}")"
+          cosign verify \
+            --certificate-identity-regexp '^https://github.com/projectbluefin/fsdk-containers/.github/workflows/' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${REPO}@${DIGEST}" >/dev/null
+          # Copy exactly the verified digest; never touch podman storage.
+          bundle="$(mktemp -d)"
+          trap 'rm -rf "${bundle}"' EXIT
+          skopeo copy "docker://${REPO}@${DIGEST}" "dir:${bundle}"
+          layer="$(jq -r '.layers[0].digest' "${bundle}/manifest.json" | cut -d: -f2)"
+          tar -C ~/.cache/buildstream -xf "${bundle}/${layer}"
+          SEED
+          then
+            echo "::warning::printing base: seeding ${ARCH}-${KEY} failed; building it locally"
+          elif [[ "$(show '%{state}')" != cached ]]; then
+            echo "::warning::printing base: ${ARCH}-${KEY} not verified or not cached after seeding; building it locally"
+          else
+            echo "printing base seeded from ${ARCH}-${KEY}"
+          fi
       - name: Build image
         if: env.FULL_BUILD == 'true'
-        run: just bst --config /src/ci/buildstream.conf --network-retries 5 build oci/gutenprint-printer-app.bst
+        run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst
       - name: Build actual image and print Epson raster to socket sink
         if: env.FULL_BUILD == 'true'
         run: just verify
