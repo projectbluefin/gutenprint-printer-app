@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["local>projectbluefin/renovate-config"],
-  "baseBranches": ["testing"],
+  "baseBranchPatterns": ["testing"],
   "customManagers": [
     {
       "customType": "regex",
