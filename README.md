@@ -253,7 +253,8 @@ just verify
 `just verify` builds the OCI image, checks the nonroot HTTP/HTTPS appliance,
 and prints a real IPP test page through the Gutenprint ESC/P2 raster filter
 and CUPS socket backend into a byte-capturing sink. No local printer is
-required. It also checks that the configured queue survives restart.
+required. It also checks that the configured queue survives restart, and
+that two instances coexist on one host (`tests/coexistence.sh`, below).
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
 for testing only. CI on pull requests only validates the BuildStream graph
 (`just validate`). The merge queue and manual `workflow_dispatch` runs build
@@ -306,9 +307,27 @@ Open `http://127.0.0.1:18050/`; the IPP endpoint also serves HTTPS. Avahi
 advertises Gutenprint printers under their app-specific service identity;
 the state, SNMP configuration, USB quirks and PPDs stay in **this app's**
 volume. To run alongside other Printer Applications, assign each a different
-port and state directory. Admins should assign each physical printer to
-one application only: the same USB device must not be presented to multiple
-instances, and manually configured DNS-SD advertisements must be unique.
+port and state directory, and never mount one state directory into two
+running applications. Admins should assign each physical printer to one
+application only: the same USB device must not be presented to multiple
+instances, and each queue's DNS-SD name must be unique on the LAN. Each
+instance runs its own D-Bus and Avahi inside the container; do not mount the
+host D-Bus socket or share Avahi runtime directories between instances.
+
+`tests/coexistence.sh` proves this isolation against the real image without
+hardware: it starts two instances on adjacent ports with separate volumes,
+creates a different synthetic Gutenprint queue in each through the web
+admin form, prints from both into separate socket sinks, and browses the
+link's mDNS traffic with `tests/mdns-browse.py` (a dependency-free resolver
+that observes what any other LAN host sees). Each `_ipp._tcp` and
+`_ipps._tcp` service must belong to exactly one instance and resolve to that
+instance's port and `rp=` path; both instances are then recreated on their
+volumes and must still expose only their own queue and advertisement. If two
+instances do publish the same queue name, PAPPL keeps both reachable but
+renames the later advertisement with a suffix such as `name (9479AE)`; the
+test fails on that, so give every queue a unique name rather than relying on
+the rename. Run it against another build with
+`IMAGE=<ref> PORT=<base-port> tests/coexistence.sh`.
 
 The state is private to the app's user. On every start the entrypoint
 applies `umask 077`, so the state file, log, spooled jobs and TLS keys are
@@ -321,14 +340,31 @@ cannot be created or secured, or if the state directory, `cups`, `spool` or
 `cups/ssl` is a symlink.
 Read the volume from the host with `podman unshare`.
 
-For real USB devices, add `--device /dev/bus/usb --group-add keep-groups`
-to the rootless Podman command. The host user must already have permission
-to open the intended USB device through udev and device groups; do not use
-privileged containers to conceal an access failure. Test a discovered
-printer with the correct Gutenprint driver and verify the print on paper
-before claiming USB/network discovery, ink, firmware, media or color
-compatibility. The synthetic socket-sink CI proof does **not** validate
-physical hardware.
+Keep USB absent for LAN-only instances. For a USB printer, pass only the
+assigned device node to the rootless Podman command, for example
+`--device /dev/bus/usb/001/004 --group-add keep-groups` (find the node with
+`lsusb`; the runtime must preserve supplementary groups, as crun does). The
+host user must already have read/write access to that node through a host
+udev rule or device group: container flags cannot grant access the host
+user lacks, and SELinux device policy may also need host administrator
+configuration. Do not pass all of `/dev/bus/usb`, use `--privileged` to
+conceal an access failure, or give two Printer Applications the same node.
+Stop conflicting host CUPS queues or other owners of the device first; an
+IPP-over-USB printer is normally owned by `ipp-usb`, and clients should use
+its IPP service instead of claiming the USB interface again. USB bus and
+device numbers change on reconnect, so resolve the printer's serial to its
+current node and recreate the container. Nothing here implements hotplug
+assignment or a cross-application ownership lock: device ownership is an
+explicit deployment decision.
+
+Real USB access, physical LAN discovery and paper output remain
+**unverified until hardware is available**. The synthetic socket-sink and
+coexistence CI proofs do **not** validate physical hardware. Before claiming
+USB/network discovery, ink, firmware, media or color compatibility, follow
+the [Ghostscript physical validation procedure](https://github.com/projectbluefin/ghostscript-printer-app/blob/main/docs/oci-physical-validation.md)
+with this app's paths, UID 65532 and the assigned device node, and record
+the printer model, serial, driver, options, restart result and observed
+paper output.
 
 The old `rockcraft.yaml` is retained for the upstream Rockcraft packaging
 workflow, but Rockcraft no longer publishes this fork's FSDK OCI releases.
