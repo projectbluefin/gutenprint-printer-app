@@ -664,6 +664,16 @@ parts:
       set -eux
       craftctl default
 
+      # Keep only Gutenprint's translations. Everything else staged into
+      # usr/share/locale comes from unrelated dependencies (coreutils,
+      # glib, bash, libc, libexif, elfutils, ...) that this printer
+      # application never localizes through, so drop their catalogs and
+      # keep the image close to the stock upstream size.
+      find "$CRAFT_PRIME/usr/share/locale" -mindepth 1 -type f \
+        ! -name 'gutenprint*.mo' -delete 2>/dev/null || true
+      find "$CRAFT_PRIME/usr/share/locale" -mindepth 1 -type d -empty -delete \
+        2>/dev/null || true
+
       # Set up Avahi Daemon runtime directory
       mkdir -p "$CRAFT_PRIME/var/run/avahi-daemon"
       chown 584792:584792 "$CRAFT_PRIME/var/run/avahi-daemon"
