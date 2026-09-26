@@ -65,6 +65,8 @@ config:
               'org.opencontainers.image.licenses': 'Apache-2.0 AND GPL-2.0-or-later'
               'org.opencontainers.image.version': '${version}'
               'io.projectbluefin.gutenprint.ref': '${gutenprint_ref}'
+              # The FSDK release fsdk-containers builds on; update-base.yml rewrites
+              # both labels with the junction and tests/source-pins.sh checks them.
               'io.projectbluefin.fsdk.version': '26.08.1'
               'io.projectbluefin.fsdk.ref': 'b02b59ffe19a49a402f357fd5fcb1d552ebc50d7'
       EOF

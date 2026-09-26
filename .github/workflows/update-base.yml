@@ -47,14 +47,25 @@ jobs:
           git checkout -- "$junction"
           if [[ "$new" == "$old" ]]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            sed -i -E "s/^( +ref: ).*$/\1${new}/" "$junction"
-            {
-              echo "changed=true"
-              echo "old=${old}"
-              echo "new=${new}"
-            } >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          sed -i -E "s/^( +ref: ).*$/\1${new}/" "$junction"
+          # The image labels name the FSDK release the new base builds on;
+          # rewriting them here keeps refs, metadata and labels in one proposal.
+          oci=elements/oci/gutenprint-printer-app.bst
+          read -r fsdk_version fsdk_ref <<< "$(scripts/fsdk-pin.sh "$new")"
+          sed -i -E \
+            -e "s/^( +'io\.projectbluefin\.fsdk\.version': ').*'$/\1${fsdk_version}'/" \
+            -e "s/^( +'io\.projectbluefin\.fsdk\.ref': ').*'$/\1${fsdk_ref}'/" \
+            "$oci"
+          tests/source-pins.sh
+          {
+            echo "changed=true"
+            echo "old=${old}"
+            echo "new=${new}"
+            echo "fsdk_version=${fsdk_version}"
+            echo "fsdk_ref=${fsdk_ref}"
+          } >> "$GITHUB_OUTPUT"
       - name: Mint Mergeraptor token
         if: steps.track.outputs.changed == 'true'
         id: app-token
@@ -72,6 +83,8 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           OLD: ${{ steps.track.outputs.old }}
           NEW: ${{ steps.track.outputs.new }}
+          FSDK_VERSION: ${{ steps.track.outputs.fsdk_version }}
+          FSDK_REF: ${{ steps.track.outputs.fsdk_ref }}
         run: |
           set -euo pipefail
           branch=deps/fsdk-containers
@@ -79,13 +92,15 @@ jobs:
           git config user.name 'mergeraptor[bot]'
           git config user.email '267480593+mergeraptor[bot]@users.noreply.github.com'
           git switch --create "$branch"
-          git add elements/fsdk-containers.bst
+          git add elements/fsdk-containers.bst elements/oci/gutenprint-printer-app.bst
           git commit --signoff -m "$title"
           basic="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
           echo "::add-mask::$basic"
           git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $basic" \
             push --force "https://github.com/${REPOSITORY}.git" "HEAD:refs/heads/$branch"
-          body="Moves the fsdk-containers junction (FSDK and the shared printing base) from ${OLD} to ${NEW}: https://github.com/projectbluefin/fsdk-containers/compare/${OLD}...${NEW}"
+          body="$(printf '%s\n\n%s' \
+            "Moves the fsdk-containers junction (FSDK and the shared printing base) from ${OLD} to ${NEW}: https://github.com/projectbluefin/fsdk-containers/compare/${OLD}...${NEW}" \
+            "Rewrites the image labels \`io.projectbluefin.fsdk.version\`/\`io.projectbluefin.fsdk.ref\` to FSDK ${FSDK_VERSION} at ${FSDK_REF}, the release this fsdk-containers commit builds on. \`tests/source-pins.sh\` (part of \`just validate\`) checks that agreement on this pull request; the merge queue's full native image build and socket print decide whether it lands.")"
           if existing="$(gh pr list --head "$branch" --base testing --state open --json number --jq '.[0].number')" && [[ -n "$existing" ]]; then
             gh pr edit "$existing" --title "$title" --body "$body"
             printf 'Updated dependency PR #%s\n' "$existing"
