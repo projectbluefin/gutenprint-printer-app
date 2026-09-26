@@ -232,7 +232,10 @@ CI seeds the base from the cosign-verified
 `ghcr.io/projectbluefin/printing-base-devel:<arch>-<key>` BuildStream bundle
 before building, and builds it locally when no verified bundle exists.
 `.github/workflows/update-base.yml` tracks fsdk-containers `main` daily and
-proposes the new pin against `testing`.
+proposes the new pin against `testing`, rewriting the
+`io.projectbluefin.fsdk.version` and `io.projectbluefin.fsdk.ref` image labels
+in the same proposal from the FSDK release that commit builds on
+(`scripts/fsdk-pin.sh`).
 
 The source build explicitly stages GLib's `glib-mkenums` and Python for
 `autogen.sh`; CUPS PPD generators install into `/usr/bin` because FSDK owns
@@ -274,6 +277,16 @@ matching package revision in `include/source-pins.yml` against `testing`.
 Proposals are never auto-merged; the real-image print gate decides whether
 they can be promoted. Upstream's separate Snap/Rockcraft source updater does
 not own these BuildStream pins.
+
+Each pin has exactly one updater: Renovate owns `include/source-pins.yml`
+(and GitHub Actions digests), `update-base.yml` owns the fsdk-containers
+junction and the FSDK labels. `tests/source-pins.sh`, run by `just validate`
+on every pull request, fails a proposal whose refs, version metadata and
+labels disagree: the packaged version must carry the Debian revision of the
+pinned tag, the tag must dereference to the pinned commit on Salsa, and the
+FSDK labels must match the `freedesktop-sdk.bst` junction of the pinned
+fsdk-containers commit. `tests/image-metadata.sh`, run by `just verify`,
+then checks that the built image's labels carry those same values.
 
 After a verified `testing` revision has been promoted to `stable`, tag
 `v<gutenprint-version>` (for example `v5.3.6-4`). The tag must match

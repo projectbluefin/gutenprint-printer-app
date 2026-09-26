@@ -22,6 +22,7 @@ bst *ARGS:
         bash -c 'bst "$@"' -- --no-interactive ${BST_FLAGS:-} {{ ARGS }}
 
 validate:
+    tests/source-pins.sh
     just bst show --deps all oci/gutenprint-printer-app.bst
 
 fetch:
@@ -53,6 +54,7 @@ export:
 
 verify:
     just build
+    tests/image-metadata.sh
     tests/no-devel.sh
     tests/vendor-options-payload.sh
     tests/cups-owner.sh
