@@ -1,12 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>projectbluefin/renovate-config"],
+  "extends": [
+    "local>projectbluefin/renovate-config"
+  ],
   "forkProcessing": "enabled",
-  "baseBranchPatterns": ["testing"],
+  "baseBranchPatterns": [
+    "testing"
+  ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^include\\/source-pins\\.yml$/"],
+      "managerFilePatterns": [
+        "/^include\\/source-pins\\.yml$/"
+      ],
       "matchStrings": [
         "gutenprint-version: \"[^\"]+\"\\n  gutenprint-tag: \"(?<currentValue>debian/[^\"]+)\"\\n  gutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
       ],
@@ -20,10 +26,24 @@
   ],
   "packageRules": [
     {
-      "matchDatasources": ["git-tags"],
-      "matchPackageNames": ["https://salsa.debian.org/printing-team/gutenprint.git"],
+      "matchDatasources": [
+        "git-tags"
+      ],
+      "matchPackageNames": [
+        "https://salsa.debian.org/printing-team/gutenprint.git"
+      ],
       "allowedVersions": "/^debian\\/5\\.3\\.\\d+-.*-\\d+$/",
       "automerge": false
+    },
+    {
+      "description": "BuildStream builds fail on ubuntu-26.04 runners (fsdk-containers#332); keep 24.04",
+      "matchDatasources": [
+        "github-runners"
+      ],
+      "matchPackageNames": [
+        "ubuntu"
+      ],
+      "allowedVersions": "<26"
     }
   ]
 }
