@@ -26,3 +26,16 @@ This verifies driver selection only. It does not replace the full OCI
 print-to-socket-sink verification of filter output required by the issue, or
 physical paper testing. The expert-option and OCI integration work is tracked
 in #9 and #4 respectively.
+
+`tests/coexistence.sh` runs two instances of the built image on one host
+(ports `PORT` and `PORT+1`, default 18400/18401, sinks at `+1000`) with
+separate volumes, gives each a different synthetic Gutenprint queue, prints
+from both into separate socket sinks, and checks with `tests/mdns-browse.py`
+that every `_ipp._tcp`/`_ipps._tcp` advertisement on the link belongs to
+exactly one instance with that instance's port and `rp=` path, before and
+after recreating both containers on their volumes. `tests/mdns-browse.py
+<service type> [seconds]` is a dependency-free mDNS browser (multicast
+PTR/SRV/TXT queries from port 5353, legacy unicast if the port cannot be
+shared) that prints one JSON record per resolved service instance; it needs
+host networking for the instances and no Avahi client. Neither proves USB
+or paper output.

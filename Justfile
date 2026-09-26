@@ -60,6 +60,7 @@ verify:
     tests/appliance.sh
     tests/device-settings-web-admin.sh
     tests/socket-print.sh
+    tests/coexistence.sh
     tests/testpage-payload.sh
     python3 tests/device-selection.py -- podman run --rm --entrypoint /usr/bin/gutenprint-printer-app {{ image_ref }}
 
