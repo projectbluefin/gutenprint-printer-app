@@ -1,5 +1,9 @@
-# BuildStream runs inside the pinned freedesktop-sdk builder image.
-bst2_image := env("BST2_IMAGE", "registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2:64eb0b4930d57a92710822898fb73af6cc1ae35d")
+# BuildStream runs inside the pinned freedesktop-sdk builder image. The tag
+# names the source commit for readability, but a registry tag is mutable — the
+# @sha256 digest is the immutable pin podman actually pulls by. When bumping
+# the tag, refresh the digest too:
+#   skopeo inspect --format '{{.Digest}}' docker://<image>:<tag>
+bst2_image := env("BST2_IMAGE", "registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2:64eb0b4930d57a92710822898fb73af6cc1ae35d@sha256:2ca3b449b594e9284bd60f436a4efad1365116b7d3d7129fd08b7a4f459d3561")
 image_ref := "ghcr.io/projectbluefin/gutenprint-printer-app:build"
 
 default:
