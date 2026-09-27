@@ -54,6 +54,7 @@ export:
 verify:
     just build
     tests/no-devel.sh
+    tests/locale-slim.sh
     tests/vendor-options-payload.sh
     tests/cups-owner.sh
     tests/calibration-payload.sh
