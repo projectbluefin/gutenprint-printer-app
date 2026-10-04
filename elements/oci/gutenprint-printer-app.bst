@@ -3,6 +3,7 @@ kind: script
 build-depends:
   - fsdk-containers.bst:freedesktop-sdk.bst:bootstrap/bash.bst
   - fsdk-containers.bst:freedesktop-sdk.bst:bootstrap/coreutils.bst
+  - fsdk-containers.bst:freedesktop-sdk.bst:components/findutils.bst
   - fsdk-containers.bst:freedesktop-sdk.bst:components/oci-builder.bst
   - fsdk-containers.bst:freedesktop-sdk.bst:components/sed.bst
   - filename: printer-app/version.bst
@@ -27,6 +28,10 @@ config:
         'nonroot:x:65532:' \
         >> /layer/etc/group
       rm -rf /layer/run/dbus /layer/run/avahi-daemon /layer/run/gutenprint-printer-app
+      # Avahi's sample remote-login records do not describe this appliance.
+      # Keep the shared base's avahi-printing element and PAPPL's dynamic IPP publication.
+      rm -f /layer/etc/avahi/services/ssh.service \
+        /layer/etc/avahi/services/sftp-ssh.service
       rm -rf /layer/usr/lib/debug /layer/usr/share/cups/ipptool
       # pappl-retrofit's own A4 sample test page; the app prints
       # /usr/share/gutenprint-printer-app/testpage.pdf built from testpage.ps.
@@ -38,6 +43,15 @@ config:
       # so ship the state directory empty (make install creates ppd/ in it).
       rm -rf /layer/var/lib/gutenprint-printer-app
       install -d -m 0777 /layer/var/lib/gutenprint-printer-app
+      # Keep only Gutenprint's own locale domain; drop the rest of the FSDK
+      # stack's catalogs (~56 MiB of coreutils.mo, glib20.mo, bash.mo, ...)
+      # unrelated to this app. The PPD generator reads
+      # /usr/share/locale/<lang>/gutenprint_<lang>.po and the app loads
+      # gutenprint.mo, so retain the whole gutenprint domain and delete every
+      # other file under /usr/share/locale (issue #56).
+      if [ -d /layer/usr/share/locale ]; then
+        find /layer/usr/share/locale -type f ! -name 'gutenprint*' -print -delete
+      fi
       if [ -f /layer/usr/share/dbus-1/system.conf ]; then
         sed -i '/<user>messagebus<\/user>/d; s/<policy user="root">/<policy user="nonroot">/g' /layer/usr/share/dbus-1/system.conf
       fi

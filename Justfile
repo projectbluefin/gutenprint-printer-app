@@ -57,10 +57,17 @@ export:
     rm -rf .build-out
     podman tag "$image_id" "{{ image_ref }}"
 
+# Host-only: the entrypoint must reject malformed web-administration settings
+# before it touches the image or persistent state.
+verify-entrypoint-validation:
+    tests/entrypoint-validation.sh
+
 verify:
+    tests/entrypoint-validation.sh
     just build
     tests/image-metadata.sh
     tests/no-devel.sh
+    tests/locale-slim.sh
     tests/vendor-options-payload.sh
     tests/cups-owner.sh
     tests/calibration-payload.sh
@@ -68,8 +75,28 @@ verify:
     tests/device-settings-web-admin.sh
     tests/socket-print.sh
     tests/coexistence.sh
+    just check-no-remote-login-records
     tests/testpage-payload.sh
     python3 tests/device-selection.py -- podman run --rm --entrypoint /usr/bin/gutenprint-printer-app {{ image_ref }}
+
+# Avahi's sample ssh/sftp-ssh records must not ship in an appliance that
+# serves neither. Image-level, so `just verify` catches a reintroduction
+# without host networking.
+check-no-remote-login-records:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    podman run --rm --entrypoint /usr/bin/bash "{{ image_ref }}" -ec '
+        test ! -e /etc/avahi/services/ssh.service
+        test ! -e /etc/avahi/services/sftp-ssh.service
+    '
+    echo "OK: no SSH/SFTP service records in {{ image_ref }}"
+
+# Requires host Avahi and avahi-browse on a quiet test LAN; not part of
+# `just verify`. Observes real records before and after starting and
+# restarting two instances with distinct names, ports and state volumes.
+verify-service-advertisements:
+    just build
+    tests/service-advertisements.sh
 
 sbom:
     #!/usr/bin/env bash

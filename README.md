@@ -256,8 +256,10 @@ just verify
 `just verify` builds the OCI image, checks the nonroot HTTP/HTTPS appliance,
 and prints a real IPP test page through the Gutenprint ESC/P2 raster filter
 and CUPS socket backend into a byte-capturing sink. No local printer is
-required. It also checks that the configured queue survives restart, and
-that two instances coexist on one host (`tests/coexistence.sh`, below).
+required. It also checks that the configured queue survives restart, that
+two instances coexist on one host (`tests/coexistence.sh`, below), and that
+the image ships none of Avahi's sample remote-login records
+(`just check-no-remote-login-records`, below).
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
 for testing only. CI on pull requests only validates the BuildStream graph
 (`just validate`). The merge queue and manual `workflow_dispatch` runs build
@@ -267,7 +269,7 @@ registry write credentials.
 Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
 from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
 pushes to `testing` that touch BuildStream inputs, nightly, and on demand. It builds with
-`ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache fails the refill) and prunes older entries. To reset, run `gh cache delete --all`.
+`ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache skips the save with a warning, and the job still succeeds) and prunes older entries. To reset, run `gh cache delete --all`.
 Every CI `bst` call runs with `BST_FLAGS=--config /src/ci/buildstream.conf`,
 which the `just bst` recipe passes through. That config fetches sources only
 from the Bluefin source cache.
@@ -342,6 +344,25 @@ test fails on that, so give every queue a unique name rather than relying on
 the rename. Run it against another build with
 `IMAGE=<ref> PORT=<base-port> tests/coexistence.sh`.
 
+This appliance serves neither SSH nor SFTP, so advertising `_ssh._tcp` or
+`_sftp-ssh._tcp` under the host's name would misdirect LAN users. The image
+therefore ships none of Avahi's sample remote-login records:
+`just check-no-remote-login-records` (run by `just verify`) asserts the built
+image carries no `/etc/avahi/services/{ssh,sftp-ssh}.service`. It needs only
+Podman, so a reintroduction fails `just verify` without host networking.
+
+`just verify-service-advertisements` is the host-network counterpart. On an
+otherwise quiet test LAN it browses the real records before and after
+starting two instances and restarting one of them with distinct names, ports and state
+volumes, proving neither adds a remote-login record while each instance's own
+IPP queue still resolves on its distinct port. It needs host Avahi and
+`avahi-browse`, so it is an operator-run recipe rather than part of
+`just verify`, and it claims nothing about physical discovery or printed
+paper. `tests/service-advertisements.sh` accepts `IMAGE=<ref>` to observe
+another build, `PORT=<base-port>` to move the two instances off the default
+`18546`/`18547`, and `EVIDENCE_DIR=<dir>` to keep the browsed records,
+container logs and image metadata instead of a temporary directory.
+
 The state is private to the app's user. On every start the entrypoint
 applies `umask 077`, so the state file, log, spooled jobs and TLS keys are
 created `0600`. It also resets the `spool` and `cups/ssl` directories to
@@ -352,6 +373,55 @@ not changed, and nothing is migrated. Startup fails if a private directory
 cannot be created or secured, or if the state directory, `cups`, `spool` or
 `cups/ssl` is a symlink.
 Read the volume from the host with `podman unshare`.
+
+### Web administration
+
+PAPPL serves IPP and the web interface on the same port, and the appliance runs
+on host networking, so by default the web administration pages are reachable by
+every client that can reach the printer, without a credential. The entrypoint
+prints a `NOTICE` about this at startup. Close that surface with one of these
+environment variables; every value is validated, and a value the appliance
+cannot honour stops the container instead of starting it unauthenticated
+(exit `64` for a malformed value, `78` for a value this image cannot enforce):
+
+| Variable | Forwarded as | Accepted values |
+| --- | --- | --- |
+| `PRINTER_APP_SERVER_OPTIONS` | `-o server-options=…` | Comma-separated PAPPL server options from the allow-list: `no-web-interface`. |
+| `PRINTER_APP_AUTH_SERVICE` | `-o auth-service=…` | A PAM service name; refused (exit `78`) while the base builds PAPPL without PAM. |
+| `PRINTER_APP_ADMIN_GROUP` | `-o admin-group=…` | A group from the image's `/etc/group`; requires `PRINTER_APP_AUTH_SERVICE`. |
+
+`PRINTER_APP_SERVER_OPTIONS=no-web-interface` is the supported way to run the
+appliance on a LAN-facing surface today: every web page, including the
+per-printer configuration and pappl-retrofit's "Device Settings" pages, answers
+`404`, while IPP printing, IPP administration from the container itself, and
+DNS-SD advertisement keep working. Manage printers with the command-line client
+from inside the container (`podman exec gutenprint-printer-app gutenprint-printer-app -u ipp://127.0.0.1:18050/ipp/system … add`):
+
+```sh
+mkdir -p .state/gutenprint
+podman unshare chown -R 65532:65532 .state/gutenprint
+podman run --rm --name gutenprint-printer-app \
+  --network host -e PORT=18050 \
+  -e PRINTER_APP_SERVER_OPTIONS=no-web-interface \
+  -v "$PWD/.state/gutenprint:/var/lib/gutenprint-printer-app:Z" \
+  ghcr.io/projectbluefin/gutenprint-printer-app:build
+```
+
+`PRINTER_APP_AUTH_SERVICE` and `PRINTER_APP_ADMIN_GROUP` are accepted so the
+configuration surface is stable for supervisors such as ChairLift, but the
+shared printing base builds PAPPL with `--disable-libpam`, so
+`PRINTER_APP_AUTH_SERVICE` is refused outright with exit `78` and a diagnostic
+naming `no-web-interface` as the alternative. Forwarding the option regardless
+would not authenticate anyone: PAPPL would answer every administration request
+with `401`. Authenticated web administration becomes available once the base
+builds PAPPL with PAM and ships a service configuration for this appliance.
+
+Setting an unlisted server option such as `no-tls` or `none`, a name with
+characters outside `[A-Za-z0-9_.-]`, a group PAPPL cannot resolve (it would
+otherwise skip the group check and admit every authenticated user), or a group
+without an auth service is rejected. `tests/entrypoint-validation.sh` covers
+those rejections on the host; `tests/appliance.sh` verifies the
+`no-web-interface` behaviour against the built image.
 
 Keep USB absent for LAN-only instances. For a USB printer, pass only the
 assigned device node to the rootless Podman command, for example

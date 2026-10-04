@@ -39,3 +39,14 @@ PTR/SRV/TXT queries from port 5353, legacy unicast if the port cannot be
 shared) that prints one JSON record per resolved service instance; it needs
 host networking for the instances and no Avahi client. Neither proves USB
 or paper output.
+
+`tests/service-advertisements.sh` runs two instances of the built image on one
+host (ports `PORT` and `PORT+1`, default 18546/18547) with separate state
+volumes, discovers a real Gutenprint expert driver for the "Epson Stylus Photo
+R1800" from each instance's live catalog, and adds an IPP queue for each pointing
+at a socket sink. It then checks, before and after restarting one instance, that
+the built image advertises no container-supplied `ssh._tcp`/`sftp-ssh._tcp`
+records (the appliance serves neither) and that both IPP queues still resolve on
+their distinct ports after startup and restart. `IMAGE`, `PORT` and `EVIDENCE_DIR`
+override the image, ports and the evidence directory; `just verify-service-advertisements`
+runs it. It does not prove physical USB or paper output.

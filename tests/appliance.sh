@@ -7,13 +7,25 @@ failure_name=gutenprint-printer-app-child-failure
 invalid_name=gutenprint-printer-app-invalid-port
 symlink_name=gutenprint-printer-app-symlink-state
 ephemeral_name=gutenprint-printer-app-no-volume
+no_web_name=gutenprint-printer-app-no-web-interface
+rejected_name=gutenprint-printer-app-rejected-setting
 port="${PORT:-18050}"
+no_web_port="$((port + 2))"
+no_web_sink_port="$((no_web_port + 1000))"
+no_web_output="$(mktemp)"
+no_web_sink_pid=""
 state_dir="$(mktemp -d)"
 symlink_dir="$(mktemp -d)"
+no_web_state_dir="$(mktemp -d)"
 
 cleanup() {
-  podman rm -f "$name" "$failure_name" "$invalid_name" "$symlink_name" "$ephemeral_name" >/dev/null 2>&1 || true
-  podman unshare rm -rf "$state_dir" "$symlink_dir"
+  podman rm -f "$name" "$failure_name" "$invalid_name" "$symlink_name" "$ephemeral_name" "$no_web_name" "$rejected_name" >/dev/null 2>&1 || true
+  if [[ -n "$no_web_sink_pid" ]]; then
+    kill "$no_web_sink_pid" >/dev/null 2>&1 || true
+    wait "$no_web_sink_pid" 2>/dev/null || true
+  fi
+  podman unshare rm -rf "$state_dir" "$symlink_dir" "$no_web_state_dir"
+  rm -f "$no_web_output"
 }
 trap cleanup EXIT
 
@@ -86,7 +98,8 @@ podman run -d \
   --name "$name" --network host -e PORT="$port" \
   -v "$state_dir:/var/lib/gutenprint-printer-app:Z" "$image" >/dev/null
 wait_for_http "$port"
-curl --fail --silent --show-error --insecure "https://127.0.0.1:${port}/" | grep -q '<title>Gutenprint Printer Application</title>'
+grep -q '<title>Gutenprint Printer Application</title>' <<< "$(curl --fail --silent --show-error --insecure "https://127.0.0.1:${port}/")"
+grep -q 'NOTICE: web administration is reachable' <<< "$(podman logs "$name" 2>&1)"
 podman unshare test -s "$state_dir/cups/snmp.conf"
 podman unshare test -s "$state_dir/usb/net.sf.gimp-print.usb-quirks"
 podman unshare test -s "$state_dir/usb/org.cups.usb-quirks"
@@ -141,7 +154,111 @@ podman run --name "$invalid_name" -e PORT=invalid "$image" >/dev/null 2>&1
 invalid_status=$?
 set -e
 [[ "$invalid_status" -eq 64 ]]
-podman logs "$invalid_name" 2>&1 | grep -q 'PORT must be numeric'
+grep -q 'PORT must be numeric' <<< "$(podman logs "$invalid_name" 2>&1)"
+
+http_status() {
+  local scheme="$1" target_port="$2" path="$3"
+  curl --insecure --silent --output /dev/null --write-out '%{http_code}' \
+    "${scheme}://127.0.0.1:${target_port}${path}" 2>/dev/null || printf '000'
+}
+
+# A rejected setting must exit before any service starts, with the named
+# status and a diagnostic that explains the refusal.
+expect_rejected_setting() {
+  local expected_status="$1" expected_message="$2"
+  shift 2
+  local status logs
+  set +e
+  podman run --name "$rejected_name" "$@" "$image" >/dev/null 2>&1
+  status=$?
+  set -e
+  logs="$(podman logs "$rejected_name" 2>&1)"
+  if [[ "$status" -ne "$expected_status" || "$logs" != *"$expected_message"* ]]; then
+    printf '%s\nFAIL: %s must exit %s with "%s" (status=%s)\n' "$logs" "$*" "$expected_status" "$expected_message" "$status" >&2
+    exit 1
+  fi
+  podman rm "$rejected_name" >/dev/null
+}
+
+# Web administration knobs (ChairLift ADR-0016). Malformed or unsupported
+# values fail closed instead of starting an unauthenticated web admin.
+expect_rejected_setting 64 "unsupported option 'no-tls'" -e PRINTER_APP_SERVER_OPTIONS=no-web-interface,no-tls
+# The shared printing base builds PAPPL without PAM, so an auth service cannot
+# authenticate anyone in this image; refuse it outright rather than lock every
+# administrator out with 401.
+expect_rejected_setting 78 'set PRINTER_APP_SERVER_OPTIONS=no-web-interface to disable web administration instead' -e PRINTER_APP_AUTH_SERVICE=chairlift-printer
+expect_rejected_setting 78 'set PRINTER_APP_SERVER_OPTIONS=no-web-interface to disable web administration instead' -e PRINTER_APP_AUTH_SERVICE=cups
+expect_rejected_setting 78 'PRINTER_APP_ADMIN_GROUP requires PRINTER_APP_AUTH_SERVICE' -e PRINTER_APP_ADMIN_GROUP=nonroot
+
+# With the web interface disabled, every admin page is gone while IPP keeps
+# accepting and printing jobs.
+chmod 0777 "$no_web_state_dir"
+python3 tests/socket-sink.py "$no_web_sink_port" "$no_web_output" &
+no_web_sink_pid=$!
+podman run -d \
+  --name "$no_web_name" \
+  --network host \
+  -e PORT="$no_web_port" \
+  -e PRINTER_APP_SERVER_OPTIONS=no-web-interface \
+  -v "$no_web_state_dir:/var/lib/gutenprint-printer-app:Z" \
+  "$image" >/dev/null
+no_web_system_uri="ipp://127.0.0.1:${no_web_port}/ipp/system"
+no_web_printer_uri="ipp://127.0.0.1:${no_web_port}/ipp/print/no-web-test"
+ready=0
+for _ in $(seq 1 60); do
+  if [[ "$(http_status http "$no_web_port" /)" == 404 && "$(http_status https "$no_web_port" /)" == 404 ]]; then
+    ready=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$ready" -ne 1 ]]; then
+  printf 'FAIL: listener did not answer (with 404) after starting with no-web-interface\n' >&2
+  exit 1
+fi
+if grep -q 'NOTICE: web administration is reachable' <<< "$(podman logs "$no_web_name" 2>&1)"; then
+  printf 'FAIL: entrypoint warned about reachable web administration although it was disabled\n' >&2
+  exit 1
+fi
+no_web_drivers="$(podman exec "$no_web_name" gutenprint-printer-app -u "$no_web_system_uri" drivers)"
+no_web_driver="$(awk '/"Epson Stylus Photo R1800 \(en\)"/ { gsub(/"/, "", $1); print $1; exit }' <<< "$no_web_drivers")"
+[[ -n "$no_web_driver" ]] || { printf 'FAIL: could not find expert Epson Stylus Photo R1800 driver\n' >&2; exit 1; }
+podman exec "$no_web_name" gutenprint-printer-app \
+  -u "$no_web_system_uri" \
+  -d no-web-test \
+  -m "$no_web_driver" \
+  -v "cups:socket://127.0.0.1:${no_web_sink_port}" \
+  add
+for scheme in http https; do
+  for path in / /addprinter /config /network /security /no-web-test/ /no-web-test/config /no-web-test/device; do
+    status="$(http_status "$scheme" "$no_web_port" "$path")"
+    if [[ "$status" != 404 ]]; then
+      printf 'FAIL: %s://127.0.0.1:%s%s returned %s with no-web-interface, expected 404\n' "$scheme" "$no_web_port" "$path" "$status" >&2
+      exit 1
+    fi
+  done
+done
+podman exec "$no_web_name" gutenprint-printer-app -u "$no_web_printer_uri" \
+  submit /usr/share/gutenprint-printer-app/testpage.pdf >/dev/null
+for _ in $(seq 1 120); do
+  [[ -s "$no_web_output" ]] && break
+  sleep 0.5
+done
+if [[ ! -s "$no_web_output" ]]; then
+  podman exec "$no_web_name" gutenprint-printer-app -u "$no_web_printer_uri" jobs >&2 || true
+  printf 'FAIL: IPP print job produced no socket output with no-web-interface\n' >&2
+  exit 1
+fi
+wait "$no_web_sink_pid"
+no_web_sink_pid=""
+python3 -c '
+import pathlib, sys
+payload = pathlib.Path(sys.argv[1]).read_bytes()
+assert len(payload) > 512, len(payload)
+assert b"\x1b@" in payload[:256], payload[:64].hex()
+assert b"\x1b(" in payload[:1024], payload[:64].hex()
+' "$no_web_output"
+podman stop --time 15 "$no_web_name" >/dev/null
 
 # A private directory that is a symlink stops startup; its target is untouched.
 mkdir -m 0755 "$symlink_dir/outside"
@@ -153,6 +270,6 @@ podman run --name "$symlink_name" -e PORT="$port" \
 symlink_status=$?
 set -e
 [[ "$symlink_status" -eq 1 ]]
-podman logs "$symlink_name" 2>&1 | grep -q 'spool must not be a symlink'
+grep -q 'spool must not be a symlink' <<< "$(podman logs "$symlink_name" 2>&1)"
 [[ "$(podman unshare stat -c %a "$symlink_dir/outside")" == 755 ]]
 printf 'OK: native nonroot Gutenprint payload, HTTPS, owner-only persistent state and supervised lifecycle\n'
