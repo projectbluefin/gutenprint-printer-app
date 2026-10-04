@@ -22,7 +22,7 @@ depends:
 config:
   build-commands:
     - make clean
-    - make -j2 VERSION="%{gutenprint-version}" LDFLAGS="$LDFLAGS -ljpeg"
+    - make -j%{max-jobs} VERSION="%{gutenprint-version}" LDFLAGS="$LDFLAGS -ljpeg"
   install-commands:
     # Keep the application's filter and backend directories independent of
     # the shared FSDK CUPS owner.

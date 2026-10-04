@@ -45,7 +45,7 @@ config:
         --enable-nls \
         --without-doc
   build-commands:
-    - make -j2
+    - make -j%{max-jobs}
   install-commands:
     # Upstream creates backend/filter/driver in cups-config --serverbin by
     # default. Never write over the shared FSDK CUPS artifact's directories.
