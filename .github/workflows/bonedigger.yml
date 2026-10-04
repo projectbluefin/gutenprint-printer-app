@@ -35,4 +35,3 @@ jobs:
     with:
       brand_name: "Gutenprint Printer App"
       brand_emoji: "🖨️"
-    secrets: inherit
