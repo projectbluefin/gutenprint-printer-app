@@ -26,6 +26,7 @@ bst *ARGS:
         bash -c 'bst "$@"' -- --no-interactive ${BST_FLAGS:-} {{ ARGS }}
 
 validate:
+    PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py'
     tests/source-pins.sh
     just bst show --deps all oci/gutenprint-printer-app.bst
 
