@@ -25,8 +25,14 @@ Upstream reference: `salsa.debian.org/printing-team/gutenprint`, pinned in
 `--enable-simplified-cups-ppds` and `--disable-cups-ppds`, and
 `elements/printer-app/core-runtime.bst` keeps the `locale` split domain (it
 excludes only `debug`, `devel`, `doc`, `static-blocklist`, `tests` and
-`vm-only`). If a configure flag, split rule or layer `rm` dropped any of these
-paths, the image would still build; the real-image check below is what fails.
+`vm-only`). The OCI layer then trims that domain to Gutenprint's own files only
+(`elements/oci/gutenprint-printer-app.bst` deletes every file under
+`/usr/share/locale` whose name does not start with `gutenprint`): the
+`gutenprint_<lang>.po` catalogues below and `gutenprint.mo` in `LC_MESSAGES`
+stay, while the ~56 MiB of unrelated FSDK catalogs (`coreutils.mo`, `glib20.mo`,
+`bash.mo`, …) are dropped (issue #56). If a configure flag, split rule or layer
+`rm` dropped any of these paths, the image would still build; the real-image
+checks below (and `tests/locale-slim.sh`) are what fail.
 
 ## How CI verifies it on a real image, without a printer
 
@@ -52,6 +58,30 @@ host. It asserts:
    compared hex digit for hex digit (`src/cups/cups-calibrate.c:801,816`).
 
 Nothing is printed: there is no printer, no paper, and the test says so.
+
+### Locale slimming (issue #56)
+
+The FSDK stack the image is composed from ships translated catalogs for dozens
+of unrelated programs. `core-runtime.bst` keeps the whole `locale` split domain,
+so before the OCI layer trims it, `usr/share/locale` is ~61 MiB: `coreutils.mo`
+(10 MiB), `glib20.mo` (9.7), `bash.mo` (5.2), `libc.mo` (4.7), `libexif-12.mo`
+(2.6), `elfutils.mo` (1.0), … plus only ~5.3 MiB of `gutenprint.mo`. The stock
+container ships 18.3 MiB there.
+
+`elements/oci/gutenprint-printer-app.bst` removes everything that is not
+Gutenprint's own domain:
+
+```sh
+find /layer/usr/share/locale -type f ! -name 'gutenprint*' -print -delete
+```
+
+This keeps `gutenprint.mo` (in `LC_MESSAGES/`, loaded by the app) and every
+`gutenprint_<lang>.po` (read by the PPD generator) and deletes the rest, bringing
+`usr/share/locale` down to Gutenprint's catalogs alone. The assertion lives in
+`tests/locale-slim.sh`, run by `just verify`: it fails if any file whose name
+does not start with `gutenprint` remains under `usr/share/locale`, and it fails
+if `gutenprint.mo`, any `gutenprint_*.po`, or fewer than 20 gutenprint locale
+files are present.
 
 ### Why the invocation is intercepted rather than submitted
 
