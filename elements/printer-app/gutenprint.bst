@@ -45,7 +45,7 @@ config:
         --enable-nls \
         --without-doc
   build-commands:
-    - make -j%{max-jobs}
+    - make -j"${MAXJOBS}"
   install-commands:
     # Upstream creates backend/filter/driver in cups-config --serverbin by
     # default. Never write over the shared FSDK CUPS artifact's directories.
@@ -55,6 +55,12 @@ config:
     - chmod 0755 "%{install-root}/usr/lib/gutenprint-printer-app/backend/gutenprint53+usb"
     - install -d "%{install-root}/usr/lib/gutenprint-printer-app/backend"
     - mv "%{install-root}/usr/share/cups/usb/net.sf.gimp-print.usb-quirks" "%{install-root}/usr/lib/gutenprint-printer-app/backend/"
+
+environment:
+  MAXJOBS: "%{max-jobs}"
+
+environment-nocache:
+- MAXJOBS
 
 public:
   bst:

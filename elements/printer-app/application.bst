@@ -19,10 +19,16 @@ build-depends:
 depends:
   - fsdk-containers.bst:printing/base.bst
 
+environment:
+  MAXJOBS: "%{max-jobs}"
+
+environment-nocache:
+- MAXJOBS
+
 config:
   build-commands:
     - make clean
-    - make -j%{max-jobs} VERSION="%{gutenprint-version}" LDFLAGS="$LDFLAGS -ljpeg"
+    - make -j"${MAXJOBS}" VERSION="%{gutenprint-version}" LDFLAGS="$LDFLAGS -ljpeg"
   install-commands:
     # Keep the application's filter and backend directories independent of
     # the shared FSDK CUPS owner.
