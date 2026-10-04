@@ -5,7 +5,14 @@
   "delivery": {
     "type": "image"
   },
-  "label_aliases": {},
+  "protected_labels": [
+    "needs-decision"
+  ],
+  "label_aliases": {
+    "bug": "kind/bug",
+    "enhancement": "kind/feature",
+    "question": "kind/task"
+  },
   "bug_fields": [
     "what happened?",
     "what did you expect?",
@@ -147,8 +154,6 @@
   ],
   "standing_issues": [
     1,
-    45,
-    48,
-    75
+    45
   ]
 }
