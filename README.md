@@ -269,7 +269,7 @@ registry write credentials.
 Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
 from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
 pushes to `testing` that touch BuildStream inputs, nightly, and on demand. It builds with
-`ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache fails the refill) and prunes older entries. To reset, run `gh cache delete --all`.
+`ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache skips the save with a warning, and the job still succeeds) and prunes older entries. To reset, run `gh cache delete --all`.
 Every CI `bst` call runs with `BST_FLAGS=--config /src/ci/buildstream.conf`,
 which the `just bst` recipe passes through. That config fetches sources only
 from the Bluefin source cache.

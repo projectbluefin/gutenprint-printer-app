@@ -60,7 +60,7 @@ environment:
   MAXJOBS: "%{max-jobs}"
 
 environment-nocache:
-- MAXJOBS
+  - MAXJOBS
 
 public:
   bst:
