@@ -57,8 +57,7 @@ class RepoIssuePolicyContractTests(unittest.TestCase):
     def test_workflow_caller_contract(self):
         self.assertTrue(WORKFLOW_PATH.is_file(), f"missing {WORKFLOW_PATH}")
         content = WORKFLOW_PATH.read_text(encoding="utf-8")
-        self.assertIn("projectbluefin/actions/.github/workflows/reusable-issue-lifecycle.yml", content)
-        self.assertRegex(content, r"@48a0112c6293d00357eef0ef3a4ce2e54dbdd94a\s+#\s+v1")
+        self.assertIn("projectbluefin/actions/.github/workflows/reusable-issue-lifecycle.yml@v1", content)
         self.assertIn("github.repository == 'projectbluefin/gutenprint-printer-app'", content)
         self.assertIn("issues: write", content)
         self.assertIn("contents: read", content)

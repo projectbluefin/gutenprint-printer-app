@@ -3,6 +3,8 @@ name: Validate FSDK Gutenprint OCI image
 on:
   pull_request:
     branches: [testing, stable]
+  push:
+    branches: [testing]
   merge_group:
   workflow_dispatch:
 
