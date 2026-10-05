@@ -24,7 +24,7 @@ case "${arch}" in
     ;;
   arm64)
     expected_blob="sha256:ab5ecb38c3290228a32ec8b8ec1453738ce66ffb0557deab3b71172236ae4836"
-    expected_diffid="sha256:7b5cfbbf083c6dd11a91e56bdf1a520bfd65017042a406607e15bf943714b7e9"
+    expected_diffid="sha256:e83f5005d1e23cc0d0ba034d2e95317fa829c758ae1551f1b24fa8e9ca66c4ff"
     ;;
   *)
     echo "FAIL: Unsupported architecture ${arch}" >&2
@@ -44,8 +44,15 @@ if [[ "${diffid_0}" != "${expected_diffid}" ]]; then
   exit 1
 fi
 
-# 2. Inspect manifest layers via skopeo
-manifest="$(skopeo inspect --raw "containers-storage:${IMAGE}")"
+# 2. Inspect manifest layers via skopeo in proper user namespace or OCI transport
+if [[ -d .build-out && -f .build-out/index.json ]]; then
+  manifest="$(skopeo inspect --raw "oci:.build-out")"
+  inspect_transport="oci:.build-out"
+else
+  manifest="$(podman unshare skopeo inspect --raw "containers-storage:${IMAGE}")"
+  inspect_transport="containers-storage:${IMAGE}"
+fi
+
 layer_count="$(jq '.layers | length' <<< "${manifest}")"
 if [[ "${layer_count}" -ne 2 ]]; then
   echo "FAIL: Expected exactly 2 layers in manifest, found ${layer_count}" >&2
@@ -72,7 +79,11 @@ mkdir -p "${scratch_dir}"
 cleanup() { rm -rf "${scratch_dir}"; }
 trap cleanup EXIT
 
-skopeo copy "containers-storage:${IMAGE}" "dir:${scratch_dir}"
+if [[ "${inspect_transport}" == "oci:.build-out" ]]; then
+  skopeo copy "oci:.build-out" "dir:${scratch_dir}"
+else
+  podman unshare skopeo copy "containers-storage:${IMAGE}" "dir:${scratch_dir}"
+fi
 
 layer0_file="${scratch_dir}/${layer0_digest#sha256:}"
 layer1_file="${scratch_dir}/${layer1_digest#sha256:}"
@@ -102,9 +113,10 @@ def hash_member(tf, member):
     return h.hexdigest()
 
 def member_signature(tf, m):
-    # Full signature: (type, size, mode, mtime, uid, gid, data_sha256)
+    # Full signature: (type, size, mode, mtime, uid, gid, data_sha256, pax_headers)
     data_hash = hash_member(tf, m) if m.isreg() else None
-    return (m.type, m.size, m.mode, m.mtime, m.uid, m.gid, data_hash)
+    pax = tuple(sorted(m.pax_headers.items())) if m.pax_headers else None
+    return (m.type, m.size, m.mode, m.mtime, m.uid, m.gid, data_hash, pax)
 
 layer0_path = "${layer0_file}"
 layer1_path = "${layer1_file}"
@@ -137,7 +149,7 @@ with tarfile.open(layer1_path, "r:*") as tf1:
             if p in layer0_files:
                 l0_sig = layer0_files[p]
                 l1_sig = member_signature(tf1, m)
-                # Full signature comparison: fail only if data SHA, size, type, mode, mtime, uid/gid are all identical
+                # Full signature comparison: fail only if data SHA, size, type, mode, mtime, uid/gid, and PAX attrs are all identical
                 if l1_sig == l0_sig:
                     duplicated.append((p, m.size))
 

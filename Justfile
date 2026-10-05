@@ -54,7 +54,6 @@ export:
     rm -rf .build-out
     just bst artifact checkout oci/gutenprint-printer-app.bst --directory /src/.build-out
     image_id="$(podman pull -q oci:.build-out)"
-    rm -rf .build-out
     podman tag "$image_id" "{{ image_ref }}"
 
 # Host-only: the entrypoint must reject malformed web-administration settings
@@ -66,6 +65,7 @@ verify:
     tests/entrypoint-validation.sh
     just build
     tests/runtime-layer-proof.sh
+    rm -rf .build-out
     tests/image-metadata.sh
     tests/no-devel.sh
     tests/locale-slim.sh
