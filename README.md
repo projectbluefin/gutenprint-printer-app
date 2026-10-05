@@ -261,10 +261,11 @@ two instances coexist on one host (`tests/coexistence.sh`, below), and that
 the image ships none of Avahi's sample remote-login records
 (`just check-no-remote-login-records`, below).
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
-for testing only. CI on pull requests only validates the BuildStream graph
-(`just validate`). The merge queue and manual `workflow_dispatch` runs build
-the image and run `just verify` on native x86_64 and aarch64 without
-registry write credentials.
+for testing only. CI on pull requests runs `just validate`: the unit tests,
+the source-pin agreement check, the host-only entrypoint rejections
+(`tests/entrypoint-validation.sh`) and the BuildStream graph. The merge
+queue and manual `workflow_dispatch` runs build the image and run
+`just verify` on native x86_64 and aarch64 without registry write credentials.
 
 Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
 from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
@@ -421,7 +422,8 @@ Setting an unlisted server option such as `no-tls` or `none`, a name with
 characters outside `[A-Za-z0-9_.-]`, a group PAPPL cannot resolve (it would
 otherwise skip the group check and admit every authenticated user), or a group
 without an auth service is rejected. `tests/entrypoint-validation.sh` covers
-those rejections on the host; `tests/appliance.sh` verifies the
+those rejections on the host (pull requests run it via `just validate`);
+`tests/appliance.sh` verifies the
 `no-web-interface` behaviour against the built image.
 
 Keep USB absent for LAN-only instances. For a USB printer, pass only the
