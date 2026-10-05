@@ -124,15 +124,42 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
+          case "${ARCH}" in
+            x86_64)
+              oci_arch="amd64"
+              expected_leaf="sha256:94e3c6833dc6c14c03fafc56d3a4b3c4a283f882a05005d4967862c1be9c0882"
+              ;;
+            aarch64)
+              oci_arch="arm64"
+              expected_leaf="sha256:e8c1617526dd88ade763ef4c621e13b48353e75b132ca4bf219740b9e1a07c47"
+              ;;
+            *)
+              echo "Unknown architecture: ${ARCH}" >&2
+              exit 1
+              ;;
+          esac
+
           REPO="ghcr.io/projectbluefin/printing-runtime-layer"
           INDEX_DIGEST="sha256:15752aefb1d43262bf75123968b39b2e610e3996c11088a246995a3808eec51f"
+
+          # Verify signature on multi-arch index before reading or copying
           cosign verify \
             --certificate-identity-regexp '^https://github.com/projectbluefin/fsdk-containers/.github/workflows/' \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             "${REPO}@${INDEX_DIGEST}" >/dev/null
+
+          # Verify index contains the expected architecture leaf manifest
+          leaf="$(skopeo inspect --raw "docker://${REPO}@${INDEX_DIGEST}" | jq -r --arg a "$oci_arch" '.manifests[] | select(.platform.architecture == $a and .platform.os == "linux") | .digest')"
+          if [[ "${leaf}" != "${expected_leaf}" ]]; then
+            echo "::error::Leaf manifest digest ${leaf} does not match expected ${expected_leaf} for ${oci_arch}"
+            exit 1
+          fi
+
+          # Seed exact leaf manifest to local OCI layout using --preserve-digests
           target_dir="files/runtime-layer/${ARCH}"
+          rm -rf "${target_dir}"
           mkdir -p "${target_dir}"
-          skopeo copy --override-arch "${ARCH}" --override-os linux \
+          skopeo copy --preserve-digests --override-arch "${oci_arch}" --override-os linux \
             "docker://${REPO}@${INDEX_DIGEST}" "oci:${target_dir}:layer"
       - name: Build image
         if: env.FULL_BUILD == 'true'

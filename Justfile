@@ -65,6 +65,7 @@ verify-entrypoint-validation:
 verify:
     tests/entrypoint-validation.sh
     just build
+    tests/runtime-layer-proof.sh
     tests/image-metadata.sh
     tests/no-devel.sh
     tests/locale-slim.sh
