@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Exhaustive verification of the shared printing runtime layer integration (issue #342):
 # 1. Image manifest contains exactly 2 layers.
-# 2. Layer 0 matches the published architecture blob from producer.
+# 2. Local uncompressed Layer 0 matches the producer DiffID and uncompressed mediaType.
 # 3. Config rootfs.diff_ids[0] matches the expected DiffID.
 # 4. Inventory comparison: no unchanged regular lower files are duplicated into Layer 1.
 # 5. Layer 1 contains the Gutenprint application payload.
@@ -19,12 +19,12 @@ diff_ids="$(podman image inspect --format '{{json .RootFS.Layers}}' "${IMAGE}")"
 
 case "${arch}" in
   amd64)
-    expected_blob="sha256:48f4771e199eead682c592e87c043c2389670e5b84e8d35cc40204e3b24fcd4f"
     expected_diffid="sha256:3824256ba0d1eddb3ca84e8a042a3ef03bf5fbbdb28c6d67393642476c7c06f6"
+    expected_local_layer0_blob="sha256:3824256ba0d1eddb3ca84e8a042a3ef03bf5fbbdb28c6d67393642476c7c06f6"
     ;;
   arm64)
-    expected_blob="sha256:ab5ecb38c3290228a32ec8b8ec1453738ce66ffb0557deab3b71172236ae4836"
     expected_diffid="sha256:e83f5005d1e23cc0d0ba034d2e95317fa829c758ae1551f1b24fa8e9ca66c4ff"
+    expected_local_layer0_blob="sha256:e83f5005d1e23cc0d0ba034d2e95317fa829c758ae1551f1b24fa8e9ca66c4ff"
     ;;
   *)
     echo "FAIL: Unsupported architecture ${arch}" >&2
@@ -53,6 +53,9 @@ else
   inspect_transport="containers-storage:${IMAGE}"
 fi
 
+echo "=== Measured Manifest (${inspect_transport}) ==="
+jq . <<< "${manifest}"
+
 layer_count="$(jq '.layers | length' <<< "${manifest}")"
 if [[ "${layer_count}" -ne 2 ]]; then
   echo "FAIL: Expected exactly 2 layers in manifest, found ${layer_count}" >&2
@@ -67,8 +70,13 @@ layer1_digest="$(jq -r '.layers[1].digest' <<< "${manifest}")"
 layer1_size="$(jq -r '.layers[1].size' <<< "${manifest}")"
 layer1_type="$(jq -r '.layers[1].mediaType' <<< "${manifest}")"
 
-if [[ "${layer0_digest}" != "${expected_blob}" ]]; then
-  echo "FAIL: Layer 0 digest ${layer0_digest} does not match expected producer blob ${expected_blob}" >&2
+# Local builder with gzip: disabled normalizes parent to uncompressed tar (digest == DiffID)
+if [[ "${layer0_digest}" != "${expected_local_layer0_blob}" ]]; then
+  echo "FAIL: Local uncompressed Layer 0 digest ${layer0_digest} does not match expected producer DiffID ${expected_local_layer0_blob}" >&2
+  exit 1
+fi
+if [[ "${layer0_type}" != "application/vnd.oci.image.layer.v1.tar" ]]; then
+  echo "FAIL: Local uncompressed Layer 0 mediaType is ${layer0_type}, expected application/vnd.oci.image.layer.v1.tar" >&2
   exit 1
 fi
 
@@ -180,4 +188,4 @@ if duplicated:
 print("PASS: Zero identical lower files duplicated into Layer 1.")
 PYCHECK
 
-echo "OK: Runtime layer proof passed: 2 layers, exact Layer 0 producer blob (${arch}), diffID verified, zero lower duplicates."
+echo "OK: Runtime layer proof passed: 2 layers, exact Layer 0 producer DiffID (${arch}), diffID verified, zero lower duplicates."
