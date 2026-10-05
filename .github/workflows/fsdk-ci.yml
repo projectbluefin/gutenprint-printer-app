@@ -113,6 +113,25 @@ jobs:
           else
             echo "printing base seeded from ${ARCH}-${KEY}"
           fi
+      # Seed the shared printing runtime layer into files/runtime-layer/${ARCH}
+      # for build-oci parent.image. Never fallback-extract an unsigned parent:
+      # verification failure aborts the step.
+      - name: Seed printing runtime layer
+        if: env.FULL_BUILD == 'true'
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          REPO="ghcr.io/projectbluefin/printing-runtime-layer"
+          INDEX_DIGEST="sha256:15752aefb1d43262bf75123968b39b2e610e3996c11088a246995a3808eec51f"
+          cosign verify \
+            --certificate-identity-regexp '^https://github.com/projectbluefin/fsdk-containers/.github/workflows/' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${REPO}@${INDEX_DIGEST}" >/dev/null
+          target_dir="files/runtime-layer/${ARCH}"
+          mkdir -p "${target_dir}"
+          skopeo copy --override-arch "${ARCH}" --override-os linux \
+            "docker://${REPO}@${INDEX_DIGEST}" "oci:${target_dir}:layer"
       - name: Build image
         if: env.FULL_BUILD == 'true'
         run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst

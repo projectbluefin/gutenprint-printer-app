@@ -6,6 +6,9 @@ build-depends:
   - fsdk-containers.bst:freedesktop-sdk.bst:components/findutils.bst
   - fsdk-containers.bst:freedesktop-sdk.bst:components/oci-builder.bst
   - fsdk-containers.bst:freedesktop-sdk.bst:components/sed.bst
+  - filename: oci/parent-runtime-layer.bst
+    config:
+      location: /parent
   - filename: printer-app/version.bst
     config:
       location: /metadata
@@ -65,6 +68,8 @@ config:
       images:
         - os: linux
           architecture: "%{go-arch}"
+          parent:
+            image: /parent
           layer: /layer
           config:
             User: '65532:65532'
@@ -81,6 +86,7 @@ config:
               'io.projectbluefin.gutenprint.ref': '${gutenprint_ref}'
               # The FSDK release fsdk-containers builds on; update-base.yml rewrites
               # both labels with the junction and tests/source-pins.sh checks them.
-              'io.projectbluefin.fsdk.version': '26.08.1'
-              'io.projectbluefin.fsdk.ref': 'b02b59ffe19a49a402f357fd5fcb1d552ebc50d7'
+              'io.projectbluefin.fsdk.version': '26.08.2'
+              'io.projectbluefin.fsdk.ref': '32c5fea70e827885fc805d38a9dc5716c39ed173'
+              'io.projectbluefin.printing-runtime-layer.index': 'sha256:15752aefb1d43262bf75123968b39b2e610e3996c11088a246995a3808eec51f'
       EOF
