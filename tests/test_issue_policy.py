@@ -74,6 +74,14 @@ class RepoIssuePolicyContractTests(unittest.TestCase):
         self.assertIn("actions: read", content)
         self.assertIn("pull-requests: write", content)
         self.assertNotIn("secrets: inherit", content)
+        rule = json.loads((ROOT / "renovate.json").read_text())["packageRules"][-1]
+        self.assertEqual(rule["matchManagers"], ["github-actions"])
+        self.assertEqual(rule["matchFileNames"], [".github/workflows/issue-lifecycle.yml"])
+        self.assertEqual(rule["matchPackageNames"], ["projectbluefin/actions"])
+        self.assertIs(rule["pinDigests"], False)
+        rules = json.loads((ROOT / "renovate.json").read_text())["packageRules"]
+        runner_rule = next(r for r in rules if r.get("matchDatasources") == ["github-runners"])
+        self.assertEqual(runner_rule["allowedVersions"], r"/^24\.04(?:-arm)?$/")
 
 
 if __name__ == "__main__":
