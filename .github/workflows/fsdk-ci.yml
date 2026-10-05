@@ -35,7 +35,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write
     env:
       FULL_BUILD: ${{ github.event_name != 'pull_request' }}
       # Every bst call, including those inside just recipes, uses the CI
@@ -178,7 +177,7 @@ jobs:
       # ${ARCH}-runtime-proof-${RUN_ID} to verify that remote GHCR publication
       # preserves the Layer 0 blob without recompression or digest mutation.
       - name: Publish and verify runtime layer pull-time proof
-        if: github.event_name == 'workflow_dispatch' && inputs.publish_runtime_proof == true
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_runtime_proof == true && github.ref == 'refs/heads/feat/shared-runtime-layer-proof'
         env:
           ARCH: ${{ matrix.arch }}
           GH_TOKEN: ${{ github.token }}

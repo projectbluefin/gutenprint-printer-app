@@ -87,7 +87,10 @@ python3 - <<PYCHECK
 import tarfile, hashlib, sys
 
 def norm(path):
-    return path.lstrip(".").lstrip("/")
+    # Strip literal leading './' prefix without collapsing real hidden names or .wh markers
+    if path.startswith("./"):
+        path = path[2:]
+    return path.lstrip("/")
 
 def hash_member(tf, member):
     f = tf.extractfile(member)
@@ -97,6 +100,11 @@ def hash_member(tf, member):
     while chunk := f.read(65536):
         h.update(chunk)
     return h.hexdigest()
+
+def member_signature(tf, m):
+    # Full signature: (type, size, mode, mtime, uid, gid, data_sha256)
+    data_hash = hash_member(tf, m) if m.isreg() else None
+    return (m.type, m.size, m.mode, m.mtime, m.uid, m.gid, data_hash)
 
 layer0_path = "${layer0_file}"
 layer1_path = "${layer1_file}"
@@ -108,7 +116,7 @@ with tarfile.open(layer0_path, "r:*") as tf0:
         layer0_total += 1
         if m.isreg():
             p = norm(m.name)
-            layer0_files[p] = (m.size, hash_member(tf0, m))
+            layer0_files[p] = member_signature(tf0, m)
 
 layer1_total = 0
 layer1_reg = 0
@@ -127,11 +135,11 @@ with tarfile.open(layer1_path, "r:*") as tf1:
         if m.isreg():
             layer1_reg += 1
             if p in layer0_files:
-                l0_size, l0_hash = layer0_files[p]
-                if m.size == l0_size:
-                    l1_hash = hash_member(tf1, m)
-                    if l1_hash == l0_hash:
-                        duplicated.append((p, m.size))
+                l0_sig = layer0_files[p]
+                l1_sig = member_signature(tf1, m)
+                # Full signature comparison: fail only if data SHA, size, type, mode, mtime, uid/gid are all identical
+                if l1_sig == l0_sig:
+                    duplicated.append((p, m.size))
 
 print(f"Layer 0 ({'${arch}'}):")
 print(f"  Digest: {'${layer0_digest}'}")
