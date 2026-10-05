@@ -202,16 +202,23 @@ jobs:
 
           TAG="${ARCH}-runtime-proof-${RUN_ID}"
           TARGET="ghcr.io/projectbluefin/gutenprint-printer-app:${TAG}"
-          LOCAL_IMAGE="ghcr.io/projectbluefin/gutenprint-printer-app:build"
+          PUBLISH_DIR=".build-out-publish"
 
           echo "Publishing proof for ${ARCH} (OCI ${oci_arch})..."
 
-          echo "Logging in to ${REGISTRY}..."
-          echo "${GH_TOKEN}" | podman login "${REGISTRY}" --username "${GITHUB_ACTOR}" --password-stdin
+          # Assemble OCI layout carrying original compressed Layer 0 blob and child Layer 1/config
+          rm -rf "${PUBLISH_DIR}"
+          python3 scripts/assemble-runtime-layer-proof.py \
+            --build-out .build-out \
+            --parent-dir "files/runtime-layer/${ARCH}" \
+            --output "${PUBLISH_DIR}" \
+            --tag "${TAG}"
 
-          echo "Pushing unique proof tag ${TARGET} (no VERSION/stable/latest)..."
-          podman tag "${LOCAL_IMAGE}" "${TARGET}"
-          podman push "${TARGET}"
+          echo "Logging in to ${REGISTRY} via skopeo..."
+          echo "${GH_TOKEN}" | skopeo login "${REGISTRY}" --username "${GITHUB_ACTOR}" --password-stdin
+
+          echo "Copying OCI layout to ${TARGET} with --preserve-digests (no VERSION/stable/latest)..."
+          skopeo copy --preserve-digests "oci:${PUBLISH_DIR}:${TAG}" "docker://${TARGET}"
 
           echo "Inspecting remotely published manifest via skopeo..."
           remote_manifest="$(skopeo inspect --raw "docker://${TARGET}")"
