@@ -7,6 +7,11 @@ on:
     branches: [testing]
   merge_group:
   workflow_dispatch:
+    inputs:
+      publish_runtime_proof:
+        description: "Publish unique ${ARCH}-runtime-proof-${RUN_ID} tag to verify pull-time layer preservation"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -29,6 +34,8 @@ jobs:
     timeout-minutes: 360
     permissions:
       contents: read
+      packages: write
+      id-token: write
     env:
       FULL_BUILD: ${{ github.event_name != 'pull_request' }}
       # Every bst call, including those inside just recipes, uses the CI
@@ -167,3 +174,60 @@ jobs:
       - name: Build actual image and print Epson raster to socket sink
         if: env.FULL_BUILD == 'true'
         run: just verify
+      # Pull-time proof (isolated proof topic only): push unique proof tag
+      # ${ARCH}-runtime-proof-${RUN_ID} to verify that remote GHCR publication
+      # preserves the Layer 0 blob without recompression or digest mutation.
+      - name: Publish and verify runtime layer pull-time proof
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_runtime_proof == true
+        env:
+          ARCH: ${{ matrix.arch }}
+          GH_TOKEN: ${{ github.token }}
+          REGISTRY: ghcr.io
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          case "${ARCH}" in
+            x86_64)
+              oci_arch="amd64"
+              expected_blob="sha256:48f4771e199eead682c592e87c043c2389670e5b84e8d35cc40204e3b24fcd4f"
+              ;;
+            aarch64)
+              oci_arch="arm64"
+              expected_blob="sha256:ab5ecb38c3290228a32ec8b8ec1453738ce66ffb0557deab3b71172236ae4836"
+              ;;
+            *)
+              echo "Unknown architecture: ${ARCH}" >&2
+              exit 1
+              ;;
+          esac
+
+          TAG="${ARCH}-runtime-proof-${RUN_ID}"
+          TARGET="ghcr.io/projectbluefin/gutenprint-printer-app:${TAG}"
+          LOCAL_IMAGE="ghcr.io/projectbluefin/gutenprint-printer-app:build"
+
+          echo "Publishing proof for ${ARCH} (OCI ${oci_arch})..."
+
+          echo "Logging in to ${REGISTRY}..."
+          echo "${GH_TOKEN}" | podman login "${REGISTRY}" --username "${GITHUB_ACTOR}" --password-stdin
+
+          echo "Pushing unique proof tag ${TARGET} (no VERSION/stable/latest)..."
+          podman tag "${LOCAL_IMAGE}" "${TARGET}"
+          podman push "${TARGET}"
+
+          echo "Inspecting remotely published manifest via skopeo..."
+          remote_manifest="$(skopeo inspect --raw "docker://${TARGET}")"
+          echo "${remote_manifest}" | jq .
+
+          remote_layers="$(jq '.layers | length' <<< "${remote_manifest}")"
+          if [[ "${remote_layers}" -ne 2 ]]; then
+            echo "::error::Published remote manifest has ${remote_layers} layers; expected exactly 2"
+            exit 1
+          fi
+
+          remote_layer0="$(jq -r '.layers[0].digest' <<< "${remote_manifest}")"
+          if [[ "${remote_layer0}" != "${expected_blob}" ]]; then
+            echo "::error::Published remote Layer 0 digest ${remote_layer0} does not match producer blob ${expected_blob}"
+            exit 1
+          fi
+
+          echo "PULL-TIME PROOF VERIFIED: ${TARGET} published with 2 layers and exact producer Layer 0 blob (${remote_layer0})."
