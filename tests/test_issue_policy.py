@@ -54,6 +54,16 @@ class RepoIssuePolicyContractTests(unittest.TestCase):
         protected = self.catalog.get("protected_labels", [])
         self.assertIn("needs-decision", protected)
 
+    def test_prow_yaml_is_json_compatible_for_file_json_helper(self):
+        prow_path = ROOT / ".github" / "prow.yaml"
+        self.assertTrue(prow_path.is_file(), f"missing {prow_path}")
+        text = prow_path.read_text(encoding="utf-8")
+        # .github/prow.yaml must be parseable by json.loads() to satisfy
+        # projectbluefin/actions GitHub.file_json() remote contents helper
+        parsed = json.loads(text)
+        self.assertEqual(parsed.get("hold", {}).get("label"), "hold")
+        self.assertEqual(parsed.get("labels", {}).get("kind", {}).get("values"), ["bug", "feature", "task", "test"])
+
     def test_workflow_caller_contract(self):
         self.assertTrue(WORKFLOW_PATH.is_file(), f"missing {WORKFLOW_PATH}")
         content = WORKFLOW_PATH.read_text(encoding="utf-8")
