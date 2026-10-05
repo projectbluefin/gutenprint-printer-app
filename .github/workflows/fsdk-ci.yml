@@ -206,13 +206,18 @@ jobs:
 
           echo "Publishing proof for ${ARCH} (OCI ${oci_arch})..."
 
+          # Re-checkout already tested/cached OCI artifact directly to .build-out
+          rm -rf .build-out
+          just bst artifact checkout oci/gutenprint-printer-app.bst --directory /src/.build-out
+
           # Assemble OCI layout carrying original compressed Layer 0 blob and child Layer 1/config
           rm -rf "${PUBLISH_DIR}"
-          python3 scripts/assemble-runtime-layer-proof.py \
+          python3 scripts/assemble_runtime_layer_proof.py \
             --build-out .build-out \
             --parent-dir "files/runtime-layer/${ARCH}" \
             --output "${PUBLISH_DIR}" \
             --tag "${TAG}"
+          rm -rf .build-out
 
           echo "Logging in to ${REGISTRY} via skopeo..."
           echo "${GH_TOKEN}" | skopeo login "${REGISTRY}" --username "${GITHUB_ACTOR}" --password-stdin
