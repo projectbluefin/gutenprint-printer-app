@@ -4,34 +4,58 @@
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
 
-
-def read_json(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+SHA256_RE = re.compile(r"^sha256:([0-9a-f]{64})$")
+SUPPORTED_ARCHES = {"amd64", "arm64"}
 
 
-def blob_path(oci_dir, digest):
-    algo, h = digest.split(":", 1)
-    return oci_dir / "blobs" / algo / h
-
-
-def verify_blob(path, expected_digest, expected_size):
+def read_json(path: Path):
     if not path.is_file():
-        raise ValueError(f"Blob file missing: {path}")
-    actual_size = path.stat().st_size
-    if actual_size != expected_size:
-        raise ValueError(f"Blob size mismatch for {expected_digest}: expected {expected_size}, got {actual_size}")
+        raise ValueError(f"JSON file missing: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Malformed JSON in {path}: {e}") from e
+
+
+def blob_path(oci_dir: Path, digest: str) -> Path:
+    m = SHA256_RE.match(digest)
+    if not m:
+        raise ValueError(f"Invalid sha256 digest format: {digest!r}")
+    return oci_dir / "blobs" / "sha256" / m.group(1)
+
+
+def verify_descriptor_and_blob(oci_dir: Path, desc: dict, context: str) -> Path:
+    if not isinstance(desc, dict):
+        raise ValueError(f"{context} descriptor must be an object, got {type(desc)}")
+    digest = desc.get("digest")
+    if not isinstance(digest, str) or not SHA256_RE.match(digest):
+        raise ValueError(f"{context} descriptor missing or invalid digest: {digest!r}")
+    size = desc.get("size")
+    if not isinstance(size, int) or size < 0:
+        raise ValueError(f"{context} descriptor missing or invalid size: {size!r}")
+
+    p = blob_path(oci_dir, digest)
+    if not p.is_file():
+        raise ValueError(f"{context} blob file missing: {p}")
+    actual_size = p.stat().st_size
+    if actual_size != size:
+        raise ValueError(f"{context} blob size mismatch for {digest}: expected {size}, got {actual_size}")
+
     h = hashlib.sha256()
-    with open(path, "rb") as f:
+    with open(p, "rb") as f:
         while chunk := f.read(65536):
             h.update(chunk)
     actual_digest = f"sha256:{h.hexdigest()}"
-    if actual_digest != expected_digest:
-        raise ValueError(f"Blob digest mismatch: expected {expected_digest}, computed {actual_digest}")
+    if actual_digest != digest:
+        raise ValueError(f"{context} blob digest mismatch: expected {digest}, computed {actual_digest}")
+
+    return p
 
 
 def assemble_publication_layout(build_out: Path, parent_dir: Path, output_dir: Path, tag: str):
@@ -40,70 +64,101 @@ def assemble_publication_layout(build_out: Path, parent_dir: Path, output_dir: P
     if not parent_dir.is_dir():
         raise ValueError(f"parent directory {parent_dir} does not exist")
 
-    # 1. Read child index and manifest from build-out
+    # 1. Read and verify child index
     child_index = read_json(build_out / "index.json")
-    if len(child_index.get("manifests", [])) != 1:
-        raise ValueError(f"Child index must contain exactly 1 manifest, got {len(child_index.get('manifests', []))}")
-    child_manifest_desc = child_index["manifests"][0]
-    child_manifest = read_json(blob_path(build_out, child_manifest_desc["digest"]))
+    manifests = child_index.get("manifests")
+    if not isinstance(manifests, list) or len(manifests) != 1:
+        raise ValueError(f"Child index must contain exactly 1 manifest, got {manifests}")
+    child_manifest_desc = manifests[0]
+    child_manifest_path = verify_descriptor_and_blob(build_out, child_manifest_desc, "child index manifest")
+    child_manifest = read_json(child_manifest_path)
 
-    if len(child_manifest.get("layers", [])) != 2:
-        raise ValueError(f"Child manifest must contain exactly 2 layers, got {len(child_manifest.get('layers', []))}")
+    # 2. Read and verify child manifest descriptors
+    layers = child_manifest.get("layers")
+    if not isinstance(layers, list) or len(layers) != 2:
+        raise ValueError(f"Child manifest must contain exactly 2 layers, got {layers}")
+    child_l0_desc = layers[0]
+    child_l1_desc = layers[1]
+    verify_descriptor_and_blob(build_out, child_l0_desc, "child layer 0")
+    c1_blob = verify_descriptor_and_blob(build_out, child_l1_desc, "child layer 1")
 
-    config_desc = child_manifest["config"]
-    child_layer1_desc = child_manifest["layers"][1]
-    child_config = read_json(blob_path(build_out, config_desc["digest"]))
+    child_config_desc = child_manifest.get("config")
+    cfg_blob = verify_descriptor_and_blob(build_out, child_config_desc, "child config")
+    child_config = read_json(cfg_blob)
 
-    # 2. Read parent index and manifest from parent_dir
+    # 3. Read and verify parent index
     parent_index = read_json(parent_dir / "index.json")
-    if len(parent_index.get("manifests", [])) != 1:
-        raise ValueError(f"Parent index must contain exactly 1 manifest, got {len(parent_index.get('manifests', []))}")
-    parent_manifest_desc = parent_index["manifests"][0]
-    parent_manifest = read_json(blob_path(parent_dir, parent_manifest_desc["digest"]))
+    p_manifests = parent_index.get("manifests")
+    if not isinstance(p_manifests, list) or len(p_manifests) != 1:
+        raise ValueError(f"Parent index must contain exactly 1 manifest, got {p_manifests}")
+    parent_manifest_desc = p_manifests[0]
+    parent_manifest_path = verify_descriptor_and_blob(parent_dir, parent_manifest_desc, "parent index manifest")
+    parent_manifest = read_json(parent_manifest_path)
 
-    if len(parent_manifest.get("layers", [])) != 1:
-        raise ValueError(f"Parent manifest must contain exactly 1 layer, got {len(parent_manifest.get('layers', []))}")
-    parent_layer0_desc = parent_manifest["layers"][0]
-    parent_config = read_json(blob_path(parent_dir, parent_manifest["config"]["digest"]))
+    # 4. Read and verify parent manifest descriptors
+    p_layers = parent_manifest.get("layers")
+    if not isinstance(p_layers, list) or len(p_layers) != 1:
+        raise ValueError(f"Parent manifest must contain exactly 1 layer, got {p_layers}")
+    parent_layer0_desc = p_layers[0]
+    p0_blob = verify_descriptor_and_blob(parent_dir, parent_layer0_desc, "parent layer 0")
 
-    # 3. Structural validation BEFORE any output writes
-    if child_config.get("architecture") != parent_config.get("architecture"):
-        raise ValueError(
-            f"Architecture mismatch: child is {child_config.get('architecture')}, parent is {parent_config.get('architecture')}"
-        )
-    if child_config.get("os") != parent_config.get("os"):
-        raise ValueError(f"OS mismatch: child is {child_config.get('os')}, parent is {parent_config.get('os')}")
+    parent_config_desc = parent_manifest.get("config")
+    p_cfg_blob = verify_descriptor_and_blob(parent_dir, parent_config_desc, "parent config")
+    parent_config = read_json(p_cfg_blob)
 
-    parent_diff_id = parent_config.get("rootfs", {}).get("diff_ids", [""])[0]
-    child_diff_id_0 = child_config.get("rootfs", {}).get("diff_ids", [""])[0]
-    if child_diff_id_0 != parent_diff_id:
-        raise ValueError(
-            f"RootFS DiffID 0 mismatch: child has {child_diff_id_0}, parent has {parent_diff_id}"
-        )
+    # 5. Strict architectural and configuration validation BEFORE any output writes
+    child_arch = child_config.get("architecture")
+    parent_arch = parent_config.get("architecture")
+    if child_arch not in SUPPORTED_ARCHES:
+        raise ValueError(f"Child architecture must be one of {SUPPORTED_ARCHES}, got {child_arch!r}")
+    if parent_arch not in SUPPORTED_ARCHES:
+        raise ValueError(f"Parent architecture must be one of {SUPPORTED_ARCHES}, got {parent_arch!r}")
+    if child_arch != parent_arch:
+        raise ValueError(f"Architecture mismatch: child is {child_arch}, parent is {parent_arch}")
 
-    # 4. Verify blob digests and sizes before copying
-    p0_blob = blob_path(parent_dir, parent_layer0_desc["digest"])
-    verify_blob(p0_blob, parent_layer0_desc["digest"], parent_layer0_desc["size"])
+    child_os = child_config.get("os")
+    parent_os = parent_config.get("os")
+    if child_os != "linux":
+        raise ValueError(f"Child OS must be 'linux', got {child_os!r}")
+    if parent_os != "linux":
+        raise ValueError(f"Parent OS must be 'linux', got {parent_os!r}")
 
-    c1_blob = blob_path(build_out, child_layer1_desc["digest"])
-    verify_blob(c1_blob, child_layer1_desc["digest"], child_layer1_desc["size"])
+    # Validate rootfs structures: no missing values, no success defaults
+    child_rootfs = child_config.get("rootfs")
+    if not isinstance(child_rootfs, dict) or child_rootfs.get("type") != "layers":
+        raise ValueError("Child config rootfs.type must be 'layers'")
+    child_diff_ids = child_rootfs.get("diff_ids")
+    if not isinstance(child_diff_ids, list) or len(child_diff_ids) != 2:
+        raise ValueError(f"Child config rootfs.diff_ids must contain exactly 2 entries, got {child_diff_ids}")
+    for did in child_diff_ids:
+        if not isinstance(did, str) or not SHA256_RE.match(did):
+            raise ValueError(f"Child diff_id must be valid sha256: {did!r}")
 
-    cfg_blob = blob_path(build_out, config_desc["digest"])
-    verify_blob(cfg_blob, config_desc["digest"], config_desc["size"])
+    parent_rootfs = parent_config.get("rootfs")
+    if not isinstance(parent_rootfs, dict) or parent_rootfs.get("type") != "layers":
+        raise ValueError("Parent config rootfs.type must be 'layers'")
+    parent_diff_ids = parent_rootfs.get("diff_ids")
+    if not isinstance(parent_diff_ids, list) or len(parent_diff_ids) != 1:
+        raise ValueError(f"Parent config rootfs.diff_ids must contain exactly 1 entry, got {parent_diff_ids}")
+    if not isinstance(parent_diff_ids[0], str) or not SHA256_RE.match(parent_diff_ids[0]):
+        raise ValueError(f"Parent diff_id must be valid sha256: {parent_diff_ids[0]!r}")
 
-    # 5. Create output layout and copy verified blobs
+    if child_diff_ids[0] != parent_diff_ids[0]:
+        raise ValueError(f"RootFS DiffID 0 mismatch: child has {child_diff_ids[0]}, parent has {parent_diff_ids[0]}")
+
+    # 6. Create output layout and copy verified blobs (now safe after all validations passed)
     out_blobs = output_dir / "blobs" / "sha256"
     out_blobs.mkdir(parents=True, exist_ok=True)
 
     shutil.copyfile(p0_blob, blob_path(output_dir, parent_layer0_desc["digest"]))
-    shutil.copyfile(c1_blob, blob_path(output_dir, child_layer1_desc["digest"]))
-    shutil.copyfile(cfg_blob, blob_path(output_dir, config_desc["digest"]))
+    shutil.copyfile(c1_blob, blob_path(output_dir, child_l1_desc["digest"]))
+    shutil.copyfile(cfg_blob, blob_path(output_dir, child_config_desc["digest"]))
 
-    # 6. Construct published manifest (preserve all child fields, swap only layers[0])
+    # 7. Construct published manifest (preserve all child fields, swap only layers[0])
     published_manifest = dict(child_manifest)
     published_manifest["layers"] = [
         parent_layer0_desc,
-        child_layer1_desc,
+        child_l1_desc,
     ]
     manifest_bytes = json.dumps(published_manifest, separators=(",", ":")).encode("utf-8")
     manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
@@ -112,7 +167,7 @@ def assemble_publication_layout(build_out: Path, parent_dir: Path, output_dir: P
     with open(out_blobs / manifest_hash, "wb") as f:
         f.write(manifest_bytes)
 
-    # 7. Construct published index (preserve child index annotations/fields, update digest/size)
+    # 8. Construct published index (preserve child index annotations/fields, update digest/size)
     published_index = dict(child_index)
     new_desc = dict(child_manifest_desc)
     new_desc["digest"] = manifest_digest
@@ -125,7 +180,7 @@ def assemble_publication_layout(build_out: Path, parent_dir: Path, output_dir: P
     with open(output_dir / "index.json", "w", encoding="utf-8") as f:
         json.dump(published_index, f, separators=(",", ":"))
 
-    # 8. Write oci-layout
+    # 9. Write oci-layout
     with open(output_dir / "oci-layout", "w", encoding="utf-8") as f:
         json.dump({"imageLayoutVersion": "1.0.0"}, f)
 
@@ -134,9 +189,9 @@ def assemble_publication_layout(build_out: Path, parent_dir: Path, output_dir: P
         "layer0_digest": parent_layer0_desc["digest"],
         "layer0_size": parent_layer0_desc["size"],
         "layer0_type": parent_layer0_desc["mediaType"],
-        "layer1_digest": child_layer1_desc["digest"],
-        "layer1_size": child_layer1_desc["size"],
-        "config_digest": config_desc["digest"],
+        "layer1_digest": child_l1_desc["digest"],
+        "layer1_size": child_l1_desc["size"],
+        "config_digest": child_config_desc["digest"],
     }
 
 
