@@ -393,8 +393,8 @@ cannot honour stops the container instead of starting it unauthenticated
 
 `PRINTER_APP_SERVER_OPTIONS=no-web-interface` is the supported way to run the
 appliance on a LAN-facing surface today: every web page, including the
-per-printer configuration and pappl-retrofit's "Device Settings" pages, answers
-`404`, while IPP printing, IPP administration from the container itself, and
+per-printer configuration, pappl-retrofit's "Device Settings" pages and the
+`/logs` and `/logfile.txt` log views, answers `404`, while IPP printing, IPP administration from the container itself, and
 DNS-SD advertisement keep working. Manage printers with the command-line client
 from inside the container (`podman exec gutenprint-printer-app gutenprint-printer-app -u ipp://127.0.0.1:18050/ipp/system … add`):
 
