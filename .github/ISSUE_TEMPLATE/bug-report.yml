@@ -1,6 +1,6 @@
 name: "Bug report"
 description: "Tell us what went wrong in Gutenprint Printer Application and how to reproduce it."
-labels: ["needs-triage", "kind/bug"]
+labels: ["needs-human", "kind/bug"]
 body:
   - type: markdown
     attributes:
@@ -12,11 +12,10 @@ body:
 
         ## What happens next
 
-        This report starts in `needs-triage`. A maintainer will read it, ask for missing
-        information if needed, and decide whether to accept implementation work.
-        Welcoming machine analysis is **not** approval to implement a change.
+        A maintainer reads every report. Once it is accepted, it can be picked up
+        for work. You don't need labels or commands; just reply normally.
 
-        See the [Gutenprint issue lifecycle](https://github.com/projectbluefin/gutenprint-printer-app/blob/testing/docs/issue-lifecycle.md).
+        See [how issues and PRs work here](https://github.com/projectbluefin/common/blob/main/docs/skills/label-workflow.md).
 
   - type: textarea
     id: what-happened
@@ -69,7 +68,7 @@ body:
     id: automation-preference
     attributes:
       label: "Automation preference"
-      description: "Choose how you want this report analyzed. Human interaction only asks us not to use machine analysis or agent implementation; routine status and label automation still runs. A maintainer must separately accept any implementation work."
+      description: "Choose how you want this report handled. Human interaction only means maintainers keep `needs-human` on this issue, so agents never pick it up."
       options:
         - "Human interaction only"
         - "Machine analysis is welcome"

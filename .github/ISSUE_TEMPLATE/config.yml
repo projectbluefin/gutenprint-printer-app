@@ -1,5 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: "Gutenprint issue lifecycle"
-    url: https://github.com/projectbluefin/gutenprint-printer-app/blob/testing/docs/issue-lifecycle.md
-    about: "What happens after an issue is filed, who acts next, and how image delivery is verified."
+  - name: "How issues and PRs work here"
+    url: https://github.com/projectbluefin/common/blob/main/docs/skills/label-workflow.md
+    about: "Who reads new issues, when they are accepted for work, and how pull requests merge."
