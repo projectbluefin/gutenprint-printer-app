@@ -44,13 +44,6 @@
         "ubuntu"
       ],
       "allowedVersions": "/^24\\.04(?:-arm)?$/"
-    },
-    {
-      "description": "The released issue-lifecycle preflight requires the canonical @v1 caller.",
-      "matchManagers": ["github-actions"],
-      "matchFileNames": [".github/workflows/issue-lifecycle.yml"],
-      "matchPackageNames": ["projectbluefin/actions"],
-      "pinDigests": false
     }
   ]
 }
