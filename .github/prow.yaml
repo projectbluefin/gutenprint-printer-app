@@ -1,0 +1,4 @@
+# Keep the shared Prow catalog without OS-image area categories.
+# Repository label sections replace the matching organization section.
+labels:
+  area: []
