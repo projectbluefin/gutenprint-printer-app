@@ -1,6 +1,6 @@
 name: "Feature request"
 description: "Describe a problem the Gutenprint Printer Application could solve and the outcome you need."
-labels: ["needs-human", "kind/feature"]
+labels: ["kind/feature"]
 body:
   - type: markdown
     attributes:
@@ -16,7 +16,7 @@ body:
         A maintainer reads every request. Once it is accepted, it can be picked up
         for work. You don't need labels or commands; just reply normally.
 
-        See [how issues and PRs work here](https://github.com/projectbluefin/common/blob/main/docs/skills/label-workflow.md).
+        See [Prow commands](https://github.com/cncf/prow-github-actions/blob/v3.0.1/docs/commands.md) for triage and review.
 
   - type: textarea
     id: problem
@@ -56,7 +56,7 @@ body:
     id: automation-preference
     attributes:
       label: "Automation preference"
-      description: "Choose how you want this request handled. Human interaction only means maintainers keep `needs-human` on this issue, so agents never pick it up."
+      description: "Choose how you want this request handled. Maintainers read this preference from the issue body."
       options:
         - "Human interaction only"
         - "Machine analysis is welcome"
