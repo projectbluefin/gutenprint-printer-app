@@ -1,6 +1,6 @@
 name: "Feature request"
 description: "Describe a problem the Gutenprint Printer Application could solve and the outcome you need."
-labels: ["kind/feature"]
+labels: ["needs-human", "kind/feature"]
 body:
   - type: markdown
     attributes:
@@ -56,7 +56,7 @@ body:
     id: automation-preference
     attributes:
       label: "Automation preference"
-      description: "Choose how you want this request handled. Maintainers read this preference from the issue body."
+      description: "Choose how you want this request handled. Human interaction only means maintainers keep `needs-human` on this issue, so agents never pick it up."
       options:
         - "Human interaction only"
         - "Machine analysis is welcome"

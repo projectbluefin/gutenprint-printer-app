@@ -1,6 +1,6 @@
 name: "Bug report"
 description: "Tell us what went wrong in Gutenprint Printer Application and how to reproduce it."
-labels: ["kind/bug"]
+labels: ["needs-human", "kind/bug"]
 body:
   - type: markdown
     attributes:
@@ -68,7 +68,7 @@ body:
     id: automation-preference
     attributes:
       label: "Automation preference"
-      description: "Choose how you want this report handled. Maintainers read this preference from the issue body."
+      description: "Choose how you want this report handled. Human interaction only means maintainers keep `needs-human` on this issue, so agents never pick it up."
       options:
         - "Human interaction only"
         - "Machine analysis is welcome"
