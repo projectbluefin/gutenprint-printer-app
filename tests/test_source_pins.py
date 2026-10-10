@@ -2,7 +2,7 @@
 
 `just validate` runs source-pins.sh against the real Gutenprint and
 fsdk-containers remotes, where every pin agrees, so only its pass path ever
-executes there. These tests copy the gate, the helper and the three pinned
+executes there. These tests copy the gate, the helper and the two pinned
 files into a scratch tree, point both remotes at local git repositories, and
 check that every disagreement is rejected.
 """
@@ -18,7 +18,6 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 PINS = "include/source-pins.yml"
 JUNCTION = "elements/fsdk-containers.bst"
-OCI = "elements/oci/gutenprint-printer-app.bst"
 
 VERSION = "5.3.6-4.2"
 TAG = "debian/5.3.6-2026-02-01T02-18-9b0bdf87-4"
@@ -53,7 +52,7 @@ class SourcePinsTestCase(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         self.env = git_env(self.tmp)
         self.tree = self.tmp / "tree"
-        for rel in ("tests/source-pins.sh", "scripts/fsdk-pin.sh", PINS, JUNCTION, OCI):
+        for rel in ("tests/source-pins.sh", "scripts/fsdk-pin.sh", PINS, JUNCTION):
             dest = self.tree / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / rel, dest)
@@ -70,7 +69,6 @@ class SourcePinsTestCase(unittest.TestCase):
 
         self.set_pins(VERSION, TAG, self.gutenprint_ref)
         self.set_junction_ref(self.junction_ref)
-        self.set_labels(FSDK_VERSION, FSDK_REF)
 
     def git(self, repo, *args):
         return subprocess.run(["git", "-C", str(repo), *args], env=self.env, check=True,
@@ -104,12 +102,6 @@ class SourcePinsTestCase(unittest.TestCase):
 
     def set_junction_ref(self, ref):
         self.edit(JUNCTION, r"^  ref: .*$", f"  ref: {ref}")
-
-    def set_labels(self, version, ref):
-        self.edit(OCI, r"^( *)'io\.projectbluefin\.fsdk\.version': '.*'$",
-                  rf"\1'io.projectbluefin.fsdk.version': '{version}'")
-        self.edit(OCI, r"^( *)'io\.projectbluefin\.fsdk\.ref': '.*'$",
-                  rf"\1'io.projectbluefin.fsdk.ref': '{ref}'")
 
     def run_gate(self):
         env = dict(self.env,
@@ -147,8 +139,15 @@ class PassPathTests(SourcePinsTestCase):
     def test_two_component_fsdk_version_passes(self):
         ref = self.fsdk_commit(f"freedesktop-sdk-26.08-12-g{FSDK_REF}")
         self.set_junction_ref(ref)
-        self.set_labels("26.08", FSDK_REF)
-        self.assertPasses()
+        self.assertIn(f"FSDK 26.08@{FSDK_REF[:12]}", self.assertPasses())
+
+    def test_junction_bump_to_new_fsdk_release_passes(self):
+        newer = "fedcba9876543210fedcba9876543210fedcba98"
+        ref = self.fsdk_commit(f"freedesktop-sdk-26.08.2-0-g{newer}")
+        self.set_junction_ref(ref)
+        out = self.assertPasses()
+        self.assertIn(f"FSDK 26.08.2@{newer[:12]}", out)
+        self.assertIn(f"via fsdk-containers {ref[:12]}", out)
 
 
 class GutenprintPinTests(SourcePinsTestCase):
@@ -195,23 +194,6 @@ class FsdkPinTests(SourcePinsTestCase):
     def test_junction_without_full_commit_is_rejected(self):
         self.set_junction_ref(self.junction_ref[:12])
         self.assertRejected("does not pin a full fsdk-containers commit")
-
-    def test_missing_fsdk_label_is_rejected(self):
-        self.edit(OCI, r"^ *'io\.projectbluefin\.fsdk\.ref': '.*'\n", "")
-        self.assertRejected("must label io.projectbluefin.fsdk.version and io.projectbluefin.fsdk.ref")
-
-    def test_stale_fsdk_version_label_is_rejected(self):
-        self.set_labels("26.08.0", FSDK_REF)
-        self.assertRejected(f"builds on FSDK {FSDK_VERSION}")
-
-    def test_stale_fsdk_ref_label_is_rejected(self):
-        self.set_labels(FSDK_VERSION, OTHER_SHA)
-        self.assertRejected(f"pins FSDK commit {FSDK_REF}")
-
-    def test_junction_bump_without_label_update_is_rejected(self):
-        newer = "fedcba9876543210fedcba9876543210fedcba98"
-        self.set_junction_ref(self.fsdk_commit(f"freedesktop-sdk-26.08.2-0-g{newer}"))
-        self.assertRejected("builds on FSDK 26.08.2")
 
     def test_junction_commit_absent_from_remote_is_rejected(self):
         self.set_junction_ref(OTHER_SHA)
