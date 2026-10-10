@@ -29,10 +29,11 @@
         "/^elements\\/fsdk-containers\\.bst$/"
       ],
       "matchStrings": [
-        "track: (?<currentValue>main)\\n\\s+ref: (?<currentDigest>[0-9a-f]{40})"
+        "track: (?<currentValue>main)\\n  ref: (?:\\S+-g)?(?<currentDigest>[0-9a-f]{40})"
       ],
       "depNameTemplate": "https://github.com/projectbluefin/fsdk-containers",
       "datasourceTemplate": "git-refs",
+      "autoReplaceStringTemplate": "track: {{{newValue}}}\n  ref: {{{newDigest}}}",
       "description": "Track the fsdk-containers junction (FSDK and the shared printing base) at main."
     }
   ],
