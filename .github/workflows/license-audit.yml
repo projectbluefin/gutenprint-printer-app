@@ -2,7 +2,7 @@ name: License audit tooling
 
 on:
   pull_request:
-    branches: [testing]
+    branches: [main]
     paths:
       - scripts/audit-oci-licenses.py
       - tests/test_license_audit.py
