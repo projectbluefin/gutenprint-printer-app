@@ -67,7 +67,7 @@ jobs:
 
   transfer:
     needs: authorize
-    if: needs.authorize.outputs.triage == 'true' if: needs.authorize.outputs.triage == true && github.event_name == issue_commentif: needs.authorize.outputs.triage == true && github.event_name == issue_comment github.event_name == 'issue_comment'
+    if: needs.authorize.outputs.triage == true && github.event_name == issue_comment
     permissions:
       issues: write
     uses: projectbluefin/.project/.github/workflows/prow-transfer.yml@60f85e1310e9e723934bcf77a6af8b846db7d151
