@@ -50,3 +50,12 @@ records (the appliance serves neither) and that both IPP queues still resolve on
 their distinct ports after startup and restart. `IMAGE`, `PORT` and `EVIDENCE_DIR`
 override the image, ports and the evidence directory; `just verify-service-advertisements`
 runs it. It does not prove physical USB or paper output.
+
+`just validate` runs every `tests/test_*.py` unit suite on the host, with no
+image and no network. `test_pick_vendor_option.py` drives
+`tests/pick-vendor-option.py` with hand-built "Printing Defaults" HTML: it must
+never return the CSRF `session` field or an IPP-mapped setting, it must report
+the `selected` option as the default and some other value as the alternative,
+and it must exit 1 when no flippable vendor `<select>` exists. The image build
+only ever drives the picker with one real PPD's page, so these are the cases
+`tests/device-settings-web-admin.sh` cannot reach.
