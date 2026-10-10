@@ -52,10 +52,8 @@ override the image, ports and the evidence directory; `just verify-service-adver
 runs it. It does not prove physical USB or paper output.
 
 `just validate` runs every `tests/test_*.py` unit suite on the host, with no
-image and no network: `test_mdns_browse.py` (the mDNS wire decoders),
-`test_license_audit.py` (`scripts/audit-oci-licenses.py`) and
-`test_pick_vendor_option.py` (`tests/pick-vendor-option.py`). The last one
-drives the picker's contract with hand-built "Printing Defaults" HTML: it must
+image and no network. `test_pick_vendor_option.py` drives
+`tests/pick-vendor-option.py` with hand-built "Printing Defaults" HTML: it must
 never return the CSRF `session` field or an IPP-mapped setting, it must report
 the `selected` option as the default and some other value as the alternative,
 and it must exit 1 when no flippable vendor `<select>` exists. The image build
