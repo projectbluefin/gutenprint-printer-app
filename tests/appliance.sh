@@ -230,7 +230,7 @@ podman exec "$no_web_name" gutenprint-printer-app \
   -v "cups:socket://127.0.0.1:${no_web_sink_port}" \
   add
 for scheme in http https; do
-  for path in / /addprinter /config /network /security /no-web-test/ /no-web-test/config /no-web-test/device; do
+  for path in / /addprinter /config /logs /logfile.txt /network /security /no-web-test/ /no-web-test/config /no-web-test/device; do
     status="$(http_status "$scheme" "$no_web_port" "$path")"
     if [[ "$status" != 404 ]]; then
       printf 'FAIL: %s://127.0.0.1:%s%s returned %s with no-web-interface, expected 404\n' "$scheme" "$no_web_port" "$path" "$status" >&2

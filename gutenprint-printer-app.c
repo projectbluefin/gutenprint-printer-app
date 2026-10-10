@@ -102,6 +102,47 @@ gutenprint_printer_setup(pappl_printer_t *printer,	// I - Printer
 
 
 //
+// 'gutenprint_not_found()' - Answer a request with 404 Not Found.
+//
+
+static bool
+gutenprint_not_found(pappl_client_t *client,	// I - Client
+		     void           *data)	// I - Global data (unused)
+{
+  (void)data;
+
+  return (papplClientRespond(client, HTTP_STATUS_NOT_FOUND, NULL, NULL, 0, 0));
+}
+
+
+//
+// 'gutenprint_system_setup()' - Extra setup steps for the system.
+//
+
+static void
+gutenprint_system_setup(void *data)	// I - Global data
+{
+  pappl_system_t *system =
+    prGetSystem((pr_printer_app_global_data_t *)data);
+
+
+  // PAPPL registers /logs and /logfile.txt in papplSystemRun() whenever
+  // web-log is set, independent of the web interface, so no-web-interface
+  // alone still serves the log to every client. The first registration of a
+  // path wins, so claim both paths here with 404 handlers.
+  if (!(papplSystemGetOptions(system) & PAPPL_SOPTIONS_WEB_INTERFACE))
+  {
+    papplSystemAddResourceCallback(system, "/logs", "text/html",
+				   (pappl_resource_cb_t)gutenprint_not_found,
+				   NULL);
+    papplSystemAddResourceCallback(system, "/logfile.txt", "text/plain",
+				   (pappl_resource_cb_t)gutenprint_not_found,
+				   NULL);
+  }
+}
+
+
+//
 // 'main()' - Main entry for the gutenprint-printer-app.
 //
 
@@ -168,7 +209,7 @@ main(int  argc,				// I - Number of command-line arguments
     gutenprint_autoadd,       // Auto-add (driver assignment) callback
     prIdentify,              // Printer identify callback
     prTestPage,              // Test page print callback
-    NULL,                     // No extra setup steps for the system
+    gutenprint_system_setup,  // Hide the log pages without a web interface
     gutenprint_printer_setup, // Set up "Device Settings" printer web
                               // interface page unless the web interface is off
     spooling_conversions,     // Array of data format conversion rules for
