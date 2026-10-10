@@ -302,9 +302,10 @@ workflow publishes an immutable multiarchitecture
 with a signed image, signed SPDX SBOM, and GitHub provenance attestation.
 It pushes, signs (index and both architecture manifests), attests and verifies
 everything by digest, and creates the version tags only after every check
-passes, so a failed release leaves no tagged, unsigned image.
-There is no mutable `latest`, `edge`, or `stable` FSDK image tag. Inspect
-and pin the released `sha256:` index digest when deploying.
+passes, so a failed release leaves no tagged, unsigned image. The same index
+digest then moves the mutable `stable` tag, which ChairLift consumes with
+Podman `AutoUpdate=registry`; there is no `latest` or `edge` tag. Pin the
+released `sha256:` index digest when deploying without auto-update.
 
 The OCI process runs as UID/GID `65532:65532`. For rootless Podman,
 prepare its dedicated state directory and run on an unused port:

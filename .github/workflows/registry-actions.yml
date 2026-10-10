@@ -306,3 +306,4 @@ jobs:
           oras tag "${IMAGE}@${AARCH64_DIGEST}" "${VERSION}-aarch64"
           oras tag "${IMAGE}@${DIGEST}" "${VERSION}"
           [[ "$(skopeo inspect --raw "docker://${IMAGE}:${VERSION}" | sha256sum | cut -d' ' -f1)" == "${DIGEST#sha256:}" ]]
+          oras tag "${IMAGE}@${DIGEST}" stable
