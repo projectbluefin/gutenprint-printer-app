@@ -4,9 +4,6 @@
     "local>projectbluefin/renovate-config"
   ],
   "forkProcessing": "enabled",
-  "baseBranchPatterns": [
-    "testing"
-  ],
   "customManagers": [
     {
       "customType": "regex",

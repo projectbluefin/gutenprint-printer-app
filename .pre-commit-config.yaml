@@ -1,0 +1,31 @@
+# Org baseline pre-commit checks. Reference: projectbluefin/common/.pre-commit-config.yaml.
+# Kept to the checks that apply to this repo: YAML/JSON hygiene, actionlint, and
+# blocking floating GitHub Action tags (third-party actions must be pinned to a full SHA).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c # v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: end-of-file-fixer
+        # Patch files are applied verbatim during the build; keep them byte-for-
+        # byte as authored rather than reformatting trailing newlines.
+        exclude: '^patches/'
+      - id: trailing-whitespace
+        exclude: '^patches/'
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-added-large-files
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
+    hooks:
+      - id: actionlint
+  - repo: local
+    hooks:
+      - id: no-floating-action-tags
+        name: Block floating GitHub Action tags (@main, @v*)
+        language: pygrep
+        entry: 'uses:(?!.*projectbluefin/).*@(main|master|latest|v[0-9])'
+        types: [yaml]
+        files: '\.github/workflows/'

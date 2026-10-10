@@ -232,7 +232,7 @@ CI seeds the base from the cosign-verified
 `ghcr.io/projectbluefin/printing-base-devel:<arch>-<key>` BuildStream bundle
 before building, and builds it locally when no verified bundle exists.
 Renovate tracks fsdk-containers `main` and bumps the junction ref against
-`testing`; those pull requests merge themselves once the required native image
+`main`; those pull requests merge themselves once the required native image
 checks pass, and reverting one is the rollback. The publish workflow stamps the
 `io.projectbluefin.fsdk.version` and `io.projectbluefin.fsdk.ref` image labels
 from the FSDK release that the junctioned commit builds on
@@ -262,7 +262,7 @@ two instances coexist on one host (`tests/coexistence.sh`, below), and that
 the image ships none of Avahi's sample remote-login records
 (`just check-no-remote-login-records`, below).
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
-for testing only. CI on pull requests runs `just validate`: the unit tests,
+for main only. CI on pull requests runs `just validate`: the unit tests,
 the source-pin agreement check, the host-only entrypoint rejections
 (`tests/entrypoint-validation.sh`) and the BuildStream graph. The merge
 queue and manual `workflow_dispatch` runs build the image and run
@@ -270,7 +270,7 @@ queue and manual `workflow_dispatch` runs build the image and run
 
 Full builds restore BuildStream's local cache (`~/.cache/buildstream/{cas,artifacts,source_protos}`)
 from the Actions cache, one entry per arch. Only `.github/workflows/bst-cache.yml` saves it: on
-pushes to `testing` that touch BuildStream inputs, nightly, and on demand. It builds with
+pushes to `main` that touch BuildStream inputs, nightly, and on demand. It builds with
 `ci/buildstream.conf` (saved only when an arch fits in 9000 MB uncompressed; a larger cache skips the save with a warning, and the job still succeeds) and prunes older entries. To reset, run `gh cache delete --all`.
 Every CI `bst` call runs with `BST_FLAGS=--config /src/ci/buildstream.conf`,
 which the `just bst` recipe passes through. That config fetches sources only
@@ -278,7 +278,7 @@ from the Bluefin source cache.
 
 Only the organization Renovate runner updates the Gutenprint OCI source:
 `renovate.json` proposes an atomic tag, dereferenced Git commit and matching
-package revision in `include/source-pins.yml` against `testing`. Those
+package revision in `include/source-pins.yml` against `main`. Those
 proposals are never auto-merged. Upstream's separate Snap/Rockcraft source
 updater does not own these BuildStream pins.
 
@@ -291,7 +291,7 @@ pinned commit on Salsa, and the junctioned fsdk-containers commit must name its
 FSDK release. `tests/image-metadata.sh`, run by `just verify`, then checks that
 the built image's labels carry those same values.
 
-Every push to `testing` publishes: `.github/workflows/registry-actions.yml`
+Every push to `main` publishes: `.github/workflows/registry-actions.yml`
 builds and runs `just verify` on native x86_64 and aarch64, then pushes a
 multiarchitecture index with a signed image, signed SPDX SBOM, and GitHub
 provenance attestation. It pushes, signs (index and both architecture
@@ -300,10 +300,10 @@ after every check passes, so a failed publish leaves no tagged, unsigned
 image. Tags:
 
 - `ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` (for
-  example `5.3.6-4.3`) and `:stable` move to every verified `testing` commit;
+  example `5.3.6-4.3`) and `:stable` move to every verified `main` commit;
   ChairLift consumes `:stable` with Podman `AutoUpdate=registry`.
   `<gutenprint-version>-x86_64` and `-aarch64` move with them.
-- `:sha-<testing commit>` is immutable; the workflow refuses to overwrite it.
+- `:sha-<main commit>` is immutable; the workflow refuses to overwrite it.
 
 There is no `latest` or `edge` tag. Pin the `sha-` tag or the `sha256:` index
 digest when deploying without auto-update.
