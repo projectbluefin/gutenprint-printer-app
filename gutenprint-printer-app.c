@@ -102,10 +102,6 @@ gutenprint_printer_setup(pappl_printer_t *printer,	// I - Printer
 
 
 //
-// 'main()' - Main entry for the gutenprint-printer-app.
-//
-
-//
 // 'gutenprint_not_found()' - Answer a request with 404 Not Found.
 //
 
@@ -145,6 +141,10 @@ gutenprint_system_setup(void *data)	// I - Global data
   }
 }
 
+
+//
+// 'main()' - Main entry for the gutenprint-printer-app.
+//
 
 int
 main(int  argc,				// I - Number of command-line arguments
