@@ -32,9 +32,9 @@ gutenprint_ref="$(pin gutenprint-ref)"
 [[ "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+-[0-9]+)(\.[0-9]+)?$ ]] \
   || fail "gutenprint-version '$version' is not <upstream>-<debian revision>[.N]"
 debian_version="${BASH_REMATCH[1]}"
-[[ "$gutenprint_tag" =~ ^debian/([0-9]+\.[0-9]+\.[0-9]+)-.*-([0-9]+)$ ]] \
-  || fail "gutenprint-tag '$gutenprint_tag' is not a debian/<upstream>-<snapshot>-<revision> tag"
-tag_version="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}"
+[[ "$gutenprint_tag" =~ ^debian/([0-9]+\.[0-9]+\.[0-9]+)([.-].*)?-([0-9]+)$ ]] \
+  || fail "gutenprint-tag '$gutenprint_tag' is not a debian/<upstream>[<snapshot>]-<revision> tag"
+tag_version="${BASH_REMATCH[1]}-${BASH_REMATCH[3]}"
 [[ "$debian_version" == "$tag_version" ]] \
   || fail "gutenprint-version '$version' does not match gutenprint-tag '$gutenprint_tag' ($tag_version)"
 [[ "$gutenprint_ref" =~ $sha40 ]] || fail "gutenprint-ref '$gutenprint_ref' is not a full commit"

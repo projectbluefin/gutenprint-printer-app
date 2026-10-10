@@ -14,13 +14,14 @@
         "/^include\\/source-pins\\.yml$/"
       ],
       "matchStrings": [
-        "gutenprint-version: \"[^\"]+\"\\n  gutenprint-tag: \"(?<currentValue>debian/[^\"]+)\"\\n  gutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
+        "gutenprint-version: \"[^\"]+\"\\n  gutenprint-tag: \"debian/(?<currentValue>[^\"]+)\"\\n  gutenprint-ref: \"(?<currentDigest>[0-9a-f]{40})\""
       ],
       "packageNameTemplate": "https://salsa.debian.org/printing-team/gutenprint.git",
       "depNameTemplate": "Gutenprint CUPS driver",
       "datasourceTemplate": "git-tags",
-      "versioningTemplate": "regex:^debian/(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-.*-(?<build>\\d+)$",
-      "autoReplaceStringTemplate": "gutenprint-version: \"{{{replace '^debian/(\\d+\\.\\d+\\.\\d+)-.*-(\\d+)$' '$1-$2' newValue}}}\"\n  gutenprint-tag: \"{{{newValue}}}\"\n  gutenprint-ref: \"{{{newDigest}}}\"",
+      "extractVersionTemplate": "^debian/(?<version>.+)$",
+      "versioningTemplate": "deb",
+      "autoReplaceStringTemplate": "gutenprint-version: \"{{{replace '^(\\d+\\.\\d+\\.\\d+)(?:[.-].*)?-(\\d+)$' '$1-$2' newValue}}}\"\n  gutenprint-tag: \"debian/{{{newValue}}}\"\n  gutenprint-ref: \"{{{newDigest}}}\"",
       "description": "Update the tag, dereferenced commit, and packaged version together."
     },
     {
@@ -45,7 +46,7 @@
       "matchPackageNames": [
         "https://salsa.debian.org/printing-team/gutenprint.git"
       ],
-      "allowedVersions": "/^debian\\/5\\.3\\.\\d+-.*-\\d+$/",
+      "allowedVersions": "/^5\\.3\\./",
       "automerge": false
     },
     {
