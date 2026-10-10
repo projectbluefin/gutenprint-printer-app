@@ -231,11 +231,12 @@ it.
 CI seeds the base from the cosign-verified
 `ghcr.io/projectbluefin/printing-base-devel:<arch>-<key>` BuildStream bundle
 before building, and builds it locally when no verified bundle exists.
-`.github/workflows/update-base.yml` tracks fsdk-containers `main` daily and
-proposes the new pin against `testing`, rewriting the
+Renovate tracks fsdk-containers `main` and bumps the junction ref against
+`testing`; those pull requests merge themselves once the required native image
+checks pass, and reverting one is the rollback. The publish workflow stamps the
 `io.projectbluefin.fsdk.version` and `io.projectbluefin.fsdk.ref` image labels
-in the same proposal from the FSDK release that commit builds on
-(`scripts/fsdk-pin.sh`).
+from the FSDK release that the junctioned commit builds on
+(`scripts/fsdk-pin.sh`), so the bump needs no other edit.
 
 The source build explicitly stages GLib's `glib-mkenums` and Python for
 `autogen.sh`; CUPS PPD generators install into `/usr/bin` because FSDK owns
@@ -274,38 +275,37 @@ Every CI `bst` call runs with `BST_FLAGS=--config /src/ci/buildstream.conf`,
 which the `just bst` recipe passes through. That config fetches sources only
 from the Bluefin source cache.
 
-Only the organization Renovate runner updates the stable Gutenprint OCI
-source: `renovate.json` proposes an atomic tag, dereferenced Git commit and
-matching package revision in `include/source-pins.yml` against `testing`.
-Proposals are never auto-merged; the real-image print gate decides whether
-they can be promoted. Upstream's separate Snap/Rockcraft source updater does
-not own these BuildStream pins.
+Only the organization Renovate runner updates the Gutenprint OCI source:
+`renovate.json` proposes an atomic tag, dereferenced Git commit and matching
+package revision in `include/source-pins.yml` against `testing`. Those
+proposals are never auto-merged. Upstream's separate Snap/Rockcraft source
+updater does not own these BuildStream pins.
 
-Each pin has exactly one updater: Renovate owns `include/source-pins.yml`
-(and GitHub Actions digests), `update-base.yml` owns the fsdk-containers
-junction and the FSDK labels. `tests/source-pins.sh`, run by `just validate`
-on every pull request, fails a proposal whose refs, version metadata and
-labels disagree: the packaged version must carry the Debian revision of the
-pinned tag, the tag must dereference to the pinned commit on Salsa, and the
-FSDK labels must match the `freedesktop-sdk.bst` junction of the pinned
-fsdk-containers commit. `tests/image-metadata.sh`, run by `just verify`,
-then checks that the built image's labels carry those same values.
+Renovate owns every pin: `include/source-pins.yml`, the fsdk-containers
+junction in `elements/fsdk-containers.bst` and GitHub Actions digests.
+`tests/source-pins.sh`, run by `just validate` on every pull request, fails a
+proposal whose refs and version metadata disagree: the packaged version must
+carry the Debian revision of the pinned tag, the tag must dereference to the
+pinned commit on Salsa, and the junctioned fsdk-containers commit must name its
+FSDK release. `tests/image-metadata.sh`, run by `just verify`, then checks that
+the built image's labels carry those same values.
 
-After a verified `testing` revision has been promoted to `stable`, tag
-`v<gutenprint-version>` (for example `v5.3.6-4`). The tag must match
-`include/source-pins.yml`, and the stable-only release workflow rejects
-existing registry tags. Because registry tags are immutable, an OCI-only
-rebuild of the same Debian revision gets a `.N` suffix (for example
-`5.3.6-4.1`); Renovate drops it when it pins the next Debian revision. The
-workflow publishes an immutable multiarchitecture
-`ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` index
-with a signed image, signed SPDX SBOM, and GitHub provenance attestation.
-It pushes, signs (index and both architecture manifests), attests and verifies
-everything by digest, and creates the version tags only after every check
-passes, so a failed release leaves no tagged, unsigned image. The same index
-digest then moves the mutable `stable` tag, which ChairLift consumes with
-Podman `AutoUpdate=registry`; there is no `latest` or `edge` tag. Pin the
-released `sha256:` index digest when deploying without auto-update.
+Every push to `testing` publishes: `.github/workflows/registry-actions.yml`
+builds and runs `just verify` on native x86_64 and aarch64, then pushes a
+multiarchitecture index with a signed image, signed SPDX SBOM, and GitHub
+provenance attestation. It pushes, signs (index and both architecture
+manifests), attests and verifies everything by digest, and creates tags only
+after every check passes, so a failed publish leaves no tagged, unsigned
+image. Tags:
+
+- `ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` (for
+  example `5.3.6-4.3`) and `:stable` move to every verified `testing` commit;
+  ChairLift consumes `:stable` with Podman `AutoUpdate=registry`.
+  `<gutenprint-version>-x86_64` and `-aarch64` move with them.
+- `:sha-<testing commit>` is immutable; the workflow refuses to overwrite it.
+
+There is no `latest` or `edge` tag. Pin the `sha-` tag or the `sha256:` index
+digest when deploying without auto-update.
 
 The OCI process runs as UID/GID `65532:65532`. For rootless Podman,
 prepare its dedicated state directory and run on an unused port:
