@@ -50,7 +50,9 @@ tag_commit="$(git ls-remote "$GUTENPRINT_REMOTE" "refs/tags/${gutenprint_tag}^{}
 # on, or publishing could not label the image with it.
 junction_ref="$(sed -n -E 's/^ +ref: .*([0-9a-f]{40})$/\1/p' "$junction")"
 [[ "$junction_ref" =~ $sha40 ]] || fail "$junction does not pin a full fsdk-containers commit"
-read -r fsdk_version fsdk_ref <<< "$(scripts/fsdk-pin.sh "$junction_ref" "$FSDK_CONTAINERS_REMOTE")"
+# Assign first: a failure inside a here-string's $(...) would not stop set -e.
+fsdk_pin="$(scripts/fsdk-pin.sh "$junction_ref" "$FSDK_CONTAINERS_REMOTE")"
+read -r fsdk_version fsdk_ref <<< "$fsdk_pin"
 
 printf 'OK: Gutenprint %s = %s@%s; FSDK %s@%s via fsdk-containers %s\n' \
   "$version" "$gutenprint_tag" "${gutenprint_ref:0:12}" "$fsdk_version" "${fsdk_ref:0:12}" "${junction_ref:0:12}"
