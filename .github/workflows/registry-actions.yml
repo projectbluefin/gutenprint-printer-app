@@ -1,9 +1,12 @@
-name: Publish immutable Gutenprint OCI release
+name: Publish Gutenprint OCI image
 
+# Every push to testing that builds and passes `just verify` on both arches
+# publishes a signed multiarchitecture index. Rolling back means reverting the
+# offending pull request; the next publish moves the tags back.
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [testing]
+  workflow_dispatch:
 
 concurrency:
   group: oci-gutenprint-${{ github.ref }}
@@ -13,6 +16,8 @@ permissions: {}
 
 jobs:
   metadata:
+    # workflow_dispatch from any other branch must never publish.
+    if: github.ref == 'refs/heads/testing'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -26,37 +31,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           persist-credentials: false
-      - name: Require stable ancestry and matching immutable release sources
+      - name: Read and check pinned sources
         id: release
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags origin stable:refs/remotes/origin/stable
-          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/stable; then
-            printf 'Release tag must point at a commit promoted to stable\n' >&2
-            exit 1
-          fi
+          tests/source-pins.sh
           version="$(sed -n 's/^  gutenprint-version: "\([^"]*\)"$/\1/p' include/source-pins.yml)"
-          gutenprint_tag="$(sed -n 's/^  gutenprint-tag: "\([^"]*\)"$/\1/p' include/source-pins.yml)"
           gutenprint_ref="$(sed -n 's/^  gutenprint-ref: "\([0-9a-f]*\)"$/\1/p' include/source-pins.yml)"
-          # An optional .N suffix marks an OCI-only rebuild of the same Debian
-          # revision, because immutable registry tags can never be republished.
-          [[ "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+-[0-9]+)(\.[0-9]+)?$ ]]
-          debian_version="${BASH_REMATCH[1]}"
-          [[ "$gutenprint_tag" =~ ^debian/([0-9]+\.[0-9]+\.[0-9]+)-.*-([0-9]+)$ ]]
-          [[ "$debian_version" == "${BASH_REMATCH[1]}-${BASH_REMATCH[2]}" ]]
-          [[ "$gutenprint_ref" =~ ^[0-9a-f]{40}$ ]]
-          if [[ "$GITHUB_REF_NAME" != "v${version}" ]]; then
-            printf 'Tag %s does not match Gutenprint version v%s\n' "$GITHUB_REF_NAME" "$version" >&2
-            exit 1
-          fi
-          tag_ref="$(git ls-remote https://salsa.debian.org/printing-team/gutenprint.git "refs/tags/${gutenprint_tag}^{}" | cut -f1)"
-          [[ "$tag_ref" == "$gutenprint_ref" ]]
-          fsdk_version="$(sed -n "s/^[[:space:]]*'io.projectbluefin.fsdk.version': '\([^']*\)'$/\1/p" elements/oci/gutenprint-printer-app.bst)"
-          fsdk_ref="$(sed -n "s/^[[:space:]]*'io.projectbluefin.fsdk.ref': '\([0-9a-f]*\)'$/\1/p" elements/oci/gutenprint-printer-app.bst)"
-          [[ -n "$fsdk_version" && "$fsdk_ref" =~ ^[0-9a-f]{40}$ ]]
+          # FSDK labels name the release the junctioned fsdk-containers commit
+          # builds on, so a bare Renovate junction bump needs no other edit.
+          junction_ref="$(sed -n -E 's/^ +ref: .*([0-9a-f]{40})$/\1/p' elements/fsdk-containers.bst)"
+          read -r fsdk_version fsdk_ref <<< "$(scripts/fsdk-pin.sh "$junction_ref")"
           {
             echo "version=$version"
             echo "revision=$(git rev-parse HEAD)"
@@ -94,7 +81,71 @@ jobs:
         with:
           tool: just
       - name: Install host dependencies
-        run: sudo apt-get update && sudo apt-get install --yes fuse3 jq podman
+        run: sudo apt-get update && sudo apt-get install --yes fuse3 jq podman skopeo
+      # Restore only: bst-cache.yml on testing is the only writer.
+      - name: Compute BuildStream cache key
+        id: bst-key
+        env:
+          INPUTS_HASH: ${{ hashFiles('project.conf', 'elements/**', 'include/**', 'patches/**', 'files/**', 'Makefile', 'gutenprint-printer-app.c', 'gutenprint-printer-app.1', 'gutenprint-printer-app.service', 'testpage.ps') }}
+        run: echo "hash=${INPUTS_HASH}" >> "$GITHUB_OUTPUT"
+      - name: Restore BuildStream cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cache/buildstream/cas
+            ~/.cache/buildstream/artifacts
+            ~/.cache/buildstream/source_protos
+          key: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
+          restore-keys: |
+            bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-
+            bst-v1-${{ matrix.arch }}-
+      - name: Install cosign
+        continue-on-error: true
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      # Seed printing/base.bst from the signed printing-base-devel bundle
+      # (fsdk-containers docs/skills/printing-base.md, rule 4). Never fails
+      # the job: any error falls through to a local build of the base.
+      - name: Seed printing base
+        continue-on-error: true
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -uo pipefail
+          base=fsdk-containers.bst:printing/base.bst
+          show() {
+            just bst -o arch "$ARCH" show --deps none --format "$1" "$base" 2>/dev/null |
+              tail -n 1 | sed 's/\x1b\[[0-9;]*m//g'
+          }
+          KEY="$(show '%{full-key}')"
+          if [[ ! "$KEY" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::warning::printing base: cannot compute the ${ARCH} key; building it locally"
+            exit 0
+          fi
+          if [[ "$(show '%{state}')" == cached ]]; then
+            echo "printing base ${ARCH}-${KEY} is already cached"
+            exit 0
+          fi
+          if ! ARCH="$ARCH" KEY="$KEY" bash -euo pipefail <<'SEED'
+          REPO=ghcr.io/projectbluefin/printing-base-devel
+          DIGEST="$(skopeo inspect --format '{{.Digest}}' "docker://${REPO}:${ARCH}-${KEY}")"
+          cosign verify \
+            --certificate-identity-regexp '^https://github.com/projectbluefin/fsdk-containers/.github/workflows/' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${REPO}@${DIGEST}" >/dev/null
+          # Copy exactly the verified digest; never touch podman storage.
+          bundle="$(mktemp -d)"
+          trap 'rm -rf "${bundle}"' EXIT
+          skopeo copy "docker://${REPO}@${DIGEST}" "dir:${bundle}"
+          layer="$(jq -r '.layers[0].digest' "${bundle}/manifest.json" | cut -d: -f2)"
+          tar -C ~/.cache/buildstream -xf "${bundle}/${layer}"
+          SEED
+          then
+            echo "::warning::printing base: seeding ${ARCH}-${KEY} failed; building it locally"
+          elif [[ "$(show '%{state}')" != cached ]]; then
+            echo "::warning::printing base: ${ARCH}-${KEY} not verified or not cached after seeding; building it locally"
+          else
+            echo "printing base seeded from ${ARCH}-${KEY}"
+          fi
       - name: Build image
         run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst
       - name: Build and verify full OCI job to real socket sink
@@ -103,19 +154,19 @@ jobs:
         env:
           VERSION: ${{ needs.metadata.outputs.version }}
           GUTENPRINT_REF: ${{ needs.metadata.outputs.gutenprint_ref }}
-          FSDK_REF: ${{ needs.metadata.outputs.fsdk_ref }}
         run: |
           set -euo pipefail
           podman inspect ghcr.io/projectbluefin/gutenprint-printer-app:build \
             --format '{{json .Config.Labels}}' |
-            jq -e --arg version "$VERSION" --arg gutenprint "$GUTENPRINT_REF" --arg fsdk "$FSDK_REF" \
+            jq -e --arg version "$VERSION" --arg gutenprint "$GUTENPRINT_REF" \
               '."org.opencontainers.image.version" == $version and
-               ."io.projectbluefin.gutenprint.ref" == $gutenprint and
-               ."io.projectbluefin.fsdk.ref" == $fsdk'
-      - name: Attach immutable release commit metadata
+               ."io.projectbluefin.gutenprint.ref" == $gutenprint'
+      - name: Attach commit and FSDK metadata
         env:
           REVISION: ${{ needs.metadata.outputs.revision }}
           CREATED: ${{ needs.metadata.outputs.created }}
+          FSDK_VERSION: ${{ needs.metadata.outputs.fsdk_version }}
+          FSDK_REF: ${{ needs.metadata.outputs.fsdk_ref }}
         run: |
           set -euo pipefail
           image=ghcr.io/projectbluefin/gutenprint-printer-app:build
@@ -124,6 +175,8 @@ jobs:
           podman commit --format oci \
             --change "LABEL org.opencontainers.image.revision=$REVISION" \
             --change "LABEL org.opencontainers.image.created=$CREATED" \
+            --change "LABEL io.projectbluefin.fsdk.version=$FSDK_VERSION" \
+            --change "LABEL io.projectbluefin.fsdk.ref=$FSDK_REF" \
             "$container" "$image"
       - name: Export verified architecture image
         run: podman save --format oci-archive --output gutenprint-${{ matrix.arch }}.tar ghcr.io/projectbluefin/gutenprint-printer-app:build
@@ -166,8 +219,8 @@ jobs:
       - name: Generate BuildStream-native SPDX SBOM
         run: just sbom
       # Everything is pushed, signed, attested and verified by digest; the
-      # human-readable version tags are created only in the final step, so a
-      # failed release never leaves a tagged, unsigned image behind.
+      # tags are created only in the final step, so a failed publish never
+      # leaves a tagged, unsigned image behind.
       - name: Publish architecture manifests and annotated index by digest
         id: index
         env:
@@ -182,15 +235,15 @@ jobs:
           set -euo pipefail
           image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/gutenprint-printer-app"
           authfile="$HOME/.docker/config.json"
-          for tag in "$VERSION" "$VERSION-x86_64" "$VERSION-aarch64"; do
-            if probe="$(skopeo inspect --authfile "$authfile" "docker://${image}:${tag}" 2>&1)"; then
-              printf 'Refusing to overwrite immutable tag %s:%s\n' "$image" "$tag" >&2
-              exit 1
-            elif [[ "${probe,,}" != *'manifest unknown'* && "${probe,,}" != *'name unknown'* ]]; then
-              printf 'Could not prove %s:%s is absent: %s\n' "$image" "$tag" "$probe" >&2
-              exit 1
-            fi
-          done
+          # sha-<commit> is the one immutable tag; the version tags move.
+          tag="sha-${REVISION}"
+          if probe="$(skopeo inspect --authfile "$authfile" "docker://${image}:${tag}" 2>&1)"; then
+            printf 'Refusing to overwrite immutable tag %s:%s\n' "$image" "$tag" >&2
+            exit 1
+          elif [[ "${probe,,}" != *'manifest unknown'* && "${probe,,}" != *'name unknown'* ]]; then
+            printf 'Could not prove %s:%s is absent: %s\n' "$image" "$tag" "$probe" >&2
+            exit 1
+          fi
           sources=()
           for arch in amd64 arm64; do
             name="$([[ "$arch" == amd64 ]] && echo x86_64 || echo aarch64)"
@@ -274,7 +327,7 @@ jobs:
           GUTENPRINT_REF: ${{ needs.metadata.outputs.gutenprint_ref }}
         run: |
           set -euo pipefail
-          identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/registry-actions.yml@refs/tags/v${VERSION}"
+          identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/registry-actions.yml@${GITHUB_REF}"
           cosign verify --certificate-identity "$identity" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com "${IMAGE}@${DIGEST}"
           cosign verify --certificate-identity "$identity" \
@@ -293,17 +346,17 @@ jobs:
             '.annotations["org.opencontainers.image.title"] == "gutenprint-printer-app" and
              .annotations["org.opencontainers.image.version"] == $version and
              .annotations["io.projectbluefin.gutenprint.ref"] == $gutenprint' <<< "$raw"
-      - name: Tag the verified release
+      - name: Tag the verified image
         env:
           IMAGE: ${{ steps.index.outputs.image }}
           DIGEST: ${{ steps.index.outputs.digest }}
           X86_64_DIGEST: ${{ steps.index.outputs.x86_64_digest }}
           AARCH64_DIGEST: ${{ steps.index.outputs.aarch64_digest }}
           VERSION: ${{ needs.metadata.outputs.version }}
+          REVISION: ${{ needs.metadata.outputs.revision }}
         run: |
           set -euo pipefail
           oras tag "${IMAGE}@${X86_64_DIGEST}" "${VERSION}-x86_64"
           oras tag "${IMAGE}@${AARCH64_DIGEST}" "${VERSION}-aarch64"
-          oras tag "${IMAGE}@${DIGEST}" "${VERSION}"
+          oras tag "${IMAGE}@${DIGEST}" "sha-${REVISION}" "${VERSION}" stable
           [[ "$(skopeo inspect --raw "docker://${IMAGE}:${VERSION}" | sha256sum | cut -d' ' -f1)" == "${DIGEST#sha256:}" ]]
-          oras tag "${IMAGE}@${DIGEST}" stable

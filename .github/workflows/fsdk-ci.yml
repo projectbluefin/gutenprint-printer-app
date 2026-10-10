@@ -2,9 +2,8 @@ name: Validate FSDK Gutenprint OCI image
 
 on:
   pull_request:
-    branches: [testing, stable]
-  push:
     branches: [testing]
+  # Pushes to testing build, verify and publish in registry-actions.yml.
   merge_group:
   workflow_dispatch:
 

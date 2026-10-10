@@ -9,7 +9,6 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 IMAGE="${IMAGE:-ghcr.io/projectbluefin/gutenprint-printer-app:build}"
 
 pin() { sed -n "s/^  $1: \"\\([^\"]*\\)\"\$/\\1/p" include/source-pins.yml; }
-element_label() { sed -n "s/^ *'$1': '\\([^']*\\)'\$/\\1/p" elements/oci/gutenprint-printer-app.bst; }
 image_label() { podman image inspect --format "{{ index .Config.Labels \"$1\" }}" "$IMAGE"; }
 
 status=0
@@ -24,8 +23,6 @@ expect() {
 
 expect org.opencontainers.image.version "$(pin gutenprint-version)"
 expect io.projectbluefin.gutenprint.ref "$(pin gutenprint-ref)"
-expect io.projectbluefin.fsdk.version "$(element_label io.projectbluefin.fsdk.version)"
-expect io.projectbluefin.fsdk.ref "$(element_label io.projectbluefin.fsdk.ref)"
 
 [[ "$status" -eq 0 ]] || exit "$status"
-printf 'OK: %s labels match include/source-pins.yml and the pinned FSDK\n' "$IMAGE"
+printf 'OK: %s labels match include/source-pins.yml\n' "$IMAGE"

@@ -22,6 +22,18 @@
       "versioningTemplate": "regex:^debian/(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-.*-(?<build>\\d+)$",
       "autoReplaceStringTemplate": "gutenprint-version: \"{{{replace '^debian/(\\d+\\.\\d+\\.\\d+)-.*-(\\d+)$' '$1-$2' newValue}}}\"\n  gutenprint-tag: \"{{{newValue}}}\"\n  gutenprint-ref: \"{{{newDigest}}}\"",
       "description": "Update the tag, dereferenced commit, and packaged version together."
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^elements\\/fsdk-containers\\.bst$/"
+      ],
+      "matchStrings": [
+        "track: (?<currentValue>main)\\n\\s+ref: (?<currentDigest>[0-9a-f]{40})"
+      ],
+      "depNameTemplate": "https://github.com/projectbluefin/fsdk-containers",
+      "datasourceTemplate": "git-refs",
+      "description": "Track the fsdk-containers junction (FSDK and the shared printing base) at main."
     }
   ],
   "packageRules": [
@@ -34,6 +46,16 @@
       ],
       "allowedVersions": "/^debian\\/5\\.3\\.\\d+-.*-\\d+$/",
       "automerge": false
+    },
+    {
+      "description": "fsdk-containers bumps merge themselves once the required native image checks pass; revert the PR to roll back.",
+      "matchDepNames": [
+        "https://github.com/projectbluefin/fsdk-containers"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "ignoreTests": false,
+      "minimumReleaseAge": null
     },
     {
       "description": "BuildStream builds fail on ubuntu-26.04 runners (fsdk-containers#332); keep 24.04",

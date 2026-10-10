@@ -4,9 +4,9 @@ set -euo pipefail
 # Print "<fsdk-version> <fsdk-commit>" for the freedesktop-sdk release that
 # fsdk-containers builds on at the given commit, read from its
 # elements/freedesktop-sdk.bst junction (ref: freedesktop-sdk-<version>-<n>-g<sha>).
-# update-base.yml uses it to rewrite the io.projectbluefin.fsdk.* image labels
-# in the same proposal as the junction bump; tests/source-pins.sh uses it to
-# prove they agree.
+# registry-actions.yml uses it to stamp the io.projectbluefin.fsdk.* labels on
+# the published image; tests/source-pins.sh uses it to prove a junction bump
+# still names an FSDK release.
 usage() { echo "usage: $0 <fsdk-containers commit> [remote]" >&2; exit 2; }
 [[ $# -ge 1 && $# -le 2 ]] || usage
 commit="$1"
