@@ -30,6 +30,7 @@ validate:
     tests/source-pins.sh
     tests/entrypoint-validation.sh
     tests/entrypoint-supervisor.sh
+    tests/workflow-signing-identity.sh
     just bst show --deps all oci/gutenprint-printer-app.bst
 
 fetch:
