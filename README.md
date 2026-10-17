@@ -27,7 +27,10 @@ project](http://gimp-print.sourceforge.net/), also the Information
 about supported printer models and their capabilities.
 
 Your contributions are welcome. Please post [issues and pull
-requests](https://github.com/OpenPrinting/gutenprint-printer-app).
+requests](https://github.com/projectbluefin/gutenprint-printer-app/issues) in
+this repository. See [how issues and PRs work
+here](https://github.com/projectbluefin/common/blob/main/docs/skills/label-workflow.md)
+for what happens after an issue or pull request is opened.
 
 **Note: Gutenprint is an actively maintained project, therefore it
 would also be the correct way if Gutenprint gets turned into a Printer
