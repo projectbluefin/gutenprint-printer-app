@@ -30,8 +30,11 @@ work and its labels, including the `needs-human` agent opt-out; do not remove th
 
 ## Branches and releases
 
-Target `main` for development PRs. Renovate (`renovate.json`) owns the Gutenprint
-source pin in `include/source-pins.yml` and Action digests; `update-base.yml`
-owns the fsdk-containers junction. Promote a verified `main` commit to `stable`
-with `promote-stable.yml`; only a `v<gutenprint-version>` tag on `stable`
-publishes an immutable OCI release (`registry-actions.yml`).
+Target `main` for development PRs. Renovate (`renovate.json`) owns every pin:
+the Gutenprint source pin in `include/source-pins.yml`, the fsdk-containers
+junction in `elements/fsdk-containers.bst` (merged automatically once the
+required image checks pass) and Action digests. There is no promotion step and
+no tag-driven release: `registry-actions.yml` builds, verifies and publishes
+every push to `main`, moving the version and `:stable` tags and adding an
+immutable `sha-` tag. See "FSDK OCI Printer Application" in `README.md` for the
+tags.
