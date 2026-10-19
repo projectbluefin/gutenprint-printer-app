@@ -40,17 +40,7 @@ fi
 system_uri="ipp://127.0.0.1:${port}/ipp/system"
 printer_uri="ipp://127.0.0.1:${port}/ipp/print/socket-test"
 drivers="$(podman exec "$name" gutenprint-printer-app -u "$system_uri" drivers)"
-driver="$(python3 -c '
-import sys
-for line in sys.stdin:
-    if "Epson Stylus Photo R1800" in line and "Simplified" not in line:
-        print(line.split()[0].strip("\""))
-        break
-' <<< "$drivers")"
-if [[ -z "$driver" || "$driver" == *[!a-z0-9-]* ]]; then
-  printf 'No expert Epson Stylus Photo R1800 driver in live catalog:\n%s\n' "$drivers" >&2
-  exit 1
-fi
+driver="$(python3 "$(dirname "${BASH_SOURCE[0]}")/expert-driver.py" "Epson Stylus Photo R1800" <<< "$drivers")"
 # Create the printer through PAPPL's non-IPP web form. The shared PAPPL patch
 # maps this selection to cups:socket, not PAPPL's own socket backend.
 add_page="$(curl --fail --silent --show-error --insecure --location \

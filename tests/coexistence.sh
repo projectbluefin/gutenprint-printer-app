@@ -71,18 +71,8 @@ wait_for_http() {
 pick_driver() {
   local name="$1" port="$2" model="$3" drivers driver
   drivers="$(podman exec "$name" gutenprint-printer-app -u "ipp://127.0.0.1:${port}/ipp/system" drivers)"
-  driver="$(python3 -c '
-import re
-import sys
-model = re.compile(re.escape(sys.argv[1]) + r"(?![0-9A-Za-z])")
-for line in sys.stdin:
-    if model.search(line) and "Simplified" not in line:
-        print(line.split()[0].strip("\""))
-        break
-' "$model" <<< "$drivers")"
-  if [[ -z "$driver" || "$driver" == *[!a-z0-9-]* ]]; then
+  driver="$(python3 "$(dirname "${BASH_SOURCE[0]}")/expert-driver.py" "$model" <<< "$drivers")" ||
     fail "no expert '$model' driver in $name live catalog"
-  fi
   printf '%s' "$driver"
 }
 

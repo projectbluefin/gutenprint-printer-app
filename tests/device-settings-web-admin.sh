@@ -88,8 +88,8 @@ DRIVERS="$(podman exec "$NAME" gutenprint-printer-app -u "$SYSTEM_URI" drivers)"
 if grep -qi 'simplified' <<<"$DRIVERS"; then
   fail "simplified Gutenprint PPDs are registered -- see issue #9"
 fi
-DRIVER="$(awk '/"Epson Stylus Photo R1800 \(en\)"/ { print $1; exit }' <<<"$DRIVERS")"
-[[ -n "$DRIVER" ]] || fail "no expert Epson Stylus Photo R1800 driver registered -- see issue #9"
+DRIVER="$(python3 "$(dirname "${BASH_SOURCE[0]}")/expert-driver.py" "Epson Stylus Photo R1800" <<<"$DRIVERS")" ||
+  fail "no expert Epson Stylus Photo R1800 driver registered -- see issue #9"
 echo "Using expert driver: $DRIVER"
 
 PRINTER="device-settings-test"

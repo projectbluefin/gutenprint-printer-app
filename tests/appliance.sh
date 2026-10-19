@@ -221,8 +221,8 @@ if grep -q 'NOTICE: web administration is reachable' <<< "$(podman logs "$no_web
   exit 1
 fi
 no_web_drivers="$(podman exec "$no_web_name" gutenprint-printer-app -u "$no_web_system_uri" drivers)"
-no_web_driver="$(awk '/"Epson Stylus Photo R1800 \(en\)"/ { gsub(/"/, "", $1); print $1; exit }' <<< "$no_web_drivers")"
-[[ -n "$no_web_driver" ]] || { printf 'FAIL: could not find expert Epson Stylus Photo R1800 driver\n' >&2; exit 1; }
+no_web_driver="$(python3 "$(dirname "${BASH_SOURCE[0]}")/expert-driver.py" "Epson Stylus Photo R1800" <<< "$no_web_drivers")" ||
+  { printf 'FAIL: could not find expert Epson Stylus Photo R1800 driver\n' >&2; exit 1; }
 podman exec "$no_web_name" gutenprint-printer-app \
   -u "$no_web_system_uri" \
   -d no-web-test \

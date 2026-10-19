@@ -76,11 +76,8 @@ drivers="$(podman exec "$NAME" gutenprint-printer-app -u "$SYSTEM_URI" drivers)"
 if grep -qi 'simplified' <<<"$drivers"; then
   fail "simplified Gutenprint PPDs are registered -- PAPPL_MAX_VENDOR patch did not take effect in this image"
 fi
-DRIVER="$(awk '/"Epson Stylus Photo R1800 \(en\)"/ { print $1; exit }' <<<"$drivers")"
-if [[ -z "$DRIVER" ]]; then
-  printf '%s\n' "$drivers" >&2
+DRIVER="$(python3 "$(dirname "${BASH_SOURCE[0]}")/expert-driver.py" "Epson Stylus Photo R1800" <<<"$drivers")" ||
   fail "no expert Epson Stylus Photo R1800 driver registered"
-fi
 echo "Using expert driver: $DRIVER"
 
 PRINTER="vendor-options-test"

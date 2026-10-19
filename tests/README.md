@@ -59,3 +59,11 @@ the `selected` option as the default and some other value as the alternative,
 and it must exit 1 when no flippable vendor `<select>` exists. The image build
 only ever drives the picker with one real PPD's page, so these are the cases
 `tests/device-settings-web-admin.sh` cannot reach.
+
+Every image test that adds a printer (`socket-print.sh`, `appliance.sh`,
+`coexistence.sh`, `service-advertisements.sh`, `vendor-options-payload.sh` and
+`device-settings-web-admin.sh`) picks its driver with `tests/expert-driver.py`:
+it reads the app's `drivers` listing on stdin and prints the name of the row
+whose description is exactly the model followed by ` (en)`, or exits 1 with
+the listing on stderr. `test_expert_driver.py` covers it with hand-built
+listings; parse the listing there instead of inline in a new test.
