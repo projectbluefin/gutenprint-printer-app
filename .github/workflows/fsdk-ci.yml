@@ -3,7 +3,7 @@ name: Validate FSDK Gutenprint OCI image
 on:
   pull_request:
     branches: [main]
-  # Pushes to testing build, verify and publish in registry-actions.yml.
+  # Pushes to main build, verify and publish in registry-actions.yml.
   merge_group:
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
         if: env.FULL_BUILD != 'true'
         run: just validate
       # Restore only: pull_request and merge_group caches are scoped to their
-      # own ref, so bst-cache.yml on testing is the only writer.
+      # own ref, so bst-cache.yml on main is the only writer.
       - name: Compute BuildStream cache key
         id: bst-key
         if: env.FULL_BUILD == 'true'

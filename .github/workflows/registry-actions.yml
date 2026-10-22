@@ -1,11 +1,11 @@
 name: Publish Gutenprint OCI image
 
-# Every push to testing that builds and passes `just verify` on both arches
+# Every push to main that builds and passes `just verify` on both arches
 # publishes a signed multiarchitecture index. Rolling back means reverting the
 # offending pull request; the next publish moves the tags back.
 on:
   push:
-    branches: [testing]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -17,7 +17,7 @@ permissions: {}
 jobs:
   metadata:
     # workflow_dispatch from any other branch must never publish.
-    if: github.ref == 'refs/heads/testing'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -83,7 +83,7 @@ jobs:
           tool: just
       - name: Install host dependencies
         run: sudo apt-get update && sudo apt-get install --yes fuse3 jq podman skopeo
-      # Restore only: bst-cache.yml on testing is the only writer.
+      # Restore only: bst-cache.yml on main is the only writer.
       - name: Compute BuildStream cache key
         id: bst-key
         env:
