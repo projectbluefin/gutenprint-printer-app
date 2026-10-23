@@ -4,9 +4,10 @@
 #
 # The entrypoint is PID 1 of the appliance: it builds the PAPPL command line,
 # starts dbus-daemon, avahi-daemon and gutenprint-printer-app, and its traps
-# are the only thing that stops them. The image suites never signal the
-# container or kill one of its daemons, so stop_children(), handle_signal() and
-# the `wait -n` status propagation are otherwise unexecuted. A regression here
+# are the only thing that stops them. tests/appliance.sh covers only
+# `podman stop` exiting 143 and a killed avahi-daemon failing the container;
+# the stop order, a clean server exit failing with 1, SIGINT, the default port
+# and the PAPPL option joining are otherwise unexecuted. A regression here
 # is a container that leaves daemons behind, hangs on shutdown, reports success
 # after a daemon died, or forwards the wrong options to PAPPL.
 #

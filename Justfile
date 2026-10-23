@@ -68,6 +68,7 @@ verify-entrypoint-validation:
 
 verify:
     tests/entrypoint-validation.sh
+    tests/entrypoint-supervisor.sh
     just build
     tests/image-metadata.sh
     tests/no-devel.sh

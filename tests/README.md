@@ -76,6 +76,8 @@ PAPPL-argument and launch blocks out of the entrypoint by marker, replaces
 checks the forwarded PAPPL options (including the default `server-port=18050`),
 the open-web-administration NOTICE, that any child exiting stops the others
 newest first and propagates its status (a clean server exit still fails with 1),
-and that SIGTERM and SIGINT stop every child once and exit 143. The image suites
-never signal the container's PID 1, so nothing else executes this code before
-`tests/appliance.sh`.
+and that SIGTERM and SIGINT stop every child once and exit 143.
+`tests/appliance.sh` covers only `podman stop` exiting 143 and a killed
+`avahi-daemon` failing the container; the stop order, a clean server exit
+failing with 1, SIGINT, the default port and the PAPPL option joining are
+covered nowhere else.
