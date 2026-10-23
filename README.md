@@ -267,7 +267,8 @@ the image ships none of Avahi's sample remote-login records
 The local image is tagged `ghcr.io/projectbluefin/gutenprint-printer-app:build`
 for main only. CI on pull requests runs `just validate`: the unit tests,
 the source-pin agreement check, the host-only entrypoint rejections
-(`tests/entrypoint-validation.sh`) and the BuildStream graph. The merge
+(`tests/entrypoint-validation.sh`), the host-only entrypoint launch and
+supervision checks (`tests/entrypoint-supervisor.sh`) and the BuildStream graph. The merge
 queue and manual `workflow_dispatch` runs build the image and run
 `just verify` on native x86_64 and aarch64 without registry write credentials.
 

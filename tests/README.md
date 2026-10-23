@@ -67,3 +67,15 @@ it reads the app's `drivers` listing on stdin and prints the name of the row
 whose description is exactly the model followed by ` (en)`, or exits 1 with
 the listing on stderr. `test_expert_driver.py` covers it with hand-built
 listings; parse the listing there instead of inline in a new test.
+
+`tests/entrypoint-supervisor.sh` runs the launch and supervision tail of
+`files/container-entrypoint.sh` on the host (`just validate` and
+`just verify-entrypoint-validation` run it). It slices the real supervision,
+PAPPL-argument and launch blocks out of the entrypoint by marker, replaces
+`dbus-daemon`, `avahi-daemon` and `gutenprint-printer-app` with stand-ins, and
+checks the forwarded PAPPL options (including the default `server-port=18050`),
+the open-web-administration NOTICE, that any child exiting stops the others
+newest first and propagates its status (a clean server exit still fails with 1),
+and that SIGTERM and SIGINT stop every child once and exit 143. The image suites
+never signal the container's PID 1, so nothing else executes this code before
+`tests/appliance.sh`.

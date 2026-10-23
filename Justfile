@@ -29,6 +29,7 @@ validate:
     PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py'
     tests/source-pins.sh
     tests/entrypoint-validation.sh
+    tests/entrypoint-supervisor.sh
     just bst show --deps all oci/gutenprint-printer-app.bst
 
 fetch:
@@ -59,9 +60,11 @@ export:
     podman tag "$image_id" "{{ image_ref }}"
 
 # Host-only: the entrypoint must reject malformed web-administration settings
-# before it touches the image or persistent state.
+# before it touches the image or persistent state, and must launch, supervise
+# and stop its daemons as tests/entrypoint-supervisor.sh specifies.
 verify-entrypoint-validation:
     tests/entrypoint-validation.sh
+    tests/entrypoint-supervisor.sh
 
 verify:
     tests/entrypoint-validation.sh
