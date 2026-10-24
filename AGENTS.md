@@ -34,8 +34,8 @@ Target `main` for development PRs. Renovate (`renovate.json`) owns every pin:
 the Gutenprint source pin in `include/source-pins.yml`, the fsdk-containers
 junction in `elements/fsdk-containers.bst` (merged automatically once the
 required image checks pass) and Action digests. There is no promotion step and
-no tag-driven release: `registry-actions.yml` builds, verifies and publishes,
-moving the version and `:stable` tags and adding an immutable `sha-` tag (see
-"FSDK OCI Printer Application" in `README.md`). It still triggers on, and only
-publishes from, the deleted `testing` branch, so merges to `main` currently
-publish nothing; retargeting it to `main` is tracked in #115.
+no tag-driven release: every push to `main` that builds and passes `just verify`
+on both architectures is published by `registry-actions.yml`, which moves the
+version and `:stable` tags and adds an immutable `sha-` tag (see "FSDK OCI
+Printer Application" in `README.md`). It publishes only from `main`; a manual
+dispatch from any other branch publishes nothing.
