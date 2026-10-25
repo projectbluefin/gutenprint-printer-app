@@ -8,7 +8,7 @@ sources:
 - kind: git_repo
   url: github:projectbluefin/fsdk-containers.git
   track: main
-  ref: 961edf80eaeba39cf33f0db1a7f7b20c58ced640
+  ref: 213e572f0c1e011d060aa984392b53deca3d7048
 
 config:
   options:
