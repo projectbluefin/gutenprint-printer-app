@@ -1,0 +1,4 @@
+# Python tools CI installs. Exact pins only; tests/test_python_install_pins.py
+# fails the check if an unpinned install lands in a workflow or the Justfile.
+pre-commit==4.7.0
+pyyaml==6.0.3

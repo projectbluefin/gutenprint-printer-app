@@ -257,6 +257,10 @@ just validate
 just verify
 ```
 
+`just validate` runs the Python unit tests in `tests/`; the install-pin gate
+(`tests/test_python_install_pins.py`) needs PyYAML
+(`pip install -r .github/requirements-ci.txt`).
+
 `just verify` builds the OCI image, checks the nonroot HTTP/HTTPS appliance,
 and prints a real IPP test page through the Gutenprint ESC/P2 raster filter
 and CUPS socket backend into a byte-capturing sink. No local printer is
