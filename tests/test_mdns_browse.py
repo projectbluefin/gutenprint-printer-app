@@ -4,12 +4,18 @@ tests/coexistence.sh decides whether two instances keep their DNS-SD
 advertisements isolated purely from what mdns-browse.py prints, and
 mdns-browse.query() swallows every parse error, so a decoding regression
 silently removes records instead of failing. These cases drive the wire
-decoders directly with hand-built packets: no socket, no image, no Avahi.
+decoders directly with hand-built packets, and query() and main() through a
+fake socket that answers with such packets: no network, no image, no Avahi.
 """
+import contextlib
 import importlib.util
+import io
+import json
 import signal
+import socket
 import struct
 import unittest
+from unittest import mock
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location(
@@ -164,6 +170,131 @@ class ParseRecordsTests(unittest.TestCase):
         packet = header(ancount=1) + name + struct.pack(">HHIH", mdns.TYPE_TXT, mdns.CLASS_IN, 120, 40)
         with self.assertRaises((IndexError, struct.error)):
             list(mdns.parse_records(packet))
+
+
+class FakeSocket:
+    """Answers each query with the packets responder(name, qtype) returns."""
+
+    def __init__(self, responder):
+        self.responder = responder
+        self.sent = []
+        self.pending = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc):
+        return False
+
+    def settimeout(self, _seconds):
+        pass
+
+    def sendto(self, data, address):
+        name, offset = mdns.decode_name(data, 12)
+        qtype, _qclass = struct.unpack(">HH", data[offset:offset + 4])
+        self.sent.append((name, qtype, address))
+        self.pending.extend(self.responder(name, qtype))
+
+    def recvfrom(self, _size):
+        if not self.pending:
+            raise socket.timeout
+        return self.pending.pop(0), ("192.0.2.1", mdns.MDNS_PORT)
+
+
+def reply(*records):
+    return header(ancount=len(records)) + b"".join(records)
+
+
+def ptr(service, instance):
+    return record(mdns.encode_name(service), mdns.TYPE_PTR, mdns.encode_name(instance))
+
+
+def srv(instance, port, target="host.local"):
+    return record(mdns.encode_name(instance), mdns.TYPE_SRV, srv_rdata(port, target))
+
+
+def txt(instance, *strings):
+    return record(mdns.encode_name(instance), mdns.TYPE_TXT, txt_rdata(*strings))
+
+
+class QueryTests(unittest.TestCase):
+    def test_sends_one_multicast_question_for_the_name_and_type(self):
+        sock = FakeSocket(lambda _name, _qtype: [])
+        self.assertEqual(mdns.query(sock, "_ipp._tcp.local", mdns.TYPE_PTR, 0.1), [])
+        self.assertEqual(sock.sent, [("_ipp._tcp.local", mdns.TYPE_PTR,
+                                      (mdns.MDNS_GROUP, mdns.MDNS_PORT))])
+
+    def test_a_malformed_reply_is_dropped_and_later_replies_still_count(self):
+        truncated = header(ancount=1) + mdns.encode_name("x._ipp._tcp.local")
+        looping = header(ancount=1) + struct.pack(">H", 0xC000 | 12)
+        good = reply(ptr("_ipp._tcp.local", "a._ipp._tcp.local"))
+        sock = FakeSocket(lambda _name, _qtype: [truncated, looping, good])
+        self.assertEqual(mdns.query(sock, "_ipp._tcp.local", mdns.TYPE_PTR, 0.1),
+                         [("_ipp._tcp.local", mdns.TYPE_PTR, "a._ipp._tcp.local")])
+
+
+class MainTests(unittest.TestCase):
+    def browse(self, responder, *args):
+        sock = FakeSocket(responder)
+        out = io.StringIO()
+        with mock.patch.object(mdns, "open_socket", return_value=sock), \
+                mock.patch("sys.argv", ["mdns-browse.py", *args]), \
+                contextlib.redirect_stdout(out):
+            mdns.main()
+        return [json.loads(line) for line in out.getvalue().splitlines()], sock
+
+    def test_usage_is_printed_without_a_service_type(self):
+        with mock.patch("sys.argv", ["mdns-browse.py"]):
+            with self.assertRaises(SystemExit) as raised:
+                mdns.main()
+        self.assertEqual(raised.exception.code, mdns.__doc__)
+
+    def test_instances_resolve_from_the_browse_reply_or_an_any_query(self):
+        service = "_ipp._tcp.local"
+        a, b = "Printer A._ipp._tcp.local", "Printer B._ipp._tcp.local"
+
+        def responder(name, qtype):
+            if qtype == mdns.TYPE_PTR:
+                return [reply(ptr("_IPP._tcp.local", a), ptr(service, b),
+                              ptr("_ipps._tcp.local", "Other._ipps._tcp.local"),
+                              srv(a, 18400), txt(a, "rp=ipp/print/a", "ty=A"))]
+            if qtype == mdns.TYPE_ANY and name == b:
+                return [reply(srv(b, 18401, "other.local"), txt(b, "rp=ipp/print/b"))]
+            return []
+
+        records, sock = self.browse(responder, "_ipp._tcp.", "0.1")
+        self.assertEqual(records, [
+            {"name": "Printer A", "type": "_ipp._tcp", "port": 18400,
+             "target": "host.local", "txt": ["rp=ipp/print/a", "ty=A"]},
+            {"name": "Printer B", "type": "_ipp._tcp", "port": 18401,
+             "target": "other.local", "txt": ["rp=ipp/print/b"]},
+        ])
+        self.assertEqual([q[:2] for q in sock.sent],
+                         [(service, mdns.TYPE_PTR)] * mdns.QUERY_ROUNDS + [(b, mdns.TYPE_ANY)])
+
+    def test_every_conflicting_srv_and_txt_is_reported_not_just_the_first(self):
+        a = "a._ipp._tcp.local"
+
+        def responder(_name, qtype):
+            if qtype != mdns.TYPE_PTR:
+                return []
+            return [reply(ptr("_ipp._tcp.local", a), srv(a, 18400), txt(a, "rp=ipp/print/a")),
+                    reply(srv(a, 18401), txt(a, "rp=ipp/print/b"))]
+
+        records, _sock = self.browse(responder, "_ipp._tcp", "0.1")
+        self.assertEqual(sorted((r["port"], tuple(r["txt"])) for r in records),
+                         [(18400, ("rp=ipp/print/a",)), (18400, ("rp=ipp/print/b",)),
+                          (18401, ("rp=ipp/print/a",)), (18401, ("rp=ipp/print/b",))])
+
+    def test_an_instance_that_never_resolves_is_still_printed(self):
+        a = "a._ipp._tcp.local"
+
+        def responder(_name, qtype):
+            return [reply(ptr("_ipp._tcp.local", a))] if qtype == mdns.TYPE_PTR else []
+
+        records, _sock = self.browse(responder, "_ipp._tcp", "0.1")
+        self.assertEqual(records, [{"name": "a", "type": "_ipp._tcp", "port": None,
+                                    "target": None, "txt": []}])
 
 
 if __name__ == "__main__":

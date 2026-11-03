@@ -36,8 +36,11 @@ exactly one instance with that instance's port and `rp=` path, before and
 after recreating both containers on their volumes. `tests/mdns-browse.py
 <service type> [seconds]` is a dependency-free mDNS browser (multicast
 PTR/SRV/TXT queries from port 5353, legacy unicast if the port cannot be
-shared) that prints one JSON record per resolved service instance; it needs
-host networking for the instances and no Avahi client. Neither proves USB
+shared) that prints one JSON record for every port and TXT set each service
+instance advertises, and one with a null port for an instance that never
+resolves, so a conflicting or missing advertisement is never hidden. Its
+decoders, queries and output are unit-tested in `tests/test_mdns_browse.py`
+against hand-built packets. It needs host networking for the instances and no Avahi client. Neither proves USB
 or paper output.
 
 `tests/service-advertisements.sh` runs two instances of the built image on one
