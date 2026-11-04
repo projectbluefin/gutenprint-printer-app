@@ -120,19 +120,28 @@ def query(sock, name, qtype, seconds):
     return records
 
 
-def open_socket():
+def new_socket():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     if hasattr(socket, "SO_REUSEPORT"):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+    return sock
+
+
+def open_socket():
+    sock = new_socket()
     try:
         sock.bind(("0.0.0.0", MDNS_PORT))
         membership = socket.inet_aton(MDNS_GROUP) + socket.inet_aton("0.0.0.0")
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, membership)
     except OSError as error:
         print(f"mdns-browse: multicast port unavailable ({error}); using legacy unicast", file=sys.stderr)
+        # The bind may already have succeeded (the group join failed), and a
+        # bound socket cannot be bound again, so start over on a fresh one.
+        sock.close()
+        sock = new_socket()
         sock.bind(("0.0.0.0", 0))
     return sock
 

@@ -40,7 +40,8 @@ shared) that prints one JSON record for every port and TXT set each service
 instance advertises, and one with a null port for an instance that never
 resolves, so a conflicting or missing advertisement is never hidden. Its
 decoders, queries and output are unit-tested in `tests/test_mdns_browse.py`
-against hand-built packets. It needs host networking for the instances and
+against hand-built packets, and its fallback to legacy unicast against a fake
+socket. It needs host networking for the instances and
 no Avahi client. Neither proves USB or paper output.
 
 `tests/service-advertisements.sh` runs two instances of the built image on one

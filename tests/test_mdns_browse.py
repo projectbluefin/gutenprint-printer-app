@@ -5,9 +5,11 @@ advertisements isolated purely from what mdns-browse.py prints, and
 mdns-browse.query() swallows every parse error, so a decoding regression
 silently removes records instead of failing. These cases drive the wire
 decoders directly with hand-built packets, and query() and main() through a
-fake socket that answers with such packets: no network, no image, no Avahi.
+fake socket that answers with such packets, and open_socket() against a fake
+that refuses a second bind like the kernel: no network, no image, no Avahi.
 """
 import contextlib
+import errno
 import importlib.util
 import io
 import json
@@ -231,6 +233,72 @@ class QueryTests(unittest.TestCase):
         sock = FakeSocket(lambda _name, _qtype: [truncated, looping, good])
         self.assertEqual(mdns.query(sock, "_ipp._tcp.local", mdns.TYPE_PTR, 0.1),
                          [("_ipp._tcp.local", mdns.TYPE_PTR, "a._ipp._tcp.local")])
+
+
+class KernelSocket:
+    """Records socket setup and, like the kernel, refuses a second bind."""
+
+    def __init__(self, bind_error=None, join_error=None):
+        self.bind_error = bind_error
+        self.join_error = join_error
+        self.bound = None
+        self.options = {}
+        self.closed = False
+
+    def setsockopt(self, level, option, value):
+        if option == socket.IP_ADD_MEMBERSHIP and self.join_error:
+            raise self.join_error
+        self.options[(level, option)] = value
+
+    def bind(self, address):
+        if self.bound is not None:
+            raise OSError(errno.EINVAL, "Invalid argument")
+        if address[1] == mdns.MDNS_PORT and self.bind_error:
+            raise self.bind_error
+        self.bound = address
+
+    def close(self):
+        self.closed = True
+
+
+class OpenSocketTests(unittest.TestCase):
+    def open(self, *sockets):
+        made = list(sockets)
+        err = io.StringIO()
+        with mock.patch.object(mdns.socket, "socket", side_effect=made), \
+                contextlib.redirect_stderr(err):
+            sock = mdns.open_socket()
+        return sock, err.getvalue()
+
+    def assert_multicast_ready(self, sock):
+        self.assertEqual(sock.options[(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL)], 255)
+        self.assertEqual(sock.options[(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP)], 1)
+
+    def test_joins_the_mdns_group_on_the_shared_mdns_port(self):
+        sock, err = self.open(KernelSocket())
+        self.assertEqual(sock.bound, ("0.0.0.0", mdns.MDNS_PORT))
+        self.assertEqual(sock.options[(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP)],
+                         socket.inet_aton(mdns.MDNS_GROUP) + socket.inet_aton("0.0.0.0"))
+        self.assert_multicast_ready(sock)
+        self.assertEqual(err, "")
+
+    def test_a_busy_mdns_port_falls_back_to_legacy_unicast(self):
+        busy = KernelSocket(bind_error=OSError(errno.EADDRINUSE, "Address already in use"))
+        fresh = KernelSocket()
+        sock, err = self.open(busy, fresh)
+        self.assertEqual(sock.bound, ("0.0.0.0", 0))
+        self.assert_multicast_ready(sock)
+        self.assertIn("using legacy unicast", err)
+
+    def test_a_failed_group_join_after_binding_still_falls_back(self):
+        joined = KernelSocket(join_error=OSError(errno.ENODEV, "No such device"))
+        fresh = KernelSocket()
+        sock, err = self.open(joined, fresh)
+        self.assertIs(sock, fresh)
+        self.assertTrue(joined.closed)
+        self.assertEqual(sock.bound, ("0.0.0.0", 0))
+        self.assert_multicast_ready(sock)
+        self.assertIn("No such device", err)
 
 
 class MainTests(unittest.TestCase):
