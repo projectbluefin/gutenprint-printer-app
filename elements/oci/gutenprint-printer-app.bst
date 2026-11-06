@@ -13,8 +13,21 @@ build-depends:
     config:
       location: /layer
 
+variables:
+  (@):
+    - fsdk-containers.bst:include/slim-printing.yml
+  app-forbidden-paths: |
+    etc/avahi/services/ssh.service
+    etc/avahi/services/sftp-ssh.service
+    usr/share/cups/ipptool
+    usr/share/legacy-printer-app
+    usr/bin/cupsd
+    usr/bin/ippeveprinter
+
 config:
   commands:
+    - "%{slim-printing-commands}"
+    - "%{slim-printing-gate-commands}"
     - |
       version="$(cat /metadata/VERSION)"
       gutenprint_ref="$(cat /metadata/GUTENPRINT_REF)"
@@ -32,7 +45,7 @@ config:
       # Keep the shared base's avahi-printing element and PAPPL's dynamic IPP publication.
       rm -f /layer/etc/avahi/services/ssh.service \
         /layer/etc/avahi/services/sftp-ssh.service
-      rm -rf /layer/usr/lib/debug /layer/usr/share/cups/ipptool
+      rm -rf /layer/usr/share/cups/ipptool
       # pappl-retrofit's own A4 sample test page; the app prints
       # /usr/share/gutenprint-printer-app/testpage.pdf built from testpage.ps.
       rm -rf /layer/usr/share/legacy-printer-app

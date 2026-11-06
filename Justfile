@@ -73,6 +73,7 @@ verify:
     just build
     tests/image-metadata.sh
     tests/no-devel.sh
+    tests/slim-printing.sh
     tests/locale-slim.sh
     tests/vendor-options-payload.sh
     tests/cups-owner.sh

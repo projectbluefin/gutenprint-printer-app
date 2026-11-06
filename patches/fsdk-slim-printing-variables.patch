@@ -1,0 +1,11 @@
+--- a/project.conf
++++ b/project.conf
+@@ -23,6 +23,8 @@
+   build-arch: "%{arch}"
+ 
+ variables:
++  (@):
++    - include/slim-printing.yml
+   (?):
+     - arch == "x86_64":
+         go-arch: "amd64"
