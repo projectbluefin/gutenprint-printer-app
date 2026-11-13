@@ -31,6 +31,7 @@ validate:
     tests/entrypoint-validation.sh
     tests/entrypoint-supervisor.sh
     tests/workflow-signing-identity.sh
+    tests/runtime-parent.sh
     just bst show --deps all oci/gutenprint-printer-app.bst
 
 fetch:
@@ -47,7 +48,14 @@ fetch:
     done
     exit 1
 
+# Resolve the shared printing runtime layer for the pinned junction, verify
+# its signature and stage that same digest as the OCI parent. Needs cosign,
+# skopeo and jq on the host.
+prepare-parent:
+    bash scripts/fetch-runtime-parent.sh
+
 build:
+    just prepare-parent
     just bst build oci/gutenprint-printer-app.bst
     just export
 
@@ -57,7 +65,8 @@ export:
     rm -rf .build-out
     just bst artifact checkout oci/gutenprint-printer-app.bst --directory /src/.build-out
     image_id="$(podman pull -q oci:.build-out)"
-    rm -rf .build-out
+    # Keep .build-out: releases publish this layout directly, since container
+    # storage may recompress layer 0 and break the shared digest.
     podman tag "$image_id" "{{ image_ref }}"
 
 # Host-only: the entrypoint must reject malformed web-administration settings
@@ -71,6 +80,7 @@ verify:
     tests/entrypoint-validation.sh
     tests/entrypoint-supervisor.sh
     just build
+    just check-shared-layer
     tests/image-metadata.sh
     tests/no-devel.sh
     tests/slim-printing.sh
@@ -85,6 +95,16 @@ verify:
     just check-no-remote-login-records
     tests/testpage-payload.sh
     python3 tests/device-selection.py -- podman run --rm --entrypoint /usr/bin/gutenprint-printer-app {{ image_ref }}
+
+# Layer 0 of the built image must be the shared runtime layer, byte for byte,
+# so families pinned to the same fsdk-containers ref share one download.
+check-shared-layer layout=".build-out":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    parent="$(skopeo inspect --raw oci:runtime-parent:layer | jq -r '.layers[0].digest')"
+    child="$(skopeo inspect --raw "oci:{{ layout }}" | jq -r '.layers[0].digest')"
+    echo "parent=${parent} child=${child}"
+    [[ "${parent}" == sha256:* && "${parent}" == "${child}" ]]
 
 # Avahi's sample ssh/sftp-ssh records must not ship in an appliance that
 # serves neither. Image-level, so `just verify` catches a reintroduction
