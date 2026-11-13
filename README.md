@@ -227,9 +227,11 @@ form, and pappl-retrofit. FSDK itself is reached only through that junction
 (`fsdk-containers.bst:freedesktop-sdk.bst:...`). Gutenprint contributes the
 real raster filter, dye-sublimation USB backend, PPD generator, expert and
 simplified PPDs, and `escputil`. The shipped application selects expert PPDs.
-The final image is composed from runtime domains only, and `just verify`
-fails if headers, static or libtool archives, pkg-config or CMake files reach
-it.
+The final image is composed from runtime domains only and uses the shared
+printing cleanup recipe. Bash, Python, and ordinary Python bytecode remain for
+the application and its drivers. `just verify` checks both the shared and
+application-specific forbidden paths as well as development files such as
+headers, static archives, pkg-config and CMake files.
 
 CI seeds the base from the cosign-verified
 `ghcr.io/projectbluefin/printing-base-devel:<arch>-<key>` BuildStream bundle
