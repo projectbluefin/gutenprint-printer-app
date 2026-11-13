@@ -241,7 +241,26 @@ Renovate tracks fsdk-containers `main` and bumps the junction ref against
 checks pass, and reverting one is the rollback. The publish workflow stamps the
 `io.projectbluefin.fsdk.version` and `io.projectbluefin.fsdk.ref` image labels
 from the FSDK release that the junctioned commit builds on
-(`scripts/fsdk-pin.sh`), so the bump needs no other edit.
+(`scripts/fsdk-pin.sh`). A bare ref bump is complete unless fsdk-containers'
+own FSDK release changes: then update
+`junction-files/fsdk-containers/include/fsdk-version.yml` to the value its
+`just bst` wrapper generates, or the shared runtime layer's key will not
+resolve and `just prepare-parent` fails. fsdk-containers keeps that include
+gitignored, so it is staged into the junction here.
+
+The image's first layer is fsdk-containers' shared printing runtime layer
+(`ghcr.io/projectbluefin/printing-runtime-layer`), so a host that runs several
+printer families pinned to the same fsdk-containers ref downloads that
+software once. `just build` runs `just prepare-parent`
+(`scripts/fetch-runtime-parent.sh`): it resolves the `<arch>-<full-key>` tag of
+`fsdk-containers.bst:oci/printing-runtime-layer.bst`, verifies that digest with
+cosign against fsdk-containers' `printing-runtime-layer.yml` on `main`, and
+copies the same digest into `runtime-parent/` as the OCI parent. This needs
+`cosign`, `skopeo` and `jq` on the host. The OCI element still takes the full
+final rootfs as its layer; `build-oci` (in `gzip` mode) copies the parent layer
+byte for byte and stores only the differences above it. `just verify` checks
+that layer 0 of the built image has the parent's digest
+(`just check-shared-layer`).
 
 The source build explicitly stages GLib's `glib-mkenums` and Python for
 `autogen.sh`; CUPS PPD generators install into `/usr/bin` because FSDK owns
@@ -252,7 +271,7 @@ The application source is Apache-2.0; bundled Gutenprint drivers are
 GPL-2.0-or-later. Release metadata records both, while the signed SPDX SBOM
 provides the complete transitive license inventory.
 
-Install `just`, Podman and FUSE 3. Build and exercise the native image with:
+Install `just`, Podman, FUSE 3, cosign, skopeo and jq. Build and exercise the native image with:
 
 ```sh
 just validate
@@ -307,7 +326,9 @@ multiarchitecture index with a signed image, signed SPDX SBOM, and GitHub
 provenance attestation. It pushes, signs (index and both architecture
 manifests), attests and verifies everything by digest, and creates tags only
 after every check passes, so a failed publish leaves no tagged, unsigned
-image. Tags:
+image. It stamps the release labels into the built OCI layout's configuration
+with `umoci` and pushes that layout with `skopeo copy --preserve-digests`,
+never through container storage, which may recompress the shared layer 0. Tags:
 
 - `ghcr.io/projectbluefin/gutenprint-printer-app:<gutenprint-version>` (for
   example `5.3.6-4.3`) and `:stable` move to every verified `main` commit;

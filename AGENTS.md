@@ -15,8 +15,8 @@ only the OCI appliance is maintained here. See `README.md` and `tests/README.md`
 - **`fsdk-ci.yml`**: pull requests run `just validate` (host unit tests,
   `tests/source-pins.sh`, `tests/entrypoint-validation.sh`,
   `tests/entrypoint-supervisor.sh`, `tests/workflow-signing-identity.sh`,
-  BuildStream graph); the merge queue builds the native
-  x86_64 and aarch64 images and runs `just verify` (real socket print).
+  `tests/runtime-parent.sh`, BuildStream graph); the merge queue builds the
+  native x86_64 and aarch64 images and runs `just verify` (real socket print).
 - **Scorecard** (`.github/workflows/scorecard.yml`): OpenSSF Scorecard.
 - **`license-audit.yml`**: unit tests for `scripts/audit-oci-licenses.py`.
 

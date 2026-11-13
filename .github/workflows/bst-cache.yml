@@ -7,6 +7,7 @@ on:
       - project.conf
       - elements/**
       - include/**
+      - junction-files/**
       - patches/**
       - files/**
       - Makefile
@@ -63,7 +64,7 @@ jobs:
       - name: Compute BuildStream cache key
         id: bst-key
         env:
-          INPUTS_HASH: ${{ hashFiles('project.conf', 'elements/**', 'include/**', 'patches/**', 'files/**', 'Makefile', 'gutenprint-printer-app.c', 'gutenprint-printer-app.1', 'gutenprint-printer-app.service', 'testpage.ps') }}
+          INPUTS_HASH: ${{ hashFiles('project.conf', 'elements/**', 'include/**', 'junction-files/**', 'patches/**', 'files/**', 'Makefile', 'gutenprint-printer-app.c', 'gutenprint-printer-app.1', 'gutenprint-printer-app.service', 'testpage.ps') }}
         run: echo "hash=${INPUTS_HASH}" >> "$GITHUB_OUTPUT"
       - name: Restore BuildStream cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
@@ -75,8 +76,8 @@ jobs:
           key: bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-${{ github.run_id }}
           restore-keys: |
             bst-v1-${{ matrix.arch }}-${{ steps.bst-key.outputs.hash }}-
+      # The runtime parent must be verified before the image is built.
       - name: Install cosign
-        continue-on-error: true
         uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
       # Seed printing/base.bst from the signed printing-base-devel bundle
       # (fsdk-containers docs/skills/printing-base.md, rule 4). Never fails
@@ -123,7 +124,7 @@ jobs:
             echo "printing base seeded from ${ARCH}-${KEY}"
           fi
       - name: Build image
-        run: just bst --network-retries 5 build oci/gutenprint-printer-app.bst
+        run: just prepare-parent && just bst --network-retries 5 build oci/gutenprint-printer-app.bst
       - name: Measure cache
         id: size
         run: |

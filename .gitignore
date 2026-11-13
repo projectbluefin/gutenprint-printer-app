@@ -7,3 +7,7 @@
 *.spdx.json
 __pycache__/
 .coverage
+
+# Verified shared runtime parent, fetched by `just prepare-parent`
+runtime-parent/*
+!runtime-parent/.gitkeep
