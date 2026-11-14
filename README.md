@@ -426,6 +426,16 @@ instances, and each queue's DNS-SD name must be unique on the LAN. Each
 instance runs its own D-Bus and Avahi inside the container; do not mount the
 host D-Bus socket or share Avahi runtime directories between instances.
 
+The shared, noncritical countme reporter sends an anonymous HTTPS `PUT` to
+`https://countme.projectbluefin.io/v1/ping` with only
+`{"image":"gutenprint-printer-app/main:unknown"}`. This measures an active
+reporting app installation per UTC calendar day, not unique hosts, physical
+printers, or print jobs. A successful report records the UTC day in the state
+volume so a restart that day does not report again. Keep the same state when
+disabling and re-enabling an instance in ChairLift. The stream is `unknown`
+because an image digest does not identify its release tag; reporting failure
+does not stop printing.
+
 `tests/coexistence.sh` proves this isolation against the real image without
 hardware: it starts two instances on adjacent ports with separate volumes,
 creates a different synthetic Gutenprint queue in each through the web

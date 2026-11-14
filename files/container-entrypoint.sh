@@ -121,9 +121,12 @@ export TESTPAGE_DIR=/usr/share/gutenprint-printer-app
 export TMPDIR=/tmp
 export USB_QUIRK_DIR="$state_dir"
 
+source /usr/libexec/printer-app/entrypoint-common.sh
+
 children=()
 stop_children() {
   local index pid
+  declare -F printer_app_stop_countme >/dev/null && printer_app_stop_countme
   for ((index = ${#children[@]} - 1; index >= 0; index--)); do
     pid="${children[index]}"
     kill -TERM "$pid" 2>/dev/null || true
@@ -176,6 +179,7 @@ fi
 
 gutenprint-printer-app "${args[@]}" server &
 children+=("$!")
+declare -F printer_app_start_countme >/dev/null && printer_app_start_countme "$state_dir" gutenprint-printer-app
 
 if wait -n "${children[@]}"; then
   status=1
