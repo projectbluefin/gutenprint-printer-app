@@ -51,6 +51,70 @@ can generally use driverless IPP via USB, try
 first.
 
 
+### Supported printers
+
+The FSDK OCI image declares **3,609 printer model names** across 54 manufacturers through Gutenprint 5.3.6's English expert PPD generator.
+This represents driver-declared printing support, not a claim that every model has been tested with physical hardware. It does not imply scanning support.
+
+The complete searchable list of models is documented in [**SUPPORTED-PRINTERS.md**](SUPPORTED-PRINTERS.md).
+
+#### Table of Contents by Manufacturer
+
+- [Apollo](SUPPORTED-PRINTERS.md#apollo)
+- [Apple](SUPPORTED-PRINTERS.md#apple)
+- [Brother](SUPPORTED-PRINTERS.md#brother)
+- [Canon](SUPPORTED-PRINTERS.md#canon)
+- [CIAAT](SUPPORTED-PRINTERS.md#ciaat)
+- [Citizen](SUPPORTED-PRINTERS.md#citizen)
+- [Compaq](SUPPORTED-PRINTERS.md#compaq)
+- [Dai Nippon Printing](SUPPORTED-PRINTERS.md#dai-nippon-printing)
+- [DatamaxONeil](SUPPORTED-PRINTERS.md#datamaxoneil)
+- [DEC](SUPPORTED-PRINTERS.md#dec)
+- [Dell](SUPPORTED-PRINTERS.md#dell)
+- [Epson](SUPPORTED-PRINTERS.md#epson)
+- [Fujifilm](SUPPORTED-PRINTERS.md#fujifilm)
+- [Fujitsu](SUPPORTED-PRINTERS.md#fujitsu)
+- [Generic](SUPPORTED-PRINTERS.md#generic)
+- [Gestetner](SUPPORTED-PRINTERS.md#gestetner)
+- [HiTi](SUPPORTED-PRINTERS.md#hiti)
+- [Honeywell](SUPPORTED-PRINTERS.md#honeywell)
+- [HP](SUPPORTED-PRINTERS.md#hp)
+- [IBM](SUPPORTED-PRINTERS.md#ibm)
+- [Infotec](SUPPORTED-PRINTERS.md#infotec)
+- [Joyspace](SUPPORTED-PRINTERS.md#joyspace)
+- [Kodak](SUPPORTED-PRINTERS.md#kodak)
+- [Kyocera](SUPPORTED-PRINTERS.md#kyocera)
+- [Lanier](SUPPORTED-PRINTERS.md#lanier)
+- [Lexmark](SUPPORTED-PRINTERS.md#lexmark)
+- [Magicard](SUPPORTED-PRINTERS.md#magicard)
+- [Minolta](SUPPORTED-PRINTERS.md#minolta)
+- [Mitsubishi](SUPPORTED-PRINTERS.md#mitsubishi)
+- [NEC](SUPPORTED-PRINTERS.md#nec)
+- [Nidac Copal](SUPPORTED-PRINTERS.md#nidac-copal)
+- [NRG](SUPPORTED-PRINTERS.md#nrg)
+- [Oki](SUPPORTED-PRINTERS.md#oki)
+- [Olivetti](SUPPORTED-PRINTERS.md#olivetti)
+- [Olmec](SUPPORTED-PRINTERS.md#olmec)
+- [Olympus](SUPPORTED-PRINTERS.md#olympus)
+- [Panasonic](SUPPORTED-PRINTERS.md#panasonic)
+- [PCPI](SUPPORTED-PRINTERS.md#pcpi)
+- [Raven](SUPPORTED-PRINTERS.md#raven)
+- [Ricoh](SUPPORTED-PRINTERS.md#ricoh)
+- [Samsung](SUPPORTED-PRINTERS.md#samsung)
+- [Savin](SUPPORTED-PRINTERS.md#savin)
+- [Seiko](SUPPORTED-PRINTERS.md#seiko)
+- [Sharp](SUPPORTED-PRINTERS.md#sharp)
+- [Shinko](SUPPORTED-PRINTERS.md#shinko)
+- [Sinfonia](SUPPORTED-PRINTERS.md#sinfonia)
+- [Sony](SUPPORTED-PRINTERS.md#sony)
+- [Star](SUPPORTED-PRINTERS.md#star)
+- [Stryker](SUPPORTED-PRINTERS.md#stryker)
+- [Swiftfoto](SUPPORTED-PRINTERS.md#swiftfoto)
+- [Tally](SUPPORTED-PRINTERS.md#tally)
+- [Tektronix](SUPPORTED-PRINTERS.md#tektronix)
+- [Toshiba](SUPPORTED-PRINTERS.md#toshiba)
+- [Xerox](SUPPORTED-PRINTERS.md#xerox)
+
 ### Properties
 
 - A Printer Application providing the Gutenprint CUPS Raster printer
