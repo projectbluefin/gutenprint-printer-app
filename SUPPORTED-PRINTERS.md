@@ -1,0 +1,3839 @@
+# Supported Printers: Gutenprint Printer Application
+
+This document lists all **3,609 printer model names** declared by Gutenprint 5.3.6's English expert PPD generator in the FSDK OCI image (`ghcr.io/projectbluefin/gutenprint-printer-app:5.3.6-4.3`).
+
+### Notes & Scope
+- **Declared vs Tested:** This list represents driver-declared support, not verification with physical hardware.
+- **Printing Only:** Scanning and fax are not supported.
+- **Simplified PPDs:** Simplified variants map to the same models and are not duplicated here.
+- **Source:** Debian Gutenprint 5.3.6 (`5131fd401a6f4221a623125dd8b710b365ad83d3`) pinned in `include/source-pins.yml`.
+
+## Table of Contents
+
+- [Apollo](#apollo) (8 models)
+- [Apple](#apple) (4 models)
+- [Brother](#brother) (48 models)
+- [Canon](#canon) (1254 models)
+- [CIAAT](#ciaat) (1 models)
+- [Citizen](#citizen) (12 models)
+- [Compaq](#compaq) (1 models)
+- [Dai Nippon Printing](#dai-nippon-printing) (11 models)
+- [DatamaxONeil](#datamaxoneil) (35 models)
+- [DEC](#dec) (2 models)
+- [Dell](#dell) (2 models)
+- [Epson](#epson) (622 models)
+- [Fujifilm](#fujifilm) (8 models)
+- [Fujitsu](#fujitsu) (4 models)
+- [Generic](#generic) (20 models)
+- [Gestetner](#gestetner) (122 models)
+- [HiTi](#hiti) (16 models)
+- [Honeywell](#honeywell) (2 models)
+- [HP](#hp) (368 models)
+- [IBM](#ibm) (5 models)
+- [Infotec](#infotec) (122 models)
+- [Joyspace](#joyspace) (1 models)
+- [Kodak](#kodak) (22 models)
+- [Kyocera](#kyocera) (117 models)
+- [Lanier](#lanier) (124 models)
+- [Lexmark](#lexmark) (12 models)
+- [Magicard](#magicard) (2 models)
+- [Minolta](#minolta) (6 models)
+- [Mitsubishi](#mitsubishi) (31 models)
+- [NEC](#nec) (6 models)
+- [Nidac Copal](#nidac-copal) (3 models)
+- [NRG](#nrg) (124 models)
+- [Oki](#oki) (24 models)
+- [Olivetti](#olivetti) (2 models)
+- [Olmec](#olmec) (1 models)
+- [Olympus](#olympus) (11 models)
+- [Panasonic](#panasonic) (9 models)
+- [PCPI](#pcpi) (1 models)
+- [Raven](#raven) (1 models)
+- [Ricoh](#ricoh) (133 models)
+- [Samsung](#samsung) (33 models)
+- [Savin](#savin) (117 models)
+- [Seiko](#seiko) (1 models)
+- [Sharp](#sharp) (36 models)
+- [Shinko](#shinko) (5 models)
+- [Sinfonia](#sinfonia) (5 models)
+- [Sony](#sony) (18 models)
+- [Star](#star) (2 models)
+- [Stryker](#stryker) (1 models)
+- [Swiftfoto](#swiftfoto) (1 models)
+- [Tally](#tally) (1 models)
+- [Tektronix](#tektronix) (4 models)
+- [Toshiba](#toshiba) (6 models)
+- [Xerox](#xerox) (82 models)
+
+---
+
+### Apollo
+
+- Apollo P-2100
+- Apollo P-2150
+- Apollo P-2200
+- Apollo P-2250
+- Apollo P-2500
+- Apollo P-2550
+- Apollo P-2600
+- Apollo P-2650
+
+### Apple
+
+- Apple Color StyleWriter 4100
+- Apple Color StyleWriter 4500
+- Apple Color StyleWriter 6500
+- Apple LaserWriter Select 360
+
+### Brother
+
+- Brother DCP-1200
+- Brother DCP-8045D
+- Brother HL-1040
+- Brother HL-1050
+- Brother HL-1060
+- Brother HL-1070
+- Brother HL-10h
+- Brother HL-10V
+- Brother HL-1240
+- Brother HL-1250
+- Brother HL-1260
+- Brother HL-1270N
+- Brother HL-1440
+- Brother HL-1450
+- Brother HL-1470N
+- Brother HL-1650
+- Brother HL-1660e
+- Brother HL-1670N
+- Brother HL-1850
+- Brother HL-1870N
+- Brother HL-2060
+- Brother HL-2250DN
+- Brother HL-2400CeN
+- Brother HL-2460
+- Brother HL-2460N
+- Brother HL-2600CN
+- Brother HL-3400CN
+- Brother HL-3450CN
+- Brother HL-4040CN
+- Brother HL-4Ve
+- Brother HL-5030
+- Brother HL-5040
+- Brother HL-5050
+- Brother HL-5070N
+- Brother HL-5140
+- Brother HL-5150D
+- Brother HL-5170DN
+- Brother HL-5340D
+- Brother HL-630
+- Brother HL-660
+- Brother HL-7050
+- Brother HL-7050N
+- Brother HL-760
+- Brother HL-960
+- Brother MFC-6550MC
+- Brother MFC-8300
+- Brother MFC-9500
+- Brother MFC-9600
+
+### Canon
+
+- Canon BJ-30
+- Canon BJC-1000
+- Canon BJC-2000
+- Canon BJC-2010
+- Canon BJC-210
+- Canon BJC-2100
+- Canon BJC-2110
+- Canon BJC-240
+- Canon BJC-250
+- Canon BJC-3000
+- Canon BJC-4000
+- Canon BJC-4300
+- Canon BJC-4400
+- Canon BJC-4550
+- Canon BJC-50
+- Canon BJC-5100
+- Canon BJC-55
+- Canon BJC-5500
+- Canon BJC-5500J
+- Canon BJC-6000
+- Canon BJC-6100
+- Canon BJC-6200
+- Canon BJC-6500
+- Canon BJC-7000
+- Canon BJC-7100
+- Canon BJC-80
+- Canon BJC-8200
+- Canon BJC-85
+- Canon BJC-8500
+- Canon CP-10
+- Canon CP-100
+- Canon CP-200
+- Canon CP-220
+- Canon CP-300
+- Canon CP-330
+- Canon E3100 series
+- Canon E400 series
+- Canon E410 series
+- Canon E460 series
+- Canon E470 series
+- Canon E480 series
+- Canon E500 series
+- Canon E510 series
+- Canon E560 series
+- Canon E600 series
+- Canon E610 series
+- Canon G1000 series
+- Canon G2000 series
+- Canon G3000 series
+- Canon G4000 series
+- Canon GP 335
+- Canon i450
+- Canon i450X
+- Canon i455
+- Canon i455X
+- Canon i470D
+- Canon i475D
+- Canon i550
+- Canon i550X
+- Canon i560
+- Canon i560X
+- Canon i6100
+- Canon i6500
+- Canon i70
+- Canon i80
+- Canon i850
+- Canon i850old
+- Canon i860
+- Canon i860old
+- Canon i865
+- Canon i865old
+- Canon i900D
+- Canon i905D
+- Canon i9100
+- Canon i950
+- Canon i960
+- Canon i965
+- Canon i990
+- Canon i9900
+- Canon i9950
+- Canon iB4000 series
+- Canon iB4100 series
+- Canon imageRunner 330s
+- Canon imageRunner C2550
+- Canon imageRunner C2570
+- Canon imageRunner C2570i
+- Canon imageRunner C2570N
+- Canon imageRunner C2620N
+- Canon imageRunner C3100
+- Canon imageRunner C3170
+- Canon imageRunner C3170i
+- Canon imageRunner C3200
+- Canon imageRunner C5030
+- Canon imageRunner C5058
+- Canon imageRunner C5068
+- Canon imageRunner C5180
+- Canon imageRunner C5185
+- Canon imageRunner C5185i
+- Canon imageRunner C5800
+- Canon imageRunner C5870U
+- Canon imageRunner C6800
+- Canon imageRunner C6870U
+- Canon iP110 series
+- Canon iP2000 series
+- Canon iP2700 series
+- Canon iP2800 series
+- Canon iP3300 series
+- Canon iP3500 series
+- Canon iP3600 series
+- Canon iP4200 series
+- Canon iP4300 series
+- Canon iP4500 series
+- Canon iP4600 series
+- Canon iP4700 series
+- Canon iP4800 series
+- Canon iP4900 series
+- Canon iP5200R series
+- Canon iP6600D series
+- Canon iP6700D series
+- Canon iP7200 series
+- Canon iP8700 series
+- Canon iP90 series
+- Canon iX5000 series
+- Canon iX6500 series
+- Canon iX6700 series
+- Canon iX6800 series
+- Canon iX7000 series
+- Canon LBP-1000
+- Canon LBP-1260
+- Canon LBP-1760
+- Canon LBP-3360
+- Canon LBP-430
+- Canon LBP-4sx
+- Canon LBP-5360
+- Canon LBP-5390
+- Canon MAXIFY iB4010
+- Canon MAXIFY iB4020
+- Canon MAXIFY iB4030
+- Canon MAXIFY iB4040
+- Canon MAXIFY iB4050
+- Canon MAXIFY iB4060
+- Canon MAXIFY iB4070
+- Canon MAXIFY iB4080
+- Canon MAXIFY iB4090
+- Canon MAXIFY iB4110
+- Canon MAXIFY iB4120
+- Canon MAXIFY iB4130
+- Canon MAXIFY iB4140
+- Canon MAXIFY iB4150
+- Canon MAXIFY iB4170
+- Canon MAXIFY iB4180
+- Canon MAXIFY iB4190
+- Canon MAXIFY MB2010
+- Canon MAXIFY MB2020
+- Canon MAXIFY MB2030
+- Canon MAXIFY MB2040
+- Canon MAXIFY MB2050
+- Canon MAXIFY MB2060
+- Canon MAXIFY MB2110
+- Canon MAXIFY MB2120
+- Canon MAXIFY MB2130
+- Canon MAXIFY MB2140
+- Canon MAXIFY MB2150
+- Canon MAXIFY MB2160
+- Canon MAXIFY MB2320
+- Canon MAXIFY MB2330
+- Canon MAXIFY MB2340
+- Canon MAXIFY MB2350
+- Canon MAXIFY MB2360
+- Canon MAXIFY MB2390
+- Canon MAXIFY MB2710
+- Canon MAXIFY MB2720
+- Canon MAXIFY MB2730
+- Canon MAXIFY MB2740
+- Canon MAXIFY MB2750
+- Canon MAXIFY MB2760
+- Canon MAXIFY MB2790
+- Canon MAXIFY MB5020
+- Canon MAXIFY MB5030
+- Canon MAXIFY MB5040
+- Canon MAXIFY MB5050
+- Canon MAXIFY MB5060
+- Canon MAXIFY MB5070
+- Canon MAXIFY MB5080
+- Canon MAXIFY MB5090
+- Canon MAXIFY MB5110
+- Canon MAXIFY MB5120
+- Canon MAXIFY MB5130
+- Canon MAXIFY MB5140
+- Canon MAXIFY MB5150
+- Canon MAXIFY MB5160
+- Canon MAXIFY MB5170
+- Canon MAXIFY MB5180
+- Canon MAXIFY MB5190
+- Canon MAXIFY MB5310
+- Canon MAXIFY MB5320
+- Canon MAXIFY MB5330
+- Canon MAXIFY MB5340
+- Canon MAXIFY MB5350
+- Canon MAXIFY MB5360
+- Canon MAXIFY MB5370
+- Canon MAXIFY MB5390
+- Canon MAXIFY MB5410
+- Canon MAXIFY MB5420
+- Canon MAXIFY MB5430
+- Canon MAXIFY MB5440
+- Canon MAXIFY MB5450
+- Canon MAXIFY MB5460
+- Canon MAXIFY MB5470
+- Canon MAXIFY MB5480
+- Canon MAXIFY MB5490
+- Canon MB2000 series
+- Canon MB2100 series
+- Canon MB2300 series
+- Canon MB2700 series
+- Canon MB5000 series
+- Canon MB5100 series
+- Canon MB5300 series
+- Canon MB5400 series
+- Canon MG2100 series
+- Canon MG2200 series
+- Canon MG2400 series
+- Canon MG2500 series
+- Canon MG2900 series
+- Canon MG3000 series
+- Canon MG3100 series
+- Canon MG3200 series
+- Canon MG3500 series
+- Canon MG3600 series
+- Canon MG4100 series
+- Canon MG4200 series
+- Canon MG5100 series
+- Canon MG5200 series
+- Canon MG5300 series
+- Canon MG5400 series
+- Canon MG5500 series
+- Canon MG5600 series
+- Canon MG5700 series
+- Canon MG6100 series
+- Canon MG6200 series
+- Canon MG6300 series
+- Canon MG6400 series
+- Canon MG6500 series
+- Canon MG6600 series
+- Canon MG6700 series
+- Canon MG6800 series
+- Canon MG6900 series
+- Canon MG7100 series
+- Canon MG7500 series
+- Canon MG7700 series
+- Canon MG8100 series
+- Canon MG8200 series
+- Canon Mommy Photo MG5670
+- Canon Mommy Photo MG5790
+- Canon Mommy Photo MG6670
+- Canon Mommy Photo MG7570
+- Canon MP140 series
+- Canon MP150 series
+- Canon MP160 series
+- Canon MP170 series
+- Canon MP180 series
+- Canon MP190 series
+- Canon MP210 series
+- Canon MP220 series
+- Canon MP230 series
+- Canon MP240 series
+- Canon MP250 series
+- Canon MP260 series
+- Canon MP270 series
+- Canon MP280 series
+- Canon MP360 series
+- Canon MP370 series
+- Canon MP390 series
+- Canon MP450 series
+- Canon MP460 series
+- Canon MP470 series
+- Canon MP480 series
+- Canon MP490 series
+- Canon MP500 series
+- Canon MP510 series
+- Canon MP520 series
+- Canon MP530 series
+- Canon MP540 series
+- Canon MP550 series
+- Canon MP560 series
+- Canon MP600 series
+- Canon MP610 series
+- Canon MP620 series
+- Canon MP630 series
+- Canon MP640 series
+- Canon MP700 series
+- Canon MP710 series
+- Canon MP730 series
+- Canon MP740 series
+- Canon MP750 series
+- Canon MP760 series
+- Canon MP770 series
+- Canon MP780 series
+- Canon MP790 series
+- Canon MP800 series
+- Canon MP810 series
+- Canon MP830 series
+- Canon MP900 series
+- Canon MP950 series
+- Canon MP960 series
+- Canon MP970 series
+- Canon MP980 series
+- Canon MP990 series
+- Canon MultiPASS MP360
+- Canon MultiPASS MP370
+- Canon MultiPASS MP390
+- Canon MultiPASS MP700
+- Canon MultiPASS MP730
+- Canon MX300 series
+- Canon MX310 series
+- Canon MX320 series
+- Canon MX330 series
+- Canon MX340 series
+- Canon MX350 series
+- Canon MX360 series
+- Canon MX370 series
+- Canon MX390 series
+- Canon MX410 series
+- Canon MX420 series
+- Canon MX430 series
+- Canon MX450 series
+- Canon MX470 series
+- Canon MX490 series
+- Canon MX510 series
+- Canon MX520 series
+- Canon MX530 series
+- Canon MX700 series
+- Canon MX710 series
+- Canon MX720 series
+- Canon MX7600 series
+- Canon MX850 series
+- Canon MX860 series
+- Canon MX870 series
+- Canon MX880 series
+- Canon MX890 series
+- Canon MX920 series
+- Canon PIXMA E3170
+- Canon PIXMA E3190
+- Canon PIXMA E3195
+- Canon PIXMA E400
+- Canon PIXMA E401
+- Canon PIXMA E404
+- Canon PIXMA E408
+- Canon PIXMA E409
+- Canon PIXMA E410
+- Canon PIXMA E414
+- Canon PIXMA E417
+- Canon PIXMA E418
+- Canon PIXMA E460
+- Canon PIXMA E461
+- Canon PIXMA E464
+- Canon PIXMA E468
+- Canon PIXMA E470
+- Canon PIXMA E471
+- Canon PIXMA E474
+- Canon PIXMA E477
+- Canon PIXMA E478
+- Canon PIXMA E480
+- Canon PIXMA E481
+- Canon PIXMA E484
+- Canon PIXMA E488
+- Canon PIXMA E489
+- Canon PIXMA E500
+- Canon PIXMA E510
+- Canon PIXMA E514
+- Canon PIXMA E518
+- Canon PIXMA E560
+- Canon PIXMA E568
+- Canon PIXMA E569
+- Canon PIXMA E600
+- Canon PIXMA E608
+- Canon PIXMA E610
+- Canon PIXMA E618
+- Canon PIXMA G1000
+- Canon PIXMA G1100
+- Canon PIXMA G1200
+- Canon PIXMA G1400
+- Canon PIXMA G1500
+- Canon PIXMA G1800
+- Canon PIXMA G1900
+- Canon PIXMA G1910
+- Canon PIXMA G2000
+- Canon PIXMA G2002
+- Canon PIXMA G2100
+- Canon PIXMA G2200
+- Canon PIXMA G2400
+- Canon PIXMA G2500
+- Canon PIXMA G2600
+- Canon PIXMA G2800
+- Canon PIXMA G2900
+- Canon PIXMA G2910
+- Canon PIXMA G2915
+- Canon PIXMA G3000
+- Canon PIXMA G3010
+- Canon PIXMA G3100
+- Canon PIXMA G3200
+- Canon PIXMA G3400
+- Canon PIXMA G3500
+- Canon PIXMA G3600
+- Canon PIXMA G3800
+- Canon PIXMA G3900
+- Canon PIXMA G3910
+- Canon PIXMA G3915
+- Canon PIXMA G4000
+- Canon PIXMA G4010
+- Canon PIXMA G4100
+- Canon PIXMA G4200
+- Canon PIXMA G4400
+- Canon PIXMA G4500
+- Canon PIXMA G4600
+- Canon PIXMA G4800
+- Canon PIXMA G4900
+- Canon PIXMA G4902
+- Canon PIXMA G4910
+- Canon PIXMA G4911
+- Canon PIXMA iP110
+- Canon PIXMA iP2000
+- Canon PIXMA iP2700
+- Canon PIXMA iP2701
+- Canon PIXMA iP2702
+- Canon PIXMA iP2740
+- Canon PIXMA iP2760
+- Canon PIXMA iP2770
+- Canon PIXMA iP2772
+- Canon PIXMA iP2780
+- Canon PIXMA iP2788
+- Canon PIXMA iP2810
+- Canon PIXMA iP2820
+- Canon PIXMA iP2840
+- Canon PIXMA iP2850
+- Canon PIXMA iP2870
+- Canon PIXMA iP2872
+- Canon PIXMA iP2880
+- Canon PIXMA iP2890
+- Canon PIXMA iP2899
+- Canon PIXMA iP3000
+- Canon PIXMA iP3100
+- Canon PIXMA iP3300
+- Canon PIXMA iP3500
+- Canon PIXMA iP3600
+- Canon PIXMA iP3680
+- Canon PIXMA iP4000
+- Canon PIXMA iP4000R
+- Canon PIXMA iP4100
+- Canon PIXMA iP4100R
+- Canon PIXMA iP4200
+- Canon PIXMA iP4300
+- Canon PIXMA iP4500
+- Canon PIXMA iP4600
+- Canon PIXMA iP4680
+- Canon PIXMA iP4700
+- Canon PIXMA iP4760
+- Canon PIXMA iP4800
+- Canon PIXMA iP4810
+- Canon PIXMA iP4820
+- Canon PIXMA iP4840
+- Canon PIXMA iP4850
+- Canon PIXMA iP4870
+- Canon PIXMA iP4880
+- Canon PIXMA iP4900
+- Canon PIXMA iP4910
+- Canon PIXMA iP4920
+- Canon PIXMA iP4940
+- Canon PIXMA iP4950
+- Canon PIXMA iP4970
+- Canon PIXMA iP4980
+- Canon PIXMA iP5000
+- Canon PIXMA iP5200
+- Canon PIXMA iP5200R
+- Canon PIXMA iP5300
+- Canon PIXMA iP6000D
+- Canon PIXMA iP6100D
+- Canon PIXMA iP6210D
+- Canon PIXMA iP6220D
+- Canon PIXMA iP6310D
+- Canon PIXMA iP6320D
+- Canon PIXMA iP6600D
+- Canon PIXMA iP6700D
+- Canon PIXMA iP7100
+- Canon PIXMA iP7210
+- Canon PIXMA iP7220
+- Canon PIXMA iP7240
+- Canon PIXMA iP7250
+- Canon PIXMA iP7260
+- Canon PIXMA iP7270
+- Canon PIXMA iP7280
+- Canon PIXMA iP7500
+- Canon PIXMA iP7810
+- Canon PIXMA iP8100
+- Canon PIXMA iP8500
+- Canon PIXMA iP8600
+- Canon PIXMA iP8720
+- Canon PIXMA iP8740
+- Canon PIXMA iP8750
+- Canon PIXMA iP8760
+- Canon PIXMA iP8770
+- Canon PIXMA iP8780
+- Canon PIXMA iP90
+- Canon PIXMA iP90v
+- Canon PIXMA iP9910
+- Canon PIXMA iX4000
+- Canon PIXMA iX5000
+- Canon PIXMA iX6500
+- Canon PIXMA iX6510
+- Canon PIXMA iX6520
+- Canon PIXMA iX6540
+- Canon PIXMA iX6550
+- Canon PIXMA iX6560
+- Canon PIXMA iX6580
+- Canon PIXMA iX6770
+- Canon PIXMA iX6780
+- Canon PIXMA iX6810
+- Canon PIXMA iX6820
+- Canon PIXMA iX6840
+- Canon PIXMA iX6850
+- Canon PIXMA iX6860
+- Canon PIXMA iX6870
+- Canon PIXMA iX6880
+- Canon PIXMA iX7000
+- Canon PIXMA MG2100
+- Canon PIXMA MG2110
+- Canon PIXMA MG2120
+- Canon PIXMA MG2140
+- Canon PIXMA MG2150
+- Canon PIXMA MG2160
+- Canon PIXMA MG2170
+- Canon PIXMA MG2180
+- Canon PIXMA MG2210
+- Canon PIXMA MG2220
+- Canon PIXMA MG2240
+- Canon PIXMA MG2250
+- Canon PIXMA MG2260
+- Canon PIXMA MG2270
+- Canon PIXMA MG2280
+- Canon PIXMA MG2400
+- Canon PIXMA MG2410
+- Canon PIXMA MG2420
+- Canon PIXMA MG2440
+- Canon PIXMA MG2450
+- Canon PIXMA MG2460
+- Canon PIXMA MG2470
+- Canon PIXMA MG2490
+- Canon PIXMA MG2510
+- Canon PIXMA MG2520
+- Canon PIXMA MG2522
+- Canon PIXMA MG2525
+- Canon PIXMA MG2540
+- Canon PIXMA MG2540S
+- Canon PIXMA MG2545S
+- Canon PIXMA MG2550
+- Canon PIXMA MG2550S
+- Canon PIXMA MG2555S
+- Canon PIXMA MG2560
+- Canon PIXMA MG2570
+- Canon PIXMA MG2570S
+- Canon PIXMA MG2580
+- Canon PIXMA MG2580S
+- Canon PIXMA MG2590
+- Canon PIXMA MG2910
+- Canon PIXMA MG2920
+- Canon PIXMA MG2922
+- Canon PIXMA MG2924
+- Canon PIXMA MG2940
+- Canon PIXMA MG2950
+- Canon PIXMA MG2960
+- Canon PIXMA MG2970
+- Canon PIXMA MG2980
+- Canon PIXMA MG2990
+- Canon PIXMA MG3010
+- Canon PIXMA MG3020
+- Canon PIXMA MG3022
+- Canon PIXMA MG3030
+- Canon PIXMA MG3040
+- Canon PIXMA MG3050
+- Canon PIXMA MG3051
+- Canon PIXMA MG3052
+- Canon PIXMA MG3053
+- Canon PIXMA MG3060
+- Canon PIXMA MG3070
+- Canon PIXMA MG3077
+- Canon PIXMA MG3080
+- Canon PIXMA MG3090
+- Canon PIXMA MG3100
+- Canon PIXMA MG3110
+- Canon PIXMA MG3120
+- Canon PIXMA MG3122
+- Canon PIXMA MG3140
+- Canon PIXMA MG3150
+- Canon PIXMA MG3160
+- Canon PIXMA MG3170
+- Canon PIXMA MG3180
+- Canon PIXMA MG3210
+- Canon PIXMA MG3220
+- Canon PIXMA MG3222
+- Canon PIXMA MG3240
+- Canon PIXMA MG3250
+- Canon PIXMA MG3260
+- Canon PIXMA MG3270
+- Canon PIXMA MG3510
+- Canon PIXMA MG3520
+- Canon PIXMA MG3522
+- Canon PIXMA MG3540
+- Canon PIXMA MG3550
+- Canon PIXMA MG3560
+- Canon PIXMA MG3570
+- Canon PIXMA MG3580
+- Canon PIXMA MG3610
+- Canon PIXMA MG3620
+- Canon PIXMA MG3640
+- Canon PIXMA MG3650
+- Canon PIXMA MG3670
+- Canon PIXMA MG3680
+- Canon PIXMA MG4100
+- Canon PIXMA MG4110
+- Canon PIXMA MG4120
+- Canon PIXMA MG4140
+- Canon PIXMA MG4150
+- Canon PIXMA MG4160
+- Canon PIXMA MG4170
+- Canon PIXMA MG4180
+- Canon PIXMA MG4210
+- Canon PIXMA MG4220
+- Canon PIXMA MG4240
+- Canon PIXMA MG4250
+- Canon PIXMA MG4260
+- Canon PIXMA MG4270
+- Canon PIXMA MG4280
+- Canon PIXMA MG5100
+- Canon PIXMA MG5120
+- Canon PIXMA MG5140
+- Canon PIXMA MG5150
+- Canon PIXMA MG5170
+- Canon PIXMA MG5180
+- Canon PIXMA MG5200
+- Canon PIXMA MG5210
+- Canon PIXMA MG5220
+- Canon PIXMA MG5240
+- Canon PIXMA MG5250
+- Canon PIXMA MG5270
+- Canon PIXMA MG5280
+- Canon PIXMA MG5300
+- Canon PIXMA MG5310
+- Canon PIXMA MG5320
+- Canon PIXMA MG5340
+- Canon PIXMA MG5350
+- Canon PIXMA MG5370
+- Canon PIXMA MG5380
+- Canon PIXMA MG5410
+- Canon PIXMA MG5420
+- Canon PIXMA MG5422
+- Canon PIXMA MG5440
+- Canon PIXMA MG5450
+- Canon PIXMA MG5460
+- Canon PIXMA MG5470
+- Canon PIXMA MG5480
+- Canon PIXMA MG5510
+- Canon PIXMA MG5520
+- Canon PIXMA MG5522
+- Canon PIXMA MG5540
+- Canon PIXMA MG5550
+- Canon PIXMA MG5560
+- Canon PIXMA MG5570
+- Canon PIXMA MG5580
+- Canon PIXMA MG5610
+- Canon PIXMA MG5620
+- Canon PIXMA MG5622
+- Canon PIXMA MG5640
+- Canon PIXMA MG5650
+- Canon PIXMA MG5660
+- Canon PIXMA MG5670
+- Canon PIXMA MG5680
+- Canon PIXMA MG5710
+- Canon PIXMA MG5720
+- Canon PIXMA MG5721
+- Canon PIXMA MG5722
+- Canon PIXMA MG5740
+- Canon PIXMA MG5750
+- Canon PIXMA MG5751
+- Canon PIXMA MG5752
+- Canon PIXMA MG5753
+- Canon PIXMA MG5770
+- Canon PIXMA MG5780
+- Canon PIXMA MG5790
+- Canon PIXMA MG5795
+- Canon PIXMA MG6100
+- Canon PIXMA MG6110
+- Canon PIXMA MG6120
+- Canon PIXMA MG6140
+- Canon PIXMA MG6150
+- Canon PIXMA MG6170
+- Canon PIXMA MG6180
+- Canon PIXMA MG6200
+- Canon PIXMA MG6210
+- Canon PIXMA MG6220
+- Canon PIXMA MG6240
+- Canon PIXMA MG6250
+- Canon PIXMA MG6270
+- Canon PIXMA MG6280
+- Canon PIXMA MG6310
+- Canon PIXMA MG6320
+- Canon PIXMA MG6340
+- Canon PIXMA MG6350
+- Canon PIXMA MG6360
+- Canon PIXMA MG6370
+- Canon PIXMA MG6380
+- Canon PIXMA MG6400
+- Canon PIXMA MG6410
+- Canon PIXMA MG6420
+- Canon PIXMA MG6440
+- Canon PIXMA MG6450
+- Canon PIXMA MG6470
+- Canon PIXMA MG6610
+- Canon PIXMA MG6620
+- Canon PIXMA MG6622
+- Canon PIXMA MG6640
+- Canon PIXMA MG6650
+- Canon PIXMA MG6660
+- Canon PIXMA MG6670
+- Canon PIXMA MG6680
+- Canon PIXMA MG6810
+- Canon PIXMA MG6820
+- Canon PIXMA MG6821
+- Canon PIXMA MG6822
+- Canon PIXMA MG6840
+- Canon PIXMA MG6850
+- Canon PIXMA MG6851
+- Canon PIXMA MG6852
+- Canon PIXMA MG6853
+- Canon PIXMA MG6870
+- Canon PIXMA MG6880
+- Canon PIXMA MG7110
+- Canon PIXMA MG7120
+- Canon PIXMA MG7140
+- Canon PIXMA MG7150
+- Canon PIXMA MG7170
+- Canon PIXMA MG7180
+- Canon PIXMA MG7510
+- Canon PIXMA MG7520
+- Canon PIXMA MG7540
+- Canon PIXMA MG7550
+- Canon PIXMA MG7560
+- Canon PIXMA MG7570
+- Canon PIXMA MG7580
+- Canon PIXMA MG7710
+- Canon PIXMA MG7720
+- Canon PIXMA MG7740
+- Canon PIXMA MG7750
+- Canon PIXMA MG7751
+- Canon PIXMA MG7752
+- Canon PIXMA MG7753
+- Canon PIXMA MG7770
+- Canon PIXMA MG7780
+- Canon PIXMA MG7790
+- Canon PIXMA MG8100
+- Canon PIXMA MG8120
+- Canon PIXMA MG8120B
+- Canon PIXMA MG8140
+- Canon PIXMA MG8150
+- Canon PIXMA MG8170
+- Canon PIXMA MG8180
+- Canon PIXMA MG8200
+- Canon PIXMA MG8220
+- Canon PIXMA MG8240
+- Canon PIXMA MG8250
+- Canon PIXMA MG8270
+- Canon PIXMA MG8280
+- Canon PIXMA mini220
+- Canon PIXMA mini320
+- Canon PIXMA mini360
+- Canon PIXMA MP140
+- Canon PIXMA MP145
+- Canon PIXMA MP150
+- Canon PIXMA MP160
+- Canon PIXMA MP170
+- Canon PIXMA MP180
+- Canon PIXMA MP190
+- Canon PIXMA MP198
+- Canon PIXMA MP210
+- Canon PIXMA MP218
+- Canon PIXMA MP220
+- Canon PIXMA MP228
+- Canon PIXMA MP230
+- Canon PIXMA MP236
+- Canon PIXMA MP237
+- Canon PIXMA MP240
+- Canon PIXMA MP245
+- Canon PIXMA MP250
+- Canon PIXMA MP252
+- Canon PIXMA MP258
+- Canon PIXMA MP259
+- Canon PIXMA MP260
+- Canon PIXMA MP268
+- Canon PIXMA MP270
+- Canon PIXMA MP272
+- Canon PIXMA MP276
+- Canon PIXMA MP280
+- Canon PIXMA MP282
+- Canon PIXMA MP287
+- Canon PIXMA MP288
+- Canon PIXMA MP360
+- Canon PIXMA MP370
+- Canon PIXMA MP375R
+- Canon PIXMA MP390
+- Canon PIXMA MP450
+- Canon PIXMA MP460
+- Canon PIXMA MP470
+- Canon PIXMA MP476
+- Canon PIXMA MP480
+- Canon PIXMA MP486
+- Canon PIXMA MP490
+- Canon PIXMA MP492
+- Canon PIXMA MP493
+- Canon PIXMA MP495
+- Canon PIXMA MP496
+- Canon PIXMA MP497
+- Canon PIXMA MP498
+- Canon PIXMA MP499
+- Canon PIXMA MP500
+- Canon PIXMA MP510
+- Canon PIXMA MP520
+- Canon PIXMA MP530
+- Canon PIXMA MP540
+- Canon PIXMA MP545
+- Canon PIXMA MP550
+- Canon PIXMA MP558
+- Canon PIXMA MP560
+- Canon PIXMA MP568
+- Canon PIXMA MP600
+- Canon PIXMA MP600R
+- Canon PIXMA MP610
+- Canon PIXMA MP620
+- Canon PIXMA MP620B
+- Canon PIXMA MP628
+- Canon PIXMA MP630
+- Canon PIXMA MP638
+- Canon PIXMA MP640
+- Canon PIXMA MP640R
+- Canon PIXMA MP648
+- Canon PIXMA MP700
+- Canon PIXMA MP710
+- Canon PIXMA MP730
+- Canon PIXMA MP740
+- Canon PIXMA MP750
+- Canon PIXMA MP760
+- Canon PIXMA MP770
+- Canon PIXMA MP780
+- Canon PIXMA MP790
+- Canon PIXMA MP800
+- Canon PIXMA MP800R
+- Canon PIXMA MP810
+- Canon PIXMA MP830
+- Canon PIXMA MP900
+- Canon PIXMA MP950
+- Canon PIXMA MP960
+- Canon PIXMA MP970
+- Canon PIXMA MP980
+- Canon PIXMA MP988
+- Canon PIXMA MP990
+- Canon PIXMA MP996
+- Canon PIXMA MX300
+- Canon PIXMA MX308
+- Canon PIXMA MX310
+- Canon PIXMA MX318
+- Canon PIXMA MX320
+- Canon PIXMA MX328
+- Canon PIXMA MX330
+- Canon PIXMA MX338
+- Canon PIXMA MX340
+- Canon PIXMA MX347
+- Canon PIXMA MX348
+- Canon PIXMA MX350
+- Canon PIXMA MX357
+- Canon PIXMA MX358
+- Canon PIXMA MX360
+- Canon PIXMA MX366
+- Canon PIXMA MX368
+- Canon PIXMA MX370
+- Canon PIXMA MX371
+- Canon PIXMA MX372
+- Canon PIXMA MX374
+- Canon PIXMA MX375
+- Canon PIXMA MX376
+- Canon PIXMA MX377
+- Canon PIXMA MX378
+- Canon PIXMA MX391
+- Canon PIXMA MX392
+- Canon PIXMA MX394
+- Canon PIXMA MX395
+- Canon PIXMA MX396
+- Canon PIXMA MX397
+- Canon PIXMA MX398
+- Canon PIXMA MX410
+- Canon PIXMA MX416
+- Canon PIXMA MX418
+- Canon PIXMA MX420
+- Canon PIXMA MX426
+- Canon PIXMA MX428
+- Canon PIXMA MX430
+- Canon PIXMA MX431
+- Canon PIXMA MX432
+- Canon PIXMA MX434
+- Canon PIXMA MX435
+- Canon PIXMA MX436
+- Canon PIXMA MX437
+- Canon PIXMA MX438
+- Canon PIXMA MX439
+- Canon PIXMA MX451
+- Canon PIXMA MX452
+- Canon PIXMA MX454
+- Canon PIXMA MX455
+- Canon PIXMA MX456
+- Canon PIXMA MX457
+- Canon PIXMA MX458
+- Canon PIXMA MX459
+- Canon PIXMA MX471
+- Canon PIXMA MX472
+- Canon PIXMA MX474
+- Canon PIXMA MX475
+- Canon PIXMA MX476
+- Canon PIXMA MX477
+- Canon PIXMA MX478
+- Canon PIXMA MX479
+- Canon PIXMA MX490
+- Canon PIXMA MX492
+- Canon PIXMA MX494
+- Canon PIXMA MX495
+- Canon PIXMA MX496
+- Canon PIXMA MX497
+- Canon PIXMA MX498
+- Canon PIXMA MX499
+- Canon PIXMA MX510
+- Canon PIXMA MX511
+- Canon PIXMA MX512
+- Canon PIXMA MX514
+- Canon PIXMA MX515
+- Canon PIXMA MX516
+- Canon PIXMA MX517
+- Canon PIXMA MX518
+- Canon PIXMA MX521
+- Canon PIXMA MX522
+- Canon PIXMA MX524
+- Canon PIXMA MX525
+- Canon PIXMA MX526
+- Canon PIXMA MX527
+- Canon PIXMA MX528
+- Canon PIXMA MX531
+- Canon PIXMA MX532
+- Canon PIXMA MX534
+- Canon PIXMA MX535
+- Canon PIXMA MX536
+- Canon PIXMA MX537
+- Canon PIXMA MX538
+- Canon PIXMA MX700
+- Canon PIXMA MX710
+- Canon PIXMA MX711
+- Canon PIXMA MX712
+- Canon PIXMA MX714
+- Canon PIXMA MX715
+- Canon PIXMA MX721
+- Canon PIXMA MX722
+- Canon PIXMA MX725
+- Canon PIXMA MX726
+- Canon PIXMA MX727
+- Canon PIXMA MX728
+- Canon PIXMA MX7600
+- Canon PIXMA MX850
+- Canon PIXMA MX860
+- Canon PIXMA MX868
+- Canon PIXMA MX870
+- Canon PIXMA MX876
+- Canon PIXMA MX880
+- Canon PIXMA MX882
+- Canon PIXMA MX884
+- Canon PIXMA MX885
+- Canon PIXMA MX886
+- Canon PIXMA MX888
+- Canon PIXMA MX890
+- Canon PIXMA MX892
+- Canon PIXMA MX894
+- Canon PIXMA MX895
+- Canon PIXMA MX897
+- Canon PIXMA MX898
+- Canon PIXMA MX922
+- Canon PIXMA MX924
+- Canon PIXMA MX925
+- Canon PIXMA MX926
+- Canon PIXMA MX927
+- Canon PIXMA MX928
+- Canon PIXMA P200
+- Canon PIXMA Pro9000
+- Canon PIXMA Pro9000mk2
+- Canon PIXMA Pro9500
+- Canon PIXMA Pro9500mk2
+- Canon PIXMA TS3110
+- Canon PIXMA TS3120
+- Canon PIXMA TS3130
+- Canon PIXMA TS3130S
+- Canon PIXMA TS3140
+- Canon PIXMA TS3150
+- Canon PIXMA TS3160
+- Canon PIXMA TS3170
+- Canon PIXMA TS3190
+- Canon PIXMA TS3195
+- Canon PIXMA TS5010
+- Canon PIXMA TS5020
+- Canon PIXMA TS5030
+- Canon PIXMA TS5030S
+- Canon PIXMA TS5040
+- Canon PIXMA TS5050
+- Canon PIXMA TS5051
+- Canon PIXMA TS5053
+- Canon PIXMA TS5055
+- Canon PIXMA TS5060
+- Canon PIXMA TS5070
+- Canon PIXMA TS5080
+- Canon PIXMA TS5090
+- Canon PIXMA TS6010
+- Canon PIXMA TS6020
+- Canon PIXMA TS6030
+- Canon PIXMA TS6040
+- Canon PIXMA TS6050
+- Canon PIXMA TS6051
+- Canon PIXMA TS6052
+- Canon PIXMA TS6060
+- Canon PIXMA TS6070
+- Canon PIXMA TS6080
+- Canon PIXMA TS8010
+- Canon PIXMA TS8020
+- Canon PIXMA TS8030
+- Canon PIXMA TS8040
+- Canon PIXMA TS8050
+- Canon PIXMA TS8051
+- Canon PIXMA TS8052
+- Canon PIXMA TS8053
+- Canon PIXMA TS8060
+- Canon PIXMA TS8070
+- Canon PIXMA TS8080
+- Canon PIXMA TS8090
+- Canon PIXMA TS9010
+- Canon PIXMA TS9020
+- Canon PIXMA TS9030
+- Canon PIXMA TS9040
+- Canon PIXMA TS9050
+- Canon PIXMA TS9055
+- Canon PIXMA TS9060
+- Canon PIXMA TS9080
+- Canon PIXUS 450i
+- Canon PIXUS 455i
+- Canon PIXUS 470PD
+- Canon PIXUS 475PD
+- Canon PIXUS 50i
+- Canon PIXUS 550i
+- Canon PIXUS 560i
+- Canon PIXUS 6100i
+- Canon PIXUS 6500i
+- Canon PIXUS 80i
+- Canon PIXUS 850i
+- Canon PIXUS 860i
+- Canon PIXUS 865R
+- Canon PIXUS 900PD
+- Canon PIXUS 9100i
+- Canon PIXUS 950i
+- Canon PIXUS 960i
+- Canon PIXUS 9900i
+- Canon PIXUS 990i
+- Canon PIXUS iP110
+- Canon PIXUS iP2000
+- Canon PIXUS iP2700
+- Canon PIXUS iP3100
+- Canon PIXUS iP3300
+- Canon PIXUS iP3500
+- Canon PIXUS iP3600
+- Canon PIXUS iP4100
+- Canon PIXUS iP4100R
+- Canon PIXUS iP4200
+- Canon PIXUS iP4300
+- Canon PIXUS iP4500
+- Canon PIXUS iP4600
+- Canon PIXUS iP4700
+- Canon PIXUS iP4830
+- Canon PIXUS iP4930
+- Canon PIXUS iP5200R
+- Canon PIXUS iP6100D
+- Canon PIXUS iP6600D
+- Canon PIXUS iP6700D
+- Canon PIXUS iP7100
+- Canon PIXUS iP7230
+- Canon PIXUS iP7500
+- Canon PIXUS iP8100
+- Canon PIXUS iP8600
+- Canon PIXUS iP8730
+- Canon PIXUS iP90
+- Canon PIXUS iP90v
+- Canon PIXUS iP9910
+- Canon PIXUS iX5000
+- Canon PIXUS iX6530
+- Canon PIXUS iX6830
+- Canon PIXUS iX7000
+- Canon PIXUS MG2130
+- Canon PIXUS MG3130
+- Canon PIXUS MG3230
+- Canon PIXUS MG3530
+- Canon PIXUS MG3630
+- Canon PIXUS MG4130
+- Canon PIXUS MG4230
+- Canon PIXUS MG5130
+- Canon PIXUS MG5230
+- Canon PIXUS MG5330
+- Canon PIXUS MG5430
+- Canon PIXUS MG5530
+- Canon PIXUS MG5630
+- Canon PIXUS MG5730
+- Canon PIXUS MG6130
+- Canon PIXUS MG6230
+- Canon PIXUS MG6330
+- Canon PIXUS MG6530
+- Canon PIXUS MG6730
+- Canon PIXUS MG6930
+- Canon PIXUS MG7130
+- Canon PIXUS MG7530
+- Canon PIXUS MG7530F
+- Canon PIXUS MG7730
+- Canon PIXUS MG7730F
+- Canon PIXUS MG8130
+- Canon PIXUS MG8230
+- Canon PIXUS mini220
+- Canon PIXUS mini360
+- Canon PIXUS MP170
+- Canon PIXUS MP270
+- Canon PIXUS MP280
+- Canon PIXUS MP360
+- Canon PIXUS MP370
+- Canon PIXUS MP375R
+- Canon PIXUS MP390
+- Canon PIXUS MP450
+- Canon PIXUS MP460
+- Canon PIXUS MP470
+- Canon PIXUS MP480
+- Canon PIXUS MP490
+- Canon PIXUS MP493
+- Canon PIXUS MP500
+- Canon PIXUS MP510
+- Canon PIXUS MP520
+- Canon PIXUS MP540
+- Canon PIXUS MP55
+- Canon PIXUS MP550
+- Canon PIXUS MP560
+- Canon PIXUS MP600
+- Canon PIXUS MP610
+- Canon PIXUS MP620
+- Canon PIXUS MP630
+- Canon PIXUS MP640
+- Canon PIXUS MP700
+- Canon PIXUS MP710
+- Canon PIXUS MP730
+- Canon PIXUS MP740
+- Canon PIXUS MP770
+- Canon PIXUS MP790
+- Canon PIXUS MP800
+- Canon PIXUS MP810
+- Canon PIXUS MP830
+- Canon PIXUS MP900
+- Canon PIXUS MP950
+- Canon PIXUS MP960
+- Canon PIXUS MP970
+- Canon PIXUS MP980
+- Canon PIXUS MP990
+- Canon PIXUS MX350
+- Canon PIXUS MX420
+- Canon PIXUS MX513
+- Canon PIXUS MX523
+- Canon PIXUS MX7600
+- Canon PIXUS MX850
+- Canon PIXUS MX860
+- Canon PIXUS MX870
+- Canon PIXUS MX883
+- Canon PIXUS MX893
+- Canon PIXUS MX923
+- Canon PIXUS Pro9000
+- Canon PIXUS Pro9000mk2
+- Canon PIXUS Pro9500
+- Canon PIXUS Pro9500mk2
+- Canon Pro9000 Mk.II series
+- Canon Pro9000 series
+- Canon Pro9500 Mk.II series
+- Canon Pro9500 series
+- Canon S100
+- Canon S200
+- Canon S300
+- Canon S330
+- Canon S400
+- Canon S450
+- Canon S4500
+- Canon S500
+- Canon S520
+- Canon S530D
+- Canon S600
+- Canon S630
+- Canon S750
+- Canon S800
+- Canon S820
+- Canon S830D
+- Canon S900
+- Canon S9000
+- Canon SELPHY CP1000
+- Canon SELPHY CP1200
+- Canon SELPHY CP1300
+- Canon SELPHY CP1500
+- Canon SELPHY CP400
+- Canon SELPHY CP500
+- Canon SELPHY CP510
+- Canon SELPHY CP520
+- Canon SELPHY CP530
+- Canon SELPHY CP600
+- Canon SELPHY CP710
+- Canon SELPHY CP720
+- Canon SELPHY CP730
+- Canon SELPHY CP740
+- Canon SELPHY CP750
+- Canon SELPHY CP760
+- Canon SELPHY CP770
+- Canon SELPHY CP780
+- Canon SELPHY CP790
+- Canon SELPHY CP800
+- Canon SELPHY CP810
+- Canon SELPHY CP820
+- Canon SELPHY CP900
+- Canon SELPHY CP910
+- Canon SELPHY DS700
+- Canon SELPHY DS810
+- Canon SELPHY ES1
+- Canon SELPHY ES2
+- Canon SELPHY ES20
+- Canon SELPHY ES3
+- Canon SELPHY ES30
+- Canon SELPHY ES40
+- Canon SmartBase MP360
+- Canon SmartBase MP360S
+- Canon SmartBase MP370
+- Canon SmartBase MP390
+- Canon SmartBase MP700
+- Canon SmartBase MP730
+- Canon SmartBase MPC400
+- Canon SmartBase MPC600F
+- Canon TS3100 series
+- Canon TS5000 series
+- Canon TS6000 series
+- Canon TS8000 series
+- Canon TS9000 series
+
+### CIAAT
+
+- CIAAT Brava 21
+
+### Citizen
+
+- Citizen CW-01
+- Citizen CW-02
+- Citizen CX
+- Citizen CX-02
+- Citizen CX-02W
+- Citizen CX-W
+- Citizen CY
+- Citizen CY-02
+- Citizen CZ-01
+- Citizen OP900
+- Citizen OP900II
+- Citizen ProJet II
+
+### Compaq
+
+- Compaq IJ1200
+
+### Dai Nippon Printing
+
+- Dai Nippon Printing DS40
+- Dai Nippon Printing DS480
+- Dai Nippon Printing DS620
+- Dai Nippon Printing DS680
+- Dai Nippon Printing DS80
+- Dai Nippon Printing DS80DX
+- Dai Nippon Printing DS820
+- Dai Nippon Printing DSRX1
+- Dai Nippon Printing QW410
+- Dai Nippon Printing SL10
+- Dai Nippon Printing SL20
+
+### DatamaxONeil
+
+- Datamax-ONeil E4204B Mark III
+- Datamax-ONeil E4205A Mark III
+- Datamax-ONeil E4206L Mark III
+- Datamax-ONeil E4206P Mark III
+- Datamax-ONeil E4304B Mark III
+- Datamax-ONeil E4305A Mark III
+- Datamax-ONeil E4305L Mark III
+- Datamax-ONeil E4305P Mark III
+- Datamax-ONeil H4212
+- Datamax-ONeil H4212X
+- Datamax-ONeil H4310
+- Datamax-ONeil H4310X
+- Datamax-ONeil H4408
+- Datamax-ONeil H4606
+- Datamax-ONeil H4606X
+- Datamax-ONeil H6210
+- Datamax-ONeil H6210X
+- Datamax-ONeil H6212
+- Datamax-ONeil H6212X
+- Datamax-ONeil H6308
+- Datamax-ONeil H6310X
+- Datamax-ONeil H8308
+- Datamax-ONeil H8308p
+- Datamax-ONeil H8308X
+- Datamax-ONeil I4212e Mark II
+- Datamax-ONeil I4310e Mark II
+- Datamax-ONeil I4606e Mark II
+- Datamax-ONeil p1115
+- Datamax-ONeil p1115s
+- Datamax-ONeil p1120n
+- Datamax-ONeil p1125
+- Datamax-ONeil p1725
+- Datamax-ONeil RL3e
+- Datamax-ONeil RL4e
+- Datamax-ONeil w1110
+
+### DEC
+
+- DEC 1800
+- DEC LN17
+
+### Dell
+
+- Dell 3000cn
+- Dell 3100cn
+
+### Epson
+
+- Epson ActionLaser 1100
+- Epson ActionLaser II
+- Epson AL-C2000
+- Epson AL-C2000 PS3
+- Epson AL-C8500
+- Epson AL-C8500PS
+- Epson AL-C8600
+- Epson AL-C8600 PS3
+- Epson Artisan 1430
+- Epson Artisan 50
+- Epson Artisan 700
+- Epson Artisan 710
+- Epson Artisan 800
+- Epson Artisan 810
+- Epson Artisan 835
+- Epson B-300
+- Epson B-308
+- Epson B-310
+- Epson B-310N
+- Epson B-500DN
+- Epson B-508DN
+- Epson B-510DN
+- Epson CL 700
+- Epson CL 750
+- Epson CL 760
+- Epson E 100
+- Epson E 150
+- Epson E 200
+- Epson E 300
+- Epson E 500
+- Epson E 520
+- Epson E 700
+- Epson E 720
+- Epson EM 900C
+- Epson EM 930C
+- Epson EP 302
+- Epson EP 702A
+- Epson EP 801A
+- Epson EP 901A
+- Epson EP 901F
+- Epson EPL-5200
+- Epson EPL-5200+
+- Epson EPL-5700
+- Epson EPL-5700PS
+- Epson EPL-5800
+- Epson EPL-5800PS
+- Epson EPL-5900
+- Epson EPL-5900 PS3
+- Epson EPL-6100
+- Epson EPL-6100 PS3
+- Epson EPL-7100
+- Epson EPL-N2050
+- Epson EPL-N2050+
+- Epson EPL-N2050PS
+- Epson EPL-N2050PS+
+- Epson EPL-N2120
+- Epson EPL-N2500
+- Epson EPL-N2500 PS3
+- Epson EPL-N2750
+- Epson EPL-N2750PS
+- Epson Expression ET-2550 EcoTank
+- Epson Expression ET-2600 EcoTank
+- Epson Expression ET-2650 EcoTank
+- Epson Expression ET-2700 EcoTank
+- Epson Expression ET-2750 EcoTank
+- Epson Expression ET-2750 EcoTank Business Edition
+- Epson Expression Home XP-240
+- Epson Expression Home XP-245
+- Epson Expression Home XP-340
+- Epson Expression Home XP-344
+- Epson Expression Home XP-440
+- Epson Expression Home XP-442
+- Epson Expression Home XP-820
+- Epson Expression Photo XP-8500
+- Epson Expression Photo XP-860
+- Epson Expression Photo XP-960
+- Epson L120
+- Epson L130
+- Epson L1300
+- Epson L1800
+- Epson L210
+- Epson L310
+- Epson MC 10000
+- Epson MC 2000
+- Epson MC 5000
+- Epson MC 7000
+- Epson MC 9000
+- Epson ME 300
+- Epson ME 320
+- Epson ME Office 1100
+- Epson ME Office 360
+- Epson ME Office 600F
+- Epson ME Office 620F
+- Epson ME Office 70
+- Epson ME Office 700FW
+- Epson ME Office 80W
+- Epson ME Office 82WD
+- Epson ME Office 85ND
+- Epson ME Office 900WD
+- Epson ME Office 940FW
+- Epson ME Office 960FWD
+- Epson MJ 5100C
+- Epson MJ 6000C
+- Epson MJ 8000C
+- Epson MJ 930C
+- Epson Offirio PX B300
+- Epson Offirio PX B500
+- Epson PictureMate
+- Epson PictureMate 100
+- Epson PictureMate 200
+- Epson PictureMate 2005
+- Epson PictureMate 210
+- Epson PictureMate 215
+- Epson PictureMate 240
+- Epson PictureMate 250
+- Epson PictureMate 260
+- Epson PictureMate 270
+- Epson PictureMate 280
+- Epson PictureMate 290
+- Epson PictureMate 500
+- Epson PictureMate Dash
+- Epson PictureMate Deluxe
+- Epson PictureMate Flash
+- Epson PictureMate Pal
+- Epson PictureMate Snap
+- Epson PM 10000
+- Epson PM 2000C
+- Epson PM 2200C
+- Epson PM 3000C
+- Epson PM 3300C
+- Epson PM 3500C
+- Epson PM 3700C
+- Epson PM 4000PX
+- Epson PM 5000C
+- Epson PM 670C
+- Epson PM 7000C
+- Epson PM 700C
+- Epson PM 730C
+- Epson PM 740C
+- Epson PM 750C
+- Epson PM 760C
+- Epson PM 770C
+- Epson PM 780C
+- Epson PM 790PT
+- Epson PM 800C
+- Epson PM 850PT
+- Epson PM 870C
+- Epson PM 880C
+- Epson PM 9000C
+- Epson PM 930C
+- Epson PM 940C
+- Epson PM 950C
+- Epson PM 970C
+- Epson PM 980C
+- Epson PM A650
+- Epson PM A750
+- Epson PM A820
+- Epson PM A890
+- Epson PM A900
+- Epson PM A940
+- Epson PM A950
+- Epson PM D1000
+- Epson PM D600
+- Epson PM D750
+- Epson PM D770
+- Epson PM D800
+- Epson PM D870
+- Epson PM G4500
+- Epson PM G700
+- Epson PM G720
+- Epson PM G730
+- Epson PM G800
+- Epson PM G820
+- Epson PM G850
+- Epson PM T960
+- Epson PX 1001
+- Epson PX 101
+- Epson PX 1200
+- Epson PX 1600F
+- Epson PX 1700F
+- Epson PX 201
+- Epson PX 203
+- Epson PX 204
+- Epson PX 401A
+- Epson PX 503A
+- Epson PX 504A
+- Epson PX 5500
+- Epson PX 601F
+- Epson PX 603F
+- Epson PX 7000
+- Epson PX 7V
+- Epson PX 9000
+- Epson PX A650
+- Epson PX G5000
+- Epson PX G5300
+- Epson PX G5600
+- Epson PX G900
+- Epson PX G920
+- Epson PX V500
+- Epson PX V600
+- Epson PX V630
+- Epson PX V780
+- Epson SC-P10000 Series
+- Epson SC-P20000 Series
+- Epson SC-P400 Series
+- Epson SC-P5000 Series
+- Epson SC-P600 Series
+- Epson SC-P6000 Series
+- Epson SC-P7000 Series
+- Epson SC-P800 Series
+- Epson SC-P8000 Series
+- Epson SC-P9000 Series
+- Epson Stylus C110
+- Epson Stylus C120
+- Epson Stylus C20
+- Epson Stylus C20SX
+- Epson Stylus C20UX
+- Epson Stylus C40
+- Epson Stylus C40SX
+- Epson Stylus C40UX
+- Epson Stylus C41
+- Epson Stylus C41SX
+- Epson Stylus C41UX
+- Epson Stylus C42
+- Epson Stylus C42SX
+- Epson Stylus C42UX
+- Epson Stylus C43
+- Epson Stylus C43SX
+- Epson Stylus C43UX
+- Epson Stylus C44
+- Epson Stylus C44SX
+- Epson Stylus C44UX
+- Epson Stylus C45
+- Epson Stylus C46
+- Epson Stylus C48
+- Epson Stylus C50
+- Epson Stylus C60
+- Epson Stylus C61
+- Epson Stylus C62
+- Epson Stylus C63
+- Epson Stylus C64
+- Epson Stylus C65
+- Epson Stylus C66
+- Epson Stylus C68
+- Epson Stylus C70
+- Epson Stylus C79
+- Epson Stylus C80
+- Epson Stylus C82
+- Epson Stylus C83
+- Epson Stylus C84
+- Epson Stylus C85
+- Epson Stylus C86
+- Epson Stylus C87
+- Epson Stylus C88
+- Epson Stylus C92
+- Epson Stylus Color
+- Epson Stylus Color 1160
+- Epson Stylus Color 1500
+- Epson Stylus Color 1520
+- Epson Stylus Color 3000
+- Epson Stylus Color 400
+- Epson Stylus Color 440
+- Epson Stylus Color 460
+- Epson Stylus Color 480
+- Epson Stylus Color 500
+- Epson Stylus Color 580
+- Epson Stylus Color 600
+- Epson Stylus Color 640
+- Epson Stylus Color 660
+- Epson Stylus Color 670
+- Epson Stylus Color 680
+- Epson Stylus Color 740
+- Epson Stylus Color 760
+- Epson Stylus Color 777
+- Epson Stylus Color 8 3
+- Epson Stylus Color 800
+- Epson Stylus Color 850
+- Epson Stylus Color 860
+- Epson Stylus Color 880
+- Epson Stylus Color 900
+- Epson Stylus Color 980
+- Epson Stylus Color I
+- Epson Stylus Color II
+- Epson Stylus Color IIs
+- Epson Stylus Color PRO
+- Epson Stylus CX1500
+- Epson Stylus CX3100
+- Epson Stylus CX3200
+- Epson Stylus CX3500
+- Epson Stylus CX3600
+- Epson Stylus CX3650
+- Epson Stylus CX3700
+- Epson Stylus CX3800
+- Epson Stylus CX3805
+- Epson Stylus CX3810
+- Epson Stylus CX3900
+- Epson Stylus CX4100
+- Epson Stylus CX4200
+- Epson Stylus CX4400
+- Epson Stylus CX4500
+- Epson Stylus CX4600
+- Epson Stylus CX4700
+- Epson Stylus CX4800
+- Epson Stylus CX4900
+- Epson Stylus CX5000
+- Epson Stylus CX5000F
+- Epson Stylus CX5100
+- Epson Stylus CX5200
+- Epson Stylus CX5300
+- Epson Stylus CX5400
+- Epson Stylus CX5500
+- Epson Stylus CX5600
+- Epson Stylus CX5700
+- Epson Stylus CX5800
+- Epson Stylus CX6000
+- Epson Stylus CX6300
+- Epson Stylus CX6400
+- Epson Stylus CX6500
+- Epson Stylus CX6600
+- Epson Stylus CX7000F
+- Epson Stylus CX7300
+- Epson Stylus CX7400
+- Epson Stylus CX7700
+- Epson Stylus CX7800
+- Epson Stylus CX8300
+- Epson Stylus CX8400
+- Epson Stylus CX9300F
+- Epson Stylus CX9400
+- Epson Stylus CX9400F
+- Epson Stylus CX9475F
+- Epson Stylus D120
+- Epson Stylus D68
+- Epson Stylus D78
+- Epson Stylus D88
+- Epson Stylus D92
+- Epson Stylus DX3800
+- Epson Stylus DX3850
+- Epson Stylus DX4000
+- Epson Stylus DX4050
+- Epson Stylus DX4200
+- Epson Stylus DX4250
+- Epson Stylus DX4400
+- Epson Stylus DX4450
+- Epson Stylus DX4800
+- Epson Stylus DX4850
+- Epson Stylus DX7000F
+- Epson Stylus DX7400
+- Epson Stylus DX7450
+- Epson Stylus DX8400
+- Epson Stylus DX8450
+- Epson Stylus DX9400F
+- Epson Stylus NX100
+- Epson Stylus NX105
+- Epson Stylus NX115
+- Epson Stylus NX200
+- Epson Stylus NX215
+- Epson Stylus NX300
+- Epson Stylus NX400
+- Epson Stylus NX415
+- Epson Stylus NX420
+- Epson Stylus NX515
+- Epson Stylus NX530
+- Epson Stylus NX625
+- Epson Stylus NX630
+- Epson Stylus NX635
+- Epson Stylus NX645
+- Epson Stylus Office B1100
+- Epson Stylus Office B30
+- Epson Stylus Office B33
+- Epson Stylus Office B40W
+- Epson Stylus Office B42WD
+- Epson Stylus Office BX300F
+- Epson Stylus Office BX305F
+- Epson Stylus Office BX525WD
+- Epson Stylus Office BX535WD
+- Epson Stylus Office BX600FW
+- Epson Stylus Office BX625FWD
+- Epson Stylus Office BX630FW
+- Epson Stylus Office BX635FWD
+- Epson Stylus Office SX600FW
+- Epson Stylus Office SX620FW
+- Epson Stylus Office T1100
+- Epson Stylus Office T1110
+- Epson Stylus Office T30
+- Epson Stylus Office T33
+- Epson Stylus Office T40W
+- Epson Stylus Office TX300F
+- Epson Stylus Office TX600FW
+- Epson Stylus Office TX620FWD
+- Epson Stylus Photo
+- Epson Stylus Photo 1200
+- Epson Stylus Photo 1270
+- Epson Stylus Photo 1280
+- Epson Stylus Photo 1290
+- Epson Stylus Photo 1290s
+- Epson Stylus Photo 1400
+- Epson Stylus Photo 1410
+- Epson Stylus Photo 2000P
+- Epson Stylus Photo 2100
+- Epson Stylus Photo 2200
+- Epson Stylus Photo 700
+- Epson Stylus Photo 720
+- Epson Stylus Photo 750
+- Epson Stylus Photo 780
+- Epson Stylus Photo 785
+- Epson Stylus Photo 790
+- Epson Stylus Photo 810
+- Epson Stylus Photo 820
+- Epson Stylus Photo 825
+- Epson Stylus Photo 830
+- Epson Stylus Photo 830U
+- Epson Stylus Photo 870
+- Epson Stylus Photo 875
+- Epson Stylus Photo 890
+- Epson Stylus Photo 895
+- Epson Stylus Photo 900
+- Epson Stylus Photo 915
+- Epson Stylus Photo 925
+- Epson Stylus Photo 935
+- Epson Stylus Photo 950
+- Epson Stylus Photo 960
+- Epson Stylus Photo EX
+- Epson Stylus Photo EX3
+- Epson Stylus Photo P50
+- Epson Stylus Photo PX650
+- Epson Stylus Photo PX700W
+- Epson Stylus Photo PX710W
+- Epson Stylus Photo PX800FW
+- Epson Stylus Photo PX810FW
+- Epson Stylus Photo R1800
+- Epson Stylus Photo R1900
+- Epson Stylus Photo R200
+- Epson Stylus Photo R2000
+- Epson Stylus Photo R210
+- Epson Stylus Photo R220
+- Epson Stylus Photo R230
+- Epson Stylus Photo R240
+- Epson Stylus Photo R2400
+- Epson Stylus Photo R245
+- Epson Stylus Photo R260
+- Epson Stylus Photo R265
+- Epson Stylus Photo R270
+- Epson Stylus Photo R280
+- Epson Stylus Photo R285
+- Epson Stylus Photo R2880
+- Epson Stylus Photo R290
+- Epson Stylus Photo R300
+- Epson Stylus Photo R3000
+- Epson Stylus Photo R310
+- Epson Stylus Photo R320
+- Epson Stylus Photo R340
+- Epson Stylus Photo R350
+- Epson Stylus Photo R360
+- Epson Stylus Photo R380
+- Epson Stylus Photo R390
+- Epson Stylus Photo R800
+- Epson Stylus Photo RX400
+- Epson Stylus Photo RX420
+- Epson Stylus Photo RX425
+- Epson Stylus Photo RX430
+- Epson Stylus Photo RX500
+- Epson Stylus Photo RX510
+- Epson Stylus Photo RX560
+- Epson Stylus Photo RX580
+- Epson Stylus Photo RX585
+- Epson Stylus Photo RX590
+- Epson Stylus Photo RX595
+- Epson Stylus Photo RX600
+- Epson Stylus Photo RX610
+- Epson Stylus Photo RX620
+- Epson Stylus Photo RX630
+- Epson Stylus Photo RX640
+- Epson Stylus Photo RX650
+- Epson Stylus Photo RX680
+- Epson Stylus Photo RX685
+- Epson Stylus Photo RX690
+- Epson Stylus Photo RX700
+- Epson Stylus Photo TX700W
+- Epson Stylus Photo TX710W
+- Epson Stylus Photo TX800FW
+- Epson Stylus Photo TX810FW
+- Epson Stylus Pro 10000
+- Epson Stylus Pro 11800
+- Epson Stylus Pro 11800/11880 Back Compatible
+- Epson Stylus Pro 11880
+- Epson Stylus Pro 3800
+- Epson Stylus Pro 3880
+- Epson Stylus Pro 3885
+- Epson Stylus Pro 4000
+- Epson Stylus Pro 4800
+- Epson Stylus Pro 4800/4880 Back Compatible
+- Epson Stylus Pro 4880
+- Epson Stylus Pro 4900
+- Epson Stylus Pro 5000
+- Epson Stylus Pro 5500
+- Epson Stylus Pro 7000
+- Epson Stylus Pro 7500
+- Epson Stylus Pro 7600
+- Epson Stylus Pro 7700
+- Epson Stylus Pro 7800
+- Epson Stylus Pro 7880
+- Epson Stylus Pro 7890
+- Epson Stylus Pro 7900
+- Epson Stylus Pro 9000
+- Epson Stylus Pro 9500
+- Epson Stylus Pro 9600
+- Epson Stylus Pro 9700
+- Epson Stylus Pro 9800
+- Epson Stylus Pro 9880
+- Epson Stylus Pro 9890
+- Epson Stylus Pro 9900
+- Epson Stylus Pro XL
+- Epson Stylus S20
+- Epson Stylus S21
+- Epson Stylus S50
+- Epson Stylus Scan 2000
+- Epson Stylus Scan 2500
+- Epson Stylus SX100
+- Epson Stylus SX105
+- Epson Stylus SX110
+- Epson Stylus SX115
+- Epson Stylus SX200
+- Epson Stylus SX205
+- Epson Stylus SX210
+- Epson Stylus SX215
+- Epson Stylus SX400
+- Epson Stylus SX405
+- Epson Stylus SX410
+- Epson Stylus SX415
+- Epson Stylus SX420
+- Epson Stylus SX445W
+- Epson Stylus SX510W
+- Epson Stylus SX515
+- Epson Stylus SX525
+- Epson Stylus SX535FW
+- Epson Stylus SX600FW
+- Epson Stylus SX610FW
+- Epson Stylus SX615
+- Epson Stylus SX630
+- Epson Stylus SX635
+- Epson Stylus SX645
+- Epson Stylus SX650
+- Epson Stylus T13
+- Epson Stylus T20
+- Epson Stylus T21
+- Epson Stylus T22
+- Epson Stylus T22E
+- Epson Stylus T26
+- Epson Stylus T30
+- Epson Stylus T40W
+- Epson Stylus T42WD
+- Epson Stylus T50
+- Epson Stylus T59
+- Epson Stylus T60
+- Epson Stylus TX100
+- Epson Stylus TX101
+- Epson Stylus TX102
+- Epson Stylus TX103
+- Epson Stylus TX104
+- Epson Stylus TX105
+- Epson Stylus TX106
+- Epson Stylus TX109
+- Epson Stylus TX110
+- Epson Stylus TX125
+- Epson Stylus TX200
+- Epson Stylus TX210
+- Epson Stylus TX300F
+- Epson Stylus TX400
+- Epson Stylus TX410
+- Epson Stylus TX420
+- Epson Stylus TX510FN
+- Epson Stylus TX550W
+- Epson Stylus TX560WD
+- Epson Stylus TX610FW
+- Epson Stylus TX615
+- Epson Stylus TX630
+- Epson Stylus TX635
+- Epson Stylus TX645
+- Epson Stylus TX650
+- Epson Stylus TX659
+- Epson Stylus XP100
+- Epson SureColor P10000
+- Epson SureColor P20000
+- Epson SureColor P400
+- Epson SureColor P5000 Commercial Edition
+- Epson SureColor P5000 Standard Edition
+- Epson SureColor P600
+- Epson SureColor P6000
+- Epson SureColor P7000
+- Epson SureColor P7000 Commercial Edition
+- Epson SureColor P800
+- Epson SureColor P8000
+- Epson SureColor P9000
+- Epson SureColor P9000 Commercial Edition
+- Epson SureLab D700
+- Epson WF-7010 Series
+- Epson WF-7011 Series
+- Epson WF-7015 Series
+- Epson WF-7018 Series
+- Epson WF-7510 Series
+- Epson WF-7511 Series
+- Epson WF-7515 Series
+- Epson WF-7520 Series
+- Epson WF-7521 Series
+- Epson WF-7525 Series
+- Epson WorkForce 1100
+- Epson WorkForce 30
+- Epson WorkForce 310
+- Epson WorkForce 315
+- Epson WorkForce 40
+- Epson WorkForce 500
+- Epson WorkForce 545
+- Epson WorkForce 60
+- Epson WorkForce 600
+- Epson WorkForce 610
+- Epson WorkForce 615
+- Epson WorkForce 625
+- Epson WorkForce 630
+- Epson WorkForce 633
+- Epson WorkForce 635
+- Epson WorkForce 645
+- Epson XP-15000 Series
+
+### Fujifilm
+
+- Fujifilm ASK-2000
+- Fujifilm ASK-2500
+- Fujifilm ASK-300
+- Fujifilm ASK-4000
+- Fujifilm DX100
+- Fujifilm FinePix-NX-500
+- Fujifilm Printpix-CX-400
+- Fujifilm Printpix-CX-550
+
+### Fujitsu
+
+- Fujitsu PrintPartner 10V
+- Fujitsu PrintPartner 16DV
+- Fujitsu PrintPartner 20W
+- Fujitsu PrintPartner 8000
+
+### Generic
+
+- Generic PCL 4 LF Printer
+- Generic PCL 4 Printer
+- Generic PCL 4 Printer wide margin
+- Generic PCL 5 LF Printer
+- Generic PCL 5 Printer
+- Generic PCL 5 Printer wide margin
+- Generic PCL 5c LF Printer
+- Generic PCL 5c Printer
+- Generic PCL 5e LF Printer
+- Generic PCL 5e Printer
+- Generic PCL 6 LF Printer wide margin
+- Generic PCL 6 Printer wide margin
+- Generic PCL 6 Tabl Printer wide margin
+- Generic PCL 6/PCL XL LF Printer
+- Generic PCL 6/PCL XL Printer
+- Generic PCL Color Laser
+- Generic PCL Color Laser LF Printer
+- Generic PCL Color LF wide margin
+- Generic PCL Color Tabl wide margin
+- Generic PCL Color wide margin
+
+### Gestetner
+
+- Gestetner 10512
+- Gestetner 2212
+- Gestetner 2712
+- Gestetner 3212
+- Gestetner 3502
+- Gestetner 3532/4235g
+- Gestetner 4502
+- Gestetner 4532/4245g
+- Gestetner 6002
+- Gestetner 7502
+- Gestetner 9002
+- Gestetner CS555
+- Gestetner DSc1020
+- Gestetner DSc1025
+- Gestetner DSc1030
+- Gestetner DSc1045
+- Gestetner DSc1060
+- Gestetner DSc1120
+- Gestetner DSc1220
+- Gestetner DSc1225
+- Gestetner DSc1230
+- Gestetner DSc1245
+- Gestetner DSc1260
+- Gestetner DSc424
+- Gestetner DSc428
+- Gestetner DSc432
+- Gestetner DSc435
+- Gestetner DSc445
+- Gestetner DSc460
+- Gestetner DSm415
+- Gestetner DSm615
+- Gestetner DSm616
+- Gestetner DSm618
+- Gestetner DSm618d
+- Gestetner DSm620
+- Gestetner DSm620d
+- Gestetner DSm622
+- Gestetner DSm627
+- Gestetner DSm635/635G
+- Gestetner DSm645/645G
+- Gestetner DSm651
+- Gestetner DSm660
+- Gestetner DSm675
+- Gestetner DSm725
+- Gestetner DSm730
+- Gestetner DSm735/735G
+- Gestetner DSm745/745G
+- Gestetner MP 161/DSm416
+- Gestetner MP 2510/DSm725e
+- Gestetner MP 2550
+- Gestetner MP 2550B
+- Gestetner MP 3010/DSm730e
+- Gestetner MP 3350
+- Gestetner MP 3350B
+- Gestetner MP 4000
+- Gestetner MP 4000B
+- Gestetner MP 5000
+- Gestetner MP 5000B
+- Gestetner MP C2003
+- Gestetner MP C2004
+- Gestetner MP C2011
+- Gestetner MP C2050
+- Gestetner MP C2051
+- Gestetner MP C2503
+- Gestetner MP C2504
+- Gestetner MP C2550
+- Gestetner MP C2551
+- Gestetner MP C2800
+- Gestetner MP C300
+- Gestetner MP C3001
+- Gestetner MP C3002
+- Gestetner MP C3003
+- Gestetner MP C3004
+- Gestetner MP C300SR
+- Gestetner MP C3300
+- Gestetner MP C3501
+- Gestetner MP C3502
+- Gestetner MP C3503
+- Gestetner MP C3504
+- Gestetner MP C400
+- Gestetner MP C4000
+- Gestetner MP C400SR
+- Gestetner MP C4501
+- Gestetner MP C4501A
+- Gestetner MP C4502
+- Gestetner MP C4502A
+- Gestetner MP C4503
+- Gestetner MP C4504
+- Gestetner MP C5000
+- Gestetner MP C5501
+- Gestetner MP C5501A
+- Gestetner MP C5502
+- Gestetner MP C5502A
+- Gestetner MP C5503
+- Gestetner MP C6000
+- Gestetner MP C6003
+- Gestetner MP C6004
+- Gestetner MP C6501
+- Gestetner MP C6502
+- Gestetner MP C6503
+- Gestetner MP C7500
+- Gestetner MP C7501
+- Gestetner MP C8002
+- Gestetner MP C8003
+- Gestetner MP1100/DSm7110
+- Gestetner MP1350/DSm7135
+- Gestetner MP1600/DSm716
+- Gestetner MP2000/DSm721d
+- Gestetner MP2500/DSm625
+- Gestetner MP3500/DSm735e
+- Gestetner MP4500/DSm745e
+- Gestetner MP5500/DSm755
+- Gestetner MP6500/DSm765
+- Gestetner MP7500/DSm775
+- Gestetner MP9000/DSm790
+- Gestetner MPC1500/GS106
+- Gestetner MPC2500/DSc525
+- Gestetner MPC3000/DSc530
+- Gestetner MPC3500/DSc535
+- Gestetner MPC4500/DSc545
+- Gestetner Pro C5200S
+- Gestetner Pro C5210S
+
+### HiTi
+
+- HiTi P310W
+- HiTi P322W
+- HiTi P510K
+- HiTi P510L
+- HiTi P510S
+- HiTi P510Si
+- HiTi P518A
+- HiTi P518S
+- HiTi P520L
+- HiTi P525L
+- HiTi P630
+- HiTi P630A
+- HiTi P720L
+- HiTi P728L
+- HiTi P750L
+- HiTi Prinhome P461
+
+### Honeywell
+
+- Honeywell RP2
+- Honeywell RP4
+
+### HP
+
+- HP Business Inkjet 2200
+- HP Business Inkjet 2230
+- HP Business Inkjet 2250
+- HP Business Inkjet 2250TN
+- HP Business Inkjet 2280
+- HP Color Inkjet Printer CP1160
+- HP Color Inkjet Printer CP1700
+- HP Color LaserJet 2500
+- HP Color LaserJet 3000
+- HP Color LaserJet 3000dn
+- HP Color LaserJet 3000dtn
+- HP Color LaserJet 3000n
+- HP Color LaserJet 3700
+- HP Color LaserJet 3700n
+- HP Color LaserJet 3800
+- HP Color LaserJet 3800dn
+- HP Color LaserJet 3800dtn
+- HP Color LaserJet 3800n
+- HP Color LaserJet 4500
+- HP Color LaserJet 4550
+- HP Color LaserJet 4600
+- HP Color LaserJet 4610
+- HP Color LaserJet 4650
+- HP Color LaserJet 4700
+- HP Color LaserJet 4700dn
+- HP Color LaserJet 4700dtn
+- HP Color LaserJet 4700n
+- HP Color LaserJet 4700ph+
+- HP Color LaserJet 5
+- HP Color LaserJet 5000
+- HP Color LaserJet 5500
+- HP Color LaserJet 5500dn
+- HP Color LaserJet 5500dtn
+- HP Color LaserJet 5500hdn
+- HP Color LaserJet 5500n
+- HP Color LaserJet 5m
+- HP Color LaserJet 8500
+- HP Color LaserJet 8500dn
+- HP Color LaserJet 8500n
+- HP Color LaserJet 8550
+- HP Color LaserJet 8550DN
+- HP Color LaserJet 8550GN
+- HP Color LaserJet 8550MN
+- HP Color LaserJet 9500
+- HP Color LaserJet 9500gp
+- HP Color LaserJet 9500hdn
+- HP Color LaserJet 9500n
+- HP Color LaserJet CM1312
+- HP Color LaserJet CM1312nfi
+- HP Color LaserJet CM1411fn
+- HP Color LaserJet CM1412fn
+- HP Color LaserJet CM1413fn
+- HP Color LaserJet CM1415fn
+- HP Color LaserJet CM1415fnw
+- HP Color LaserJet CM1416fnw
+- HP Color LaserJet CM1417fnw
+- HP Color LaserJet CM1418fnw
+- HP Color LaserJet CM2320 MFP
+- HP Color LaserJet CM2320FXI MFP
+- HP Color LaserJet CM2320N MFP
+- HP Color LaserJet CM2320NF MFP
+- HP Color LaserJet CM3530 MFP
+- HP Color LaserJet CM4540 MFP
+- HP Color LaserJet CM4730 MFP
+- HP Color LaserJet CM6030 MFP
+- HP Color LaserJet CM6040 MFP
+- HP Color LaserJet CM6040f MFP
+- HP Color LaserJet CM6049f MFP
+- HP Color LaserJet CP1514n
+- HP Color LaserJet CP1515n
+- HP Color LaserJet CP1518ni
+- HP Color LaserJet CP2025
+- HP Color LaserJet CP2025dn
+- HP Color LaserJet CP2025n
+- HP Color LaserJet CP2025x
+- HP Color LaserJet CP3505
+- HP Color LaserJet CP3505dn
+- HP Color LaserJet CP3505n
+- HP Color LaserJet CP3505x
+- HP Color LaserJet CP3525
+- HP Color LaserJet CP3525dn
+- HP Color LaserJet CP3525n
+- HP Color LaserJet CP3525x
+- HP Color LaserJet CP4005
+- HP Color LaserJet CP4005dn
+- HP Color LaserJet CP4005n
+- HP Color LaserJet CP4020
+- HP Color LaserJet CP4500
+- HP Color LaserJet CP4520
+- HP Color LaserJet CP4540 MFP
+- HP Color LaserJet CP5225
+- HP Color LaserJet CP5225dn
+- HP Color LaserJet CP5225n
+- HP Color LaserJet CP5520
+- HP Color LaserJet CP6015de
+- HP Color LaserJet CP6015dn
+- HP Color LaserJet CP6015n
+- HP Color LaserJet CP6015x
+- HP Color LaserJet CP6015xh
+- HP DesignJet 230
+- HP DesignJet 2500CP
+- HP DesignJet 250C
+- HP DesignJet 3500CP
+- HP DesignJet 430
+- HP DesignJet 450C
+- HP DesignJet 455CA
+- HP DesignJet 488CA
+- HP DesignJet 700
+- HP DesignJet 750C
+- HP DesignJet 750C Plus
+- HP DesignJet ColorPro CAD
+- HP DeskJet 1100C
+- HP DeskJet 1120C
+- HP DeskJet 1125C
+- HP DeskJet 1200C
+- HP DeskJet 1220C
+- HP DeskJet 1600C
+- HP DeskJet 1600CM
+- HP DeskJet 2000
+- HP DeskJet 2500
+- HP DeskJet 2500CM
+- HP DeskJet 340C
+- HP DeskJet 3810
+- HP DeskJet 3816
+- HP DeskJet 3820
+- HP DeskJet 3822
+- HP DeskJet 400
+- HP DeskJet 420C
+- HP DeskJet 450
+- HP DeskJet 500
+- HP DeskJet 500C
+- HP DeskJet 505J Plus
+- HP DeskJet 510
+- HP DeskJet 520
+- HP DeskJet 540C
+- HP DeskJet 550C
+- HP DeskJet 5550
+- HP DeskJet 5551
+- HP DeskJet 560C
+- HP DeskJet 600
+- HP DeskJet 600C
+- HP DeskJet 610C
+- HP DeskJet 610CL
+- HP DeskJet 6122
+- HP DeskJet 6127
+- HP DeskJet 612C
+- HP DeskJet 640C
+- HP DeskJet 648C
+- HP DeskJet 660C
+- HP DeskJet 670C
+- HP DeskJet 670TV
+- HP DeskJet 672C
+- HP DeskJet 680C
+- HP DeskJet 682C
+- HP DeskJet 690C
+- HP DeskJet 692C
+- HP DeskJet 693C
+- HP DeskJet 694C
+- HP DeskJet 695C
+- HP DeskJet 697C
+- HP DeskJet 810C
+- HP DeskJet 812C
+- HP DeskJet 815C
+- HP DeskJet 816C
+- HP DeskJet 825C
+- HP DeskJet 830C
+- HP DeskJet 832C
+- HP DeskJet 840C
+- HP DeskJet 841C
+- HP DeskJet 842C
+- HP DeskJet 843C
+- HP DeskJet 845C
+- HP DeskJet 850C
+- HP DeskJet 855C
+- HP DeskJet 870C
+- HP DeskJet 880C
+- HP DeskJet 882C
+- HP DeskJet 890C
+- HP DeskJet 895C
+- HP DeskJet 916C
+- HP DeskJet 920C
+- HP DeskJet 9300
+- HP DeskJet 930C
+- HP DeskJet 932C
+- HP DeskJet 933C
+- HP DeskJet 934C
+- HP DeskJet 935C
+- HP DeskJet 940C
+- HP DeskJet 948C
+- HP DeskJet 950C
+- HP DeskJet 952C
+- HP DeskJet 955C
+- HP DeskJet 957C
+- HP DeskJet 959C
+- HP DeskJet 960C
+- HP DeskJet 970C
+- HP DeskJet 975C
+- HP DeskJet 980C
+- HP DeskJet 990C
+- HP DeskJet 995C
+- HP e-printer e20
+- HP LaserJet 1010
+- HP LaserJet 1012
+- HP LaserJet 1015
+- HP LaserJet 1022
+- HP LaserJet 1100
+- HP LaserJet 1100A
+- HP LaserJet 1150
+- HP LaserJet 1160
+- HP LaserJet 1200
+- HP LaserJet 1220
+- HP LaserJet 1300
+- HP LaserJet 1320
+- HP LaserJet 2
+- HP LaserJet 2100
+- HP LaserJet 2100M
+- HP LaserJet 2200
+- HP LaserJet 2300
+- HP LaserJet 2410
+- HP LaserJet 2420
+- HP LaserJet 2430
+- HP LaserJet 2D
+- HP LaserJet 2P
+- HP LaserJet 2P Plus
+- HP LaserJet 3
+- HP LaserJet 3015
+- HP LaserJet 3020
+- HP LaserJet 3030
+- HP LaserJet 3050
+- HP LaserJet 3052
+- HP LaserJet 3055
+- HP LaserJet 3200
+- HP LaserJet 3200m
+- HP LaserJet 3200se
+- HP LaserJet 3300 MFP
+- HP LaserJet 3310 MFP
+- HP LaserJet 3320 MFP
+- HP LaserJet 3320N MFP
+- HP LaserJet 3330 MFP
+- HP LaserJet 3380
+- HP LaserJet 3390
+- HP LaserJet 3392
+- HP LaserJet 3D
+- HP LaserJet 3P w/ PCL5
+- HP LaserJet 3P w/PS
+- HP LaserJet 4
+- HP LaserJet 4 Plus
+- HP LaserJet 4000
+- HP LaserJet 4050
+- HP LaserJet 4100
+- HP LaserJet 4200
+- HP LaserJet 4240
+- HP LaserJet 4250
+- HP LaserJet 4300
+- HP LaserJet 4345 mfp
+- HP LaserJet 4350
+- HP LaserJet 4L
+- HP LaserJet 4M
+- HP LaserJet 4ML
+- HP LaserJet 4P
+- HP LaserJet 4Si
+- HP LaserJet 4V
+- HP LaserJet 5
+- HP LaserJet 5000
+- HP LaserJet 5100
+- HP LaserJet 5200
+- HP LaserJet 5200L
+- HP LaserJet 5L
+- HP LaserJet 5M
+- HP LaserJet 5MP
+- HP LaserJet 5N
+- HP LaserJet 5P
+- HP LaserJet 5Si
+- HP LaserJet 6
+- HP LaserJet 6L
+- HP LaserJet 6MP
+- HP LaserJet 6P
+- HP LaserJet 8000
+- HP LaserJet 8100
+- HP LaserJet 8150
+- HP LaserJet 9000
+- HP LaserJet 9040
+- HP LaserJet 9040 MFP
+- HP LaserJet 9050
+- HP LaserJet 9050 MFP
+- HP LaserJet M3027 MFP
+- HP LaserJet M3035 MFP
+- HP LaserJet M4345 MFP
+- HP LaserJet M5025 MFP
+- HP LaserJet M5035 MFP
+- HP LaserJet P2010
+- HP LaserJet P2015
+- HP LaserJet P3004
+- HP LaserJet P3005
+- HP Mopier 240
+- HP Mopier 320
+- HP OfficeJet
+- HP OfficeJet 300
+- HP OfficeJet 330
+- HP OfficeJet 350
+- HP OfficeJet 500
+- HP OfficeJet 5105
+- HP OfficeJet 5110
+- HP OfficeJet 5110xi
+- HP OfficeJet 520
+- HP OfficeJet 570
+- HP OfficeJet 580
+- HP OfficeJet 590
+- HP OfficeJet 600
+- HP OfficeJet 610
+- HP OfficeJet 6105
+- HP OfficeJet 6110
+- HP OfficeJet 625
+- HP OfficeJet 630
+- HP OfficeJet 635
+- HP OfficeJet 700
+- HP OfficeJet 710
+- HP OfficeJet 7110
+- HP OfficeJet 7130
+- HP OfficeJet 7140
+- HP OfficeJet 720
+- HP OfficeJet 725
+- HP OfficeJet D125
+- HP OfficeJet D135
+- HP OfficeJet D145
+- HP OfficeJet D155
+- HP OfficeJet G55
+- HP OfficeJet G85
+- HP OfficeJet G95
+- HP OfficeJet K60
+- HP OfficeJet K60xi
+- HP OfficeJet K80
+- HP OfficeJet K80xi
+- HP OfficeJet LX
+- HP OfficeJet Pro 1150C
+- HP OfficeJet Pro 1170C
+- HP OfficeJet Pro 1175C
+- HP OfficeJet R40
+- HP OfficeJet R45
+- HP OfficeJet R60
+- HP OfficeJet R65
+- HP OfficeJet R80
+- HP OfficeJet T45
+- HP OfficeJet T65
+- HP OfficeJet V40
+- HP OfficeJet V40xi
+- HP PhotoSmart 7150
+- HP PhotoSmart 7345
+- HP PhotoSmart 7350
+- HP PhotoSmart 7550
+- HP PhotoSmart P100
+- HP PhotoSmart P1000
+- HP PhotoSmart P1100
+- HP PhotoSmart P1115
+- HP PhotoSmart P1215
+- HP PhotoSmart P1218
+- HP PhotoSmart P130
+- HP PhotoSmart P1315
+- HP PhotoSmart P230
+- HP PSC 2110
+- HP PSC 2150
+- HP PSC 2210
+- HP PSC 370
+- HP PSC 380
+- HP PSC 500
+- HP PSC 750
+- HP PSC 950
+- HP PSC 950xi
+
+### IBM
+
+- IBM 4019
+- IBM 4029 030 LaserPrinter 10
+- IBM 4312
+- IBM Infoprint 12
+- IBM Page Printer 3112
+
+### Infotec
+
+- Infotec 4353 MF
+- Infotec 4452 MF
+- Infotec 4651 MF
+- Infotec IS 2015
+- Infotec IS 2018
+- Infotec IS 2018D
+- Infotec IS 2060
+- Infotec IS 2075
+- Infotec IS 2122
+- Infotec IS 2127
+- Infotec IS 2132
+- Infotec IS 2135
+- Infotec IS 2145
+- Infotec IS 2151
+- Infotec IS 2160
+- Infotec IS 2175
+- Infotec IS 2215
+- Infotec IS 2216
+- Infotec IS 2220
+- Infotec IS 2220D
+- Infotec IS 2225
+- Infotec IS 2230
+- Infotec IS 2235
+- Infotec IS 2245
+- Infotec IS 2255
+- Infotec IS 2265
+- Infotec IS 2275
+- Infotec IS 2316
+- Infotec IS 2320
+- Infotec IS 2325
+- Infotec IS 2416
+- Infotec IS 2425
+- Infotec IS 2430
+- Infotec IS 2435
+- Infotec IS 2445
+- Infotec IS 3090
+- Infotec IS 3110
+- Infotec IS 3135
+- Infotec IS2022
+- Infotec IS2027
+- Infotec IS2032
+- Infotec IS2035
+- Infotec IS2045
+- Infotec IS2090
+- Infotec IS2105
+- Infotec ISC 1024c
+- Infotec ISC 1032c
+- Infotec ISC 2428
+- Infotec ISC 2525
+- Infotec ISC 2835
+- Infotec ISC 3030
+- Infotec ISC 3535
+- Infotec ISC 3545
+- Infotec ISC 4045
+- Infotec ISC 4560
+- Infotec ISC 5560
+- Infotec ISC 615G
+- Infotec MP 2550
+- Infotec MP 2550B
+- Infotec MP 3350
+- Infotec MP 3350B
+- Infotec MP 4000
+- Infotec MP 4000B
+- Infotec MP 5000
+- Infotec MP 5000B
+- Infotec MP C2003
+- Infotec MP C2003Z
+- Infotec MP C2004
+- Infotec MP C2011
+- Infotec MP C2050
+- Infotec MP C2051
+- Infotec MP C2503
+- Infotec MP C2503Z
+- Infotec MP C2504
+- Infotec MP C2550
+- Infotec MP C2551
+- Infotec MP C2800
+- Infotec MP C300
+- Infotec MP C3001
+- Infotec MP C3002
+- Infotec MP C3003
+- Infotec MP C3004
+- Infotec MP C300SR
+- Infotec MP C3300
+- Infotec MP C3501
+- Infotec MP C3502
+- Infotec MP C3503
+- Infotec MP C3504
+- Infotec MP C400
+- Infotec MP C4000
+- Infotec MP C400SR
+- Infotec MP C4501
+- Infotec MP C4501A
+- Infotec MP C4502
+- Infotec MP C4502A
+- Infotec MP C4503
+- Infotec MP C4504
+- Infotec MP C5000
+- Infotec MP C5501
+- Infotec MP C5501A
+- Infotec MP C5502
+- Infotec MP C5502A
+- Infotec MP C5503
+- Infotec MP C5504
+- Infotec MP C6000
+- Infotec MP C6003
+- Infotec MP C6004
+- Infotec MP C6501
+- Infotec MP C6502
+- Infotec MP C6503
+- Infotec MP C7500
+- Infotec MP C7501
+- Infotec MP C8002
+- Infotec MP C8003
+- Infotec Pro C5100S
+- Infotec Pro C5110S
+- Infotec Pro C5200S
+- Infotec Pro C5210S
+- Infotec Pro C7100
+- Infotec Pro C7100S
+- Infotec Pro C7110
+- Infotec Pro C7110S
+
+### Joyspace
+
+- Joyspace U826
+
+### Kodak
+
+- Kodak 1400
+- Kodak 305
+- Kodak 605
+- Kodak 6800
+- Kodak 6850
+- Kodak 6900
+- Kodak 7000
+- Kodak 7010
+- Kodak 7015
+- Kodak 805
+- Kodak 8500
+- Kodak 8800
+- Kodak 8810
+- Kodak 9810
+- Kodak EasyShare-G600-Printer-Dock
+- Kodak Easyshare-Printer-Dock
+- Kodak PD-4000
+- Kodak PD-6000
+- Kodak Photo-Printer
+- Kodak Photo-Printer-500
+- Kodak Printer-Dock-Plus
+- Kodak Printer-Dock-Plus-S3
+
+### Kyocera
+
+- Kyocera Ci-1100
+- Kyocera CS-1815
+- Kyocera CS-250ci
+- Kyocera CS-2525E
+- Kyocera CS-300ci
+- Kyocera CS-3050ci
+- Kyocera CS-3225E
+- Kyocera CS-3232E
+- Kyocera CS-3550ci
+- Kyocera CS-400ci
+- Kyocera CS-4035E
+- Kyocera CS-500ci
+- Kyocera F-1010
+- Kyocera FS-1000
+- Kyocera FS-1000+
+- Kyocera FS-1010
+- Kyocera FS-1018MFP
+- Kyocera FS-1020D
+- Kyocera FS-1030D
+- Kyocera FS-1050
+- Kyocera FS-1118MFP
+- Kyocera FS-1135MFP
+- Kyocera FS-1200
+- Kyocera FS-1600
+- Kyocera FS-1600+
+- Kyocera FS-1700
+- Kyocera FS-1700+
+- Kyocera FS-1714M
+- Kyocera FS-1750
+- Kyocera FS-1800
+- Kyocera FS-1800+
+- Kyocera FS-1900
+- Kyocera FS-1920
+- Kyocera FS-2000D
+- Kyocera FS-3500
+- Kyocera FS-3600
+- Kyocera FS-3600+
+- Kyocera FS-3700
+- Kyocera FS-3700+
+- Kyocera FS-3718M
+- Kyocera FS-3750
+- Kyocera FS-3800
+- Kyocera FS-3820N
+- Kyocera FS-3830N
+- Kyocera FS-3900DN
+- Kyocera FS-4000DN
+- Kyocera FS-5800C
+- Kyocera FS-5900C
+- Kyocera FS-600
+- Kyocera FS-600 - KPDL-2
+- Kyocera FS-6020
+- Kyocera FS-6026
+- Kyocera FS-6300
+- Kyocera FS-6500
+- Kyocera FS-6500+
+- Kyocera FS-6700
+- Kyocera FS-6750
+- Kyocera FS-680
+- Kyocera FS-6900
+- Kyocera FS-6950DN
+- Kyocera FS-7000
+- Kyocera FS-7000+
+- Kyocera FS-7028M
+- Kyocera FS-800
+- Kyocera FS-8000C
+- Kyocera FS-9000
+- Kyocera FS-9100DN
+- Kyocera FS-9130DN
+- Kyocera FS-920
+- Kyocera FS-9500DN
+- Kyocera FS-9530DN
+- Kyocera FS-C5015N
+- Kyocera FS-C5016N
+- Kyocera FS-C5020N
+- Kyocera FS-C5025N
+- Kyocera FS-C5030N
+- Kyocera FS-C5100DN
+- Kyocera FS-C5200DN
+- Kyocera FS-C5300DN
+- Kyocera FS-C5350DN
+- Kyocera FS-C5400DN
+- Kyocera FS-C8008N
+- Kyocera FS-C8100DN
+- Kyocera FS-C8100DN+
+- Kyocera KM-1510
+- Kyocera KM-1530
+- Kyocera KM-1810
+- Kyocera KM-1815
+- Kyocera KM-1820
+- Kyocera KM-2030
+- Kyocera KM-2530
+- Kyocera KM-3050
+- Kyocera KM-3530
+- Kyocera KM-4050
+- Kyocera KM-4230
+- Kyocera KM-4230/5230
+- Kyocera KM-4530
+- Kyocera KM-5050
+- Kyocera KM-5230
+- Kyocera KM-5530
+- Kyocera KM-6030
+- Kyocera KM-6230
+- Kyocera KM-8030
+- Kyocera KM-C2520
+- Kyocera KM-C2525E
+- Kyocera KM-C2630
+- Kyocera KM-C3225
+- Kyocera KM-C3225E
+- Kyocera KM-C3232
+- Kyocera KM-C3232E
+- Kyocera KM-C4035E
+- Kyocera KM-C830
+- Kyocera KM-C850
+- Kyocera TASKalfa 250ci
+- Kyocera TASKalfa 300ci
+- Kyocera TASKalfa 400ci
+- Kyocera TASKalfa 500ci
+
+### Lanier
+
+- Lanier 5622
+- Lanier 5627
+- Lanier 5632
+- Lanier 5635
+- Lanier 5645
+- Lanier LC155
+- Lanier LD 130C
+- Lanier LD 130CSR
+- Lanier LD 140C
+- Lanier LD 140CSR
+- Lanier LD 620C
+- Lanier LD 625C
+- Lanier LD0105
+- Lanier LD015
+- Lanier LD035
+- Lanier LD045
+- Lanier LD060
+- Lanier LD075
+- Lanier LD090
+- Lanier LD115
+- Lanier LD116
+- Lanier LD118
+- Lanier LD118d
+- Lanier LD120
+- Lanier LD120d
+- Lanier LD122
+- Lanier LD124c
+- Lanier LD127
+- Lanier LD132
+- Lanier LD132c
+- Lanier LD135
+- Lanier LD145
+- Lanier LD151
+- Lanier LD160
+- Lanier LD160c
+- Lanier LD175
+- Lanier LD225
+- Lanier LD230
+- Lanier LD235
+- Lanier LD245
+- Lanier LD328c
+- Lanier LD335c
+- Lanier LD345c
+- Lanier MP 1100/LD1100
+- Lanier MP 1350/LD1135
+- Lanier MP 1600/LD316
+- Lanier MP 161/LD016
+- Lanier MP 2000/LD320d
+- Lanier MP 2510/LD325
+- Lanier MP 2550/LD425
+- Lanier MP 2550B/LD425B
+- Lanier MP 3010/LD330
+- Lanier MP 3350/LD433
+- Lanier MP 3350B/LD433B
+- Lanier MP 3500/LD335
+- Lanier MP 4000/LD040
+- Lanier MP 4000B/LD040B
+- Lanier MP 4500/LD345
+- Lanier MP 5000/LD050
+- Lanier MP 5000B/LD050B
+- Lanier MP 5500/LD255
+- Lanier MP 6500/LD265
+- Lanier MP 7500/LD275
+- Lanier MP 9000/LD190
+- Lanier MP C1500/LD215c
+- Lanier MP C2003
+- Lanier MP C2004
+- Lanier MP C2050/LD520C
+- Lanier MP C2500/LD425c
+- Lanier MP C2503
+- Lanier MP C2504
+- Lanier MP C2550/LD525C
+- Lanier MP C2800/LD528C
+- Lanier MP C300
+- Lanier MP C3000/LD430c
+- Lanier MP C3001/LD630C
+- Lanier MP C3002
+- Lanier MP C3003
+- Lanier MP C3004
+- Lanier MP C300SR
+- Lanier MP C3300/LD533C
+- Lanier MP C3500/LD435c
+- Lanier MP C3501/LD635C
+- Lanier MP C3502
+- Lanier MP C3503
+- Lanier MP C3504
+- Lanier MP C400
+- Lanier MP C4000/LD540C
+- Lanier MP C400SR
+- Lanier MP C4500/LD445c
+- Lanier MP C4501/LD645C
+- Lanier MP C4501A/LD645CA
+- Lanier MP C4502
+- Lanier MP C4502A
+- Lanier MP C4503
+- Lanier MP C4504
+- Lanier MP C5000/LD550C
+- Lanier MP C5501/LD655C
+- Lanier MP C5501A/LD655CA
+- Lanier MP C5502
+- Lanier MP C5502A
+- Lanier MP C5503
+- Lanier MP C6000/LD260c
+- Lanier MP C6003
+- Lanier MP C6004
+- Lanier MP C6501/LD365C
+- Lanier MP C6502
+- Lanier MP C6503
+- Lanier MP C7500/LD275c
+- Lanier MP C7501/LD375C
+- Lanier MP C8002
+- Lanier MP C8003
+- Lanier MP2500/LD125
+- Lanier Pro C5100S
+- Lanier Pro C5110S
+- Lanier Pro C5200S
+- Lanier Pro C5210S
+- Lanier Pro C7100
+- Lanier Pro C7100S
+- Lanier Pro C7110
+- Lanier Pro C7110S
+- Lanier SG3110DN
+- Lanier SG3110DNw
+- Lanier SG3110SFNw
+
+### Lexmark
+
+- Lexmark 4076
+- Lexmark Optra E
+- Lexmark Optra E+
+- Lexmark Optra E220
+- Lexmark Optra E321
+- Lexmark Optra E323
+- Lexmark Valuewriter 300
+- Lexmark X73
+- Lexmark Z42
+- Lexmark Z43
+- Lexmark Z52
+- Lexmark Z53
+
+### Magicard
+
+- Magicard Rio 2E
+- Magicard Tango 2E
+
+### Minolta
+
+- Minolta PagePro 1100
+- Minolta PagePro 6
+- Minolta PagePro 6e
+- Minolta PagePro 6ex
+- Minolta PagePro 8
+- Minolta PagePro 8L
+
+### Mitsubishi
+
+- Mitsubishi CP-3020D
+- Mitsubishi CP-3020DA
+- Mitsubishi CP-3020DAE
+- Mitsubishi CP-3020DE
+- Mitsubishi CP-3020DU
+- Mitsubishi CP-3800DW
+- Mitsubishi CP-9500DW
+- Mitsubishi CP-9550D
+- Mitsubishi CP-9550DW
+- Mitsubishi CP-9550DW-S
+- Mitsubishi CP-9550DZ
+- Mitsubishi CP-9600DW
+- Mitsubishi CP-9800D
+- Mitsubishi CP-9800DW
+- Mitsubishi CP-9800DW-S
+- Mitsubishi CP-9800DZ
+- Mitsubishi CP-9810D
+- Mitsubishi CP-9810DW
+- Mitsubishi CP-9820DW-AG
+- Mitsubishi CP-D707DW
+- Mitsubishi CP-D70DW
+- Mitsubishi CP-D80DW
+- Mitsubishi CP-D90DW
+- Mitsubishi CP-D90DW-SL
+- Mitsubishi CP-K60DW-S
+- Mitsubishi CP-M1
+- Mitsubishi CP-M15
+- Mitsubishi CP-W5000
+- Mitsubishi CP30DW
+- Mitsubishi P93D
+- Mitsubishi P95D
+
+### NEC
+
+- NEC SuperScript 1260
+- NEC SuperScript 1400
+- NEC SuperScript 1800
+- NEC SuperScript 660i
+- NEC SuperScript 860
+- NEC SuperScript 870
+
+### Nidac Copal
+
+- Nidac Copal DPB-4000
+- Nidac Copal DPB-6000
+- Nidac Copal DPB-7000
+
+### NRG
+
+- NRG 10515/10518/10512
+- NRG 2205/2238/2212
+- NRG 2705/2738/2712
+- NRG 3205/3238/3212
+- NRG 3525/3508/3502
+- NRG 3545/3518/3532
+- NRG 4525/4508/4502
+- NRG 4545/4518/4532
+- NRG 6002/6005/6008
+- NRG 7502/7505/7508
+- NRG 9005/9008/9002
+- NRG CS555
+- NRG DSc424
+- NRG DSc428
+- NRG DSc432
+- NRG DSc435
+- NRG DSc445
+- NRG DSc460
+- NRG DSm415
+- NRG DSm615
+- NRG DSm616
+- NRG DSm618
+- NRG DSm618d
+- NRG DSm620
+- NRG DSm620d
+- NRG DSm622
+- NRG DSm627
+- NRG DSm632
+- NRG DSm635
+- NRG DSm645
+- NRG DSm651
+- NRG DSm660
+- NRG DSm675
+- NRG DSm725
+- NRG DSm730
+- NRG DSm735
+- NRG DSm745
+- NRG MP 1100
+- NRG MP 1350
+- NRG MP 1600
+- NRG MP 161
+- NRG MP 2000
+- NRG MP 2500
+- NRG MP 2510
+- NRG MP 2550
+- NRG MP 2550B
+- NRG MP 3010
+- NRG MP 3350
+- NRG MP 3350B
+- NRG MP 3500
+- NRG MP 4000
+- NRG MP 4000B
+- NRG MP 4500
+- NRG MP 5000
+- NRG MP 5000B
+- NRG MP 5500
+- NRG MP 6500
+- NRG MP 7500
+- NRG MP 9000
+- NRG MP C1500sp
+- NRG MP C2003
+- NRG MP C2003Z
+- NRG MP C2004
+- NRG MP C2011
+- NRG MP C2050
+- NRG MP C2051
+- NRG MP C2500
+- NRG MP C2503
+- NRG MP C2503Z
+- NRG MP C2504
+- NRG MP C2550
+- NRG MP C2551
+- NRG MP C2800
+- NRG MP C300
+- NRG MP C3000
+- NRG MP C3001
+- NRG MP C3002
+- NRG MP C3003
+- NRG MP C3004
+- NRG MP C300SR
+- NRG MP C3300
+- NRG MP C3500
+- NRG MP C3501
+- NRG MP C3502
+- NRG MP C3503
+- NRG MP C3504
+- NRG MP C400
+- NRG MP C4000
+- NRG MP C400SR
+- NRG MP C4500
+- NRG MP C4501
+- NRG MP C4501A
+- NRG MP C4502
+- NRG MP C4502A
+- NRG MP C4503
+- NRG MP C4504
+- NRG MP C5000
+- NRG MP C5501
+- NRG MP C5501A
+- NRG MP C5502
+- NRG MP C5502A
+- NRG MP C5503
+- NRG MP C5504
+- NRG MP C6000
+- NRG MP C6003
+- NRG MP C6004
+- NRG MP C6501
+- NRG MP C6502
+- NRG MP C6503
+- NRG MP C7500
+- NRG MP C7501
+- NRG MP C8002
+- NRG MP C8003
+- NRG Pro C5100S
+- NRG Pro C5110S
+- NRG Pro C5200S
+- NRG Pro C5210S
+- NRG Pro C7100
+- NRG Pro C7100S
+- NRG Pro C7110
+- NRG Pro C7110S
+- NRG SG3110DN
+- NRG SG3110DNw
+- NRG SG3110SFNw
+
+### Oki
+
+- Oki B401d
+- Oki B430
+- Oki B4350
+- Oki C5300
+- Oki C5400
+- Oki C7300
+- Oki C8800
+- Oki C9200
+- Oki C9400
+- Oki Okipage 10e
+- Oki Okipage 10ex
+- Oki Okipage 14ex
+- Oki Okipage 6e
+- Oki Okipage 6ex
+- Oki Okipage 8p
+- Oki OL400
+- Oki OL400e
+- Oki OL400ex
+- Oki OL410e
+- Oki OL600e
+- Oki OL610e/S
+- Oki OL800
+- Oki OL810ex
+- Oki Super 6e
+
+### Olivetti
+
+- Olivetti JP350S
+- Olivetti PG 306
+
+### Olmec
+
+- Olmec OP1000
+
+### Olympus
+
+- Olympus P-10
+- Olympus P-11
+- Olympus P-200
+- Olympus P-300
+- Olympus P-300E
+- Olympus P-300U
+- Olympus P-330E
+- Olympus P-330NE
+- Olympus P-400
+- Olympus P-440
+- Olympus P-S100
+
+### Panasonic
+
+- Panasonic DP-180
+- Panasonic DP-C265
+- Panasonic DP-C305
+- Panasonic DP-C322
+- Panasonic DP-C405
+- Panasonic KX-P4410
+- Panasonic KX-P4450
+- Panasonic KX-P6150
+- Panasonic KX-P6500
+
+### PCPI
+
+- PCPI 1030
+
+### Raven
+
+- Raven LP-410
+
+### Ricoh
+
+- Ricoh Aficio 1022
+- Ricoh Aficio 1027
+- Ricoh Aficio 1032
+- Ricoh Aficio 1035
+- Ricoh Aficio 1045
+- Ricoh Aficio 1060
+- Ricoh Aficio 1075
+- Ricoh Aficio 1515
+- Ricoh Aficio 2015
+- Ricoh Aficio 2016
+- Ricoh Aficio 2018
+- Ricoh Aficio 2018D
+- Ricoh Aficio 2020
+- Ricoh Aficio 2020D
+- Ricoh Aficio 2022
+- Ricoh Aficio 2027
+- Ricoh Aficio 2032
+- Ricoh Aficio 2035
+- Ricoh Aficio 2035e
+- Ricoh Aficio 2045
+- Ricoh Aficio 2045e
+- Ricoh Aficio 2051
+- Ricoh Aficio 2060
+- Ricoh Aficio 2075
+- Ricoh Aficio 2090
+- Ricoh Aficio 2105
+- Ricoh Aficio 220
+- Ricoh Aficio 3025
+- Ricoh Aficio 3030
+- Ricoh Aficio 3035
+- Ricoh Aficio 3045
+- Ricoh Aficio 3224C
+- Ricoh Aficio 3228C
+- Ricoh Aficio 3232C
+- Ricoh Aficio 3235C
+- Ricoh Aficio 3245C
+- Ricoh Aficio 3260C
+- Ricoh Aficio 401
+- Ricoh Aficio 700
+- Ricoh Aficio Color 5560
+- Ricoh Aficio MP 1100
+- Ricoh Aficio MP 1350
+- Ricoh Aficio MP 1600
+- Ricoh Aficio MP 161
+- Ricoh Aficio MP 2000
+- Ricoh Aficio MP 2500
+- Ricoh Aficio MP 2510
+- Ricoh Aficio MP 2550
+- Ricoh Aficio MP 2550B
+- Ricoh Aficio MP 3010
+- Ricoh Aficio MP 3350
+- Ricoh Aficio MP 3350B
+- Ricoh Aficio MP 3500
+- Ricoh Aficio MP 4000
+- Ricoh Aficio MP 4000B
+- Ricoh Aficio MP 4500
+- Ricoh Aficio MP 5000
+- Ricoh Aficio MP 5000B
+- Ricoh Aficio MP 5500
+- Ricoh Aficio MP 6500
+- Ricoh Aficio MP 7500
+- Ricoh Aficio MP 9000
+- Ricoh Aficio MP C2050
+- Ricoh Aficio MP C2051
+- Ricoh Aficio MP C2500
+- Ricoh Aficio MP C2550
+- Ricoh Aficio MP C2551
+- Ricoh Aficio MP C2800
+- Ricoh Aficio MP C300
+- Ricoh Aficio MP C3000
+- Ricoh Aficio MP C3001
+- Ricoh Aficio MP C3002
+- Ricoh Aficio MP C300SR
+- Ricoh Aficio MP C3300
+- Ricoh Aficio MP C3500
+- Ricoh Aficio MP C3501
+- Ricoh Aficio MP C3502
+- Ricoh Aficio MP C400
+- Ricoh Aficio MP C4000
+- Ricoh Aficio MP C400SR
+- Ricoh Aficio MP C4500
+- Ricoh Aficio MP C4501
+- Ricoh Aficio MP C4501A
+- Ricoh Aficio MP C4502
+- Ricoh Aficio MP C4502A
+- Ricoh Aficio MP C5000
+- Ricoh Aficio MP C5501
+- Ricoh Aficio MP C5501A
+- Ricoh Aficio MP C5502
+- Ricoh Aficio MP C5502A
+- Ricoh Aficio MP C6000
+- Ricoh Aficio MP C6501
+- Ricoh Aficio MP C7500
+- Ricoh Aficio MP C7501
+- Ricoh Aficio SG 3110DN
+- Ricoh GX 3050N
+- Ricoh GX 3050SFN
+- Ricoh GX 5050N
+- Ricoh GX E3350N
+- Ricoh GX E5550N
+- Ricoh MP C1500/615C
+- Ricoh MP C2003
+- Ricoh MP C2003Z
+- Ricoh MP C2004
+- Ricoh MP C2011
+- Ricoh MP C2094J
+- Ricoh MP C2503
+- Ricoh MP C2503Z
+- Ricoh MP C2504
+- Ricoh MP C2594J
+- Ricoh MP C3003
+- Ricoh MP C3004
+- Ricoh MP C3503
+- Ricoh MP C3504
+- Ricoh MP C4503
+- Ricoh MP C4504
+- Ricoh MP C5503
+- Ricoh MP C5504
+- Ricoh MP C6003
+- Ricoh MP C6004
+- Ricoh MP C6502
+- Ricoh MP C6503
+- Ricoh MP C8002
+- Ricoh MP C8003
+- Ricoh Pro C5100S
+- Ricoh Pro C5110S
+- Ricoh Pro C5200S
+- Ricoh Pro C5210S
+- Ricoh Pro C7100
+- Ricoh Pro C7100S
+- Ricoh Pro C7110
+- Ricoh Pro C7110S
+- Ricoh SG3120BSFNw
+
+### Samsung
+
+- Samsung CLP-620
+- Samsung CLP-660N
+- Samsung CLP-660ND
+- Samsung ML-1250
+- Samsung ML-1450
+- Samsung ML-1450PS
+- Samsung ML-1650
+- Samsung ML-1651N
+- Samsung ML-1750
+- Samsung ML-2150
+- Samsung ML-2150PS
+- Samsung ML-2151N
+- Samsung ML-2151NPS
+- Samsung ML-2152W
+- Samsung ML-2152WPS
+- Samsung ML-2250
+- Samsung ML-2550
+- Samsung ML-2551N
+- Samsung ML-2552W
+- Samsung ML-4600
+- Samsung ML-5000a
+- Samsung ML-6000
+- Samsung ML-6100
+- Samsung ML-7000
+- Samsung ML-7000N
+- Samsung ML-7000P
+- Samsung ML-7050
+- Samsung ML-7300
+- Samsung ML-7300N
+- Samsung ML-85
+- Samsung ProXpress SL-M3820ND
+- Samsung QL-5100A
+- Samsung QL-6050
+
+### Savin
+
+- Savin 2522
+- Savin 2527
+- Savin 2532
+- Savin 2535/2235
+- Savin 2545/2245
+- Savin 2560
+- Savin 2575
+- Savin 3515
+- Savin 40105
+- Savin 4015
+- Savin 4018
+- Savin 4018d
+- Savin 4022
+- Savin 4027
+- Savin 4035/4135g
+- Savin 4035e/4135eG
+- Savin 4045/4145g
+- Savin 4045e/4145eG
+- Savin 4051
+- Savin 4060
+- Savin 4075
+- Savin 4090
+- Savin 7025
+- Savin 8016
+- Savin 8020
+- Savin 8020d
+- Savin 8025
+- Savin 8025e
+- Savin 8030
+- Savin 8030e
+- Savin 8035/8035g
+- Savin 8035e
+- Savin 8045/8045g
+- Savin 8045e
+- Savin 8055
+- Savin 8065
+- Savin 8075
+- Savin 8090
+- Savin 8110
+- Savin 8135
+- Savin 816
+- Savin 9016
+- Savin 9021d
+- Savin 9025
+- Savin 9025b
+- Savin 9033
+- Savin 9033b
+- Savin 9040
+- Savin 9040b
+- Savin 9050
+- Savin 9050b
+- Savin C 230
+- Savin C 230SR
+- Savin C 240
+- Savin C 240SR
+- Savin C2410
+- Savin C2525
+- Savin C2824
+- Savin C2828
+- Savin C3030
+- Savin C3210e
+- Savin C3333
+- Savin C3528
+- Savin C3535
+- Savin C4040
+- Savin C4535
+- Savin C4540
+- Savin C5050
+- Savin C6045
+- Savin C6055
+- Savin C7570
+- Savin C9020
+- Savin C9025
+- Savin C9065
+- Savin C9075
+- Savin C9120
+- Savin C9125
+- Savin C9130
+- Savin C9135
+- Savin C9145
+- Savin C9145A
+- Savin C9155
+- Savin C9155A
+- Savin MP C2003
+- Savin MP C2004
+- Savin MP C2503
+- Savin MP C2504
+- Savin MP C3002
+- Savin MP C3003
+- Savin MP C3004
+- Savin MP C3502
+- Savin MP C3503
+- Savin MP C3504
+- Savin MP C4502
+- Savin MP C4502A
+- Savin MP C4503
+- Savin MP C4504
+- Savin MP C5502
+- Savin MP C5502A
+- Savin MP C5503
+- Savin MP C6003
+- Savin MP C6004
+- Savin MP C6502
+- Savin MP C6503
+- Savin MP C8002
+- Savin MP C8003
+- Savin Pro C5100S
+- Savin Pro C5110S
+- Savin Pro C5200S
+- Savin Pro C5210S
+- Savin Pro C7100
+- Savin Pro C7100S
+- Savin Pro C7110
+- Savin Pro C7110S
+- Savin SDC555
+- Savin SG3110DN
+- Savin SGC 1506
+
+### Seiko
+
+- Seiko SpeedJET 200
+
+### Sharp
+
+- Sharp AR-161
+- Sharp AR-BC260
+- Sharp AR-BC320
+- Sharp AR-C170FP
+- Sharp AR-C170M
+- Sharp AR-C172FP
+- Sharp AR-C172M
+- Sharp AR-C260
+- Sharp AR-C260F
+- Sharp AR-C260FP
+- Sharp AR-C260M
+- Sharp AR-C260P
+- Sharp AR-C260S
+- Sharp AR-C261F
+- Sharp AR-C261FP
+- Sharp AR-C261M
+- Sharp AR-C261S
+- Sharp AR-C262FP
+- Sharp AR-C262M
+- Sharp AR-C262S
+- Sharp AR-M257
+- Sharp MX-2300FG
+- Sharp MX-2300G
+- Sharp MX-2300N
+- Sharp MX-2600N
+- Sharp MX-2700FG
+- Sharp MX-2700G
+- Sharp MX-2700N
+- Sharp MX-3500FN
+- Sharp MX-3500N
+- Sharp MX-3501FN
+- Sharp MX-3501N
+- Sharp MX-4500FN
+- Sharp MX-4500N
+- Sharp MX-4501FN
+- Sharp MX-4501N
+
+### Shinko
+
+- Shinko CHC-S1245
+- Shinko CHC-S2145
+- Shinko CHC-S6145
+- Shinko CHC-S6245
+- Shinko CHC-S9045
+
+### Sinfonia
+
+- Sinfonia CHC-S1245/E1
+- Sinfonia CHC-S2145/S2
+- Sinfonia CHC-S2245/S3
+- Sinfonia CHC-S6145/CS2
+- Sinfonia CHC-S6245/CE1
+
+### Sony
+
+- Sony DPP-EX5
+- Sony DPP-EX7
+- Sony IJP-V100
+- Sony UP-971AD
+- Sony UP-991AD
+- Sony UP-CR10L
+- Sony UP-CR20L
+- Sony UP-CX1
+- Sony UP-D711MD
+- Sony UP-D895
+- Sony UP-D897
+- Sony UP-D898
+- Sony UP-D898MD
+- Sony UP-DP10
+- Sony UP-DR100
+- Sony UP-DR150
+- Sony UP-DR200
+- Sony UP-DR80MD
+
+### Star
+
+- Star LaserPrinter 8
+- Star LS-04
+
+### Stryker
+
+- Stryker SDP1000
+
+### Swiftfoto
+
+- Swiftfoto KSF-10R
+
+### Tally
+
+- Tally MT908
+
+### Tektronix
+
+- Tektronix Phaser 750DP
+- Tektronix Phaser 750DX
+- Tektronix Phaser 750N
+- Tektronix Phaser 750P
+
+### Toshiba
+
+- Toshiba e-Studio 220cp
+- Toshiba e-Studio 2830c
+- Toshiba e-Studio 3530c
+- Toshiba e-Studio 4500c
+- Toshiba e-Studio 4520c
+- Toshiba e-Studio 5500c
+
+### Xerox
+
+- Xerox Able 1406
+- Xerox Document Centre 400
+- Xerox DocuPrint 4508
+- Xerox DocuPrint C20
+- Xerox DocuPrint N4512
+- Xerox DocuPrint N4512PS
+- Xerox DocuPrint P12
+- Xerox DocuPrint P1202
+- Xerox DocuPrint P8e
+- Xerox Phaser 2135
+- Xerox Phaser 3160N
+- Xerox Phaser 4400B
+- Xerox Phaser 4400DT
+- Xerox Phaser 4400DX
+- Xerox Phaser 4400N
+- Xerox Phaser 4500B
+- Xerox Phaser 4500DT
+- Xerox Phaser 4500DX
+- Xerox Phaser 4500N
+- Xerox Phaser 4510B
+- Xerox Phaser 4510DT
+- Xerox Phaser 4510DX
+- Xerox Phaser 4510N
+- Xerox Phaser 5500B
+- Xerox Phaser 5500DN
+- Xerox Phaser 5500DT
+- Xerox Phaser 5500DX
+- Xerox Phaser 5500N
+- Xerox Phaser 6130N
+- Xerox Phaser 6180DN
+- Xerox Phaser 6180MFP-D
+- Xerox Phaser 6200B
+- Xerox Phaser 6200DP
+- Xerox Phaser 6200DX
+- Xerox Phaser 6200N
+- Xerox Phaser 6250B
+- Xerox Phaser 6250DP
+- Xerox Phaser 6250DT
+- Xerox Phaser 6250DX
+- Xerox Phaser 6250N
+- Xerox Phaser 6300DN
+- Xerox Phaser 6300N
+- Xerox Phaser 6350DP
+- Xerox Phaser 6350DT
+- Xerox Phaser 6350DX
+- Xerox Phaser 6360DN
+- Xerox Phaser 6360DX
+- Xerox Phaser 7300B
+- Xerox Phaser 7300DN
+- Xerox Phaser 7300DT
+- Xerox Phaser 7300DX
+- Xerox Phaser 7300N
+- Xerox Phaser 7400DN
+- Xerox Phaser 7400DT
+- Xerox Phaser 7400DX
+- Xerox Phaser 7400DXF
+- Xerox Phaser 7400N
+- Xerox Phaser 7700DN
+- Xerox Phaser 7700DX
+- Xerox Phaser 7700GX
+- Xerox Phaser 7750B
+- Xerox Phaser 7750DN
+- Xerox Phaser 7750DXF
+- Xerox Phaser 7750GX
+- Xerox Phaser 7760DN
+- Xerox Phaser 7760DX
+- Xerox Phaser 7760GX
+- Xerox Phaser 8400B
+- Xerox Phaser 8400BD
+- Xerox Phaser 8400DP
+- Xerox Phaser 8400DX
+- Xerox Phaser 8400N
+- Xerox Phaser 8500DN
+- Xerox Phaser 8500N
+- Xerox Phaser 8550DP
+- Xerox Phaser 8550DT
+- Xerox Phaser 8550DX
+- Xerox Phaser 8560DN
+- Xerox Phaser 8860
+- Xerox WorkCentre 7345
+- Xerox WorkCentre C2424
+- Xerox WorkCentre M118
