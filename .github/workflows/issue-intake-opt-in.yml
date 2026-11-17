@@ -1,0 +1,59 @@
+name: Issue intake opt-in
+
+# The issue form labels every new bug and feature with needs-human so the hive's
+# agents stay away. That label stayed on even when the reporter said machine
+# analysis is welcome, so helpful reports were never worked. This workflow drops
+# needs-human at filing time for anyone who did not ask for a person only, and
+# leaves it on for everyone who did.
+on:
+  issues:
+    types: [opened]
+
+# Baseline from the org prow config: no broad permissions. The one job below is
+# granted just the issues scope it needs.
+permissions: {}
+
+jobs:
+  remove-needs-human:
+    name: Remove needs-human unless opt-in
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # Only run when the new issue actually carries the label to consider.
+    if: contains(github.event.issue.labels.*.name, 'needs-human')
+    permissions:
+      issues: write
+    steps:
+      - name: Remove needs-human when machine analysis is welcome
+        env:
+          # gh needs a token to authenticate; pass the runner token explicitly
+          # like ci-alert.yml does, so the label removal is never silently skipped.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The answer lives under the "### Automation preference" heading as the
+          # first non-blank line after it. Read it from the body passed through env
+          # so the raw issue text can never be run as shell.
+          pref="$(awk '
+            inhead == 0 && /^###[[:space:]]+Automation[[:space:]]+preference[[:space:]]*$/ { inhead = 1; next }
+            inhead == 1 {
+              line = $0
+              sub(/^[[:space:]]+/, "", line)
+              sub(/[[:space:]]+$/, "", line)
+              if (line != "") { print line; exit }
+            }
+          ' <<<"$ISSUE_BODY")"
+
+          case "$pref" in
+            "Machine analysis is welcome"|"No preference")
+              gh issue edit "$ISSUE_NUMBER" -R "$REPO" --remove-label needs-human
+              echo "Removed needs-human because the automation preference was '$pref'."
+              ;;
+            "Human interaction only")
+              echo "Kept needs-human because the automation preference was 'Human interaction only'."
+              ;;
+            *)
+              echo "Kept needs-human because no recognised automation preference was found."
+              ;;
+          esac

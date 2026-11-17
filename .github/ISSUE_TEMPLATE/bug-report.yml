@@ -68,7 +68,7 @@ body:
     id: automation-preference
     attributes:
       label: "Automation preference"
-      description: "Choose how you want this report handled. Human interaction only means maintainers keep `needs-human` on this issue, so agents never pick it up."
+      description: "Choose how you want this report handled. If you choose Human interaction only, the needs-human label stays on it, so agents never pick it up. Otherwise it is removed automatically when the issue is filed."
       options:
         - "Human interaction only"
         - "Machine analysis is welcome"
