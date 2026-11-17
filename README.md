@@ -481,7 +481,7 @@ cannot be created or secured, or if the state directory, `cups`, `spool` or
 `cups/ssl` is a symlink.
 Read the volume from the host with `podman unshare`.
 
-### Web administration
+### Web interface and access control
 
 PAPPL serves IPP and the web interface on the same port, and the appliance runs
 on host networking, so by default the web administration pages are reachable by
