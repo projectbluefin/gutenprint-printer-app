@@ -88,6 +88,14 @@ dbus_mode="\$1"
 shift
 server_options=("\$@")
 printf '%s\n' "\$\$" >"\${HARNESS_PID:-/dev/null}"
+# COUNTME=1 stands in for the shared entrypoint library's countme hooks, which
+# the entrypoint calls only when they are defined. Start records how many
+# children exist at call time; stop records itself in ORDER so its position
+# relative to the TERMs sent to the children is checked.
+if [[ "\${COUNTME:-0}" == 1 ]]; then
+  printer_app_start_countme() { printf 'countme-start %s %s children=%s\\n' "\$1" "\$2" "\${#children[@]}" >>"\$CALLS"; }
+  printer_app_stop_countme() { printf 'countme-stop\\n' >>"\$CALLS"; printf 'countme\\n' >>"\$ORDER"; }
+fi
 source "$work/supervision.sh"
 eval "original_\$(declare -f stop_children)"
 stop_children() { printf 'stop\n' >>"\$CALLS"; original_stop_children; }
@@ -245,6 +253,35 @@ else
   fail "dbus-daemon exiting 3: container exited $status, expected 3"
 fi
 expect_stopped_once 'dbus-daemon exiting 3' avahi-daemon gutenprint-printer-app
+
+# --- countme hooks -------------------------------------------------------------
+
+# The shared entrypoint library may define printer_app_start_countme and
+# printer_app_stop_countme. When it does, reporting must start once, after the
+# server is launched, with the state directory and this application's name; it
+# must stop before the daemons are signalled, and must not change the exit
+# status or the order the daemons are stopped in.
+new_case
+EXTRA_ENV="COUNTME=1" run_harness exit:7 run
+if ((status == 7)); then
+  pass 'countme hooks leave the server failure status unchanged'
+else
+  fail "countme, server exiting 7: container exited $status, expected 7"
+fi
+starts="$(grep '^countme-start ' "$case_dir/calls" || true)"
+if [[ "$starts" == "countme-start $case_dir/state gutenprint-printer-app children=3" ]]; then
+  pass 'countme starts once, after the server, with the state directory and app name'
+else
+  fail "countme start calls: ${starts:-none}, expected one after all three children with $case_dir/state gutenprint-printer-app"
+fi
+[[ "$(grep -c -x countme-stop "$case_dir/calls" || true)" == 1 ]] \
+  || fail "countme: printer_app_stop_countme ran $(grep -c -x countme-stop "$case_dir/calls" || true) times, expected 1"
+if [[ "$(paste -sd, "$case_dir/order")" == countme,gutenprint-printer-app,avahi-daemon,dbus-daemon ]]; then
+  pass 'countme stops before the daemons, which still stop newest first'
+else
+  fail "countme stop order: $(paste -sd, "$case_dir/order"), expected countme,gutenprint-printer-app,avahi-daemon,dbus-daemon"
+fi
+expect_stopped_once 'countme, server exiting 7' dbus-daemon avahi-daemon
 
 # --- stop on request ----------------------------------------------------------
 
