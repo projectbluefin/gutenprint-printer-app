@@ -68,7 +68,7 @@ jobs:
       # The runtime parent must be verified before the image is built.
       - name: Install cosign
         if: env.FULL_BUILD == 'true'
-        uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+        uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
       # Seed printing/base.bst from the signed printing-base-devel bundle
       # (fsdk-containers docs/skills/printing-base.md, rule 4). Never fails
       # the job: any error falls through to a local build of the base.
