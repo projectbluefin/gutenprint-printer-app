@@ -102,7 +102,7 @@ jobs:
             bst-v1-${{ matrix.arch }}-
       # The runtime parent must be verified before the image is built.
       - name: Install cosign
-        uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+        uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
       # Seed printing/base.bst from the signed printing-base-devel bundle
       # (fsdk-containers docs/skills/printing-base.md, rule 4). Never fails
       # the job: any error falls through to a local build of the base.
@@ -215,7 +215,7 @@ jobs:
           password: ${{ github.token }}
       - name: Install registry and BuildStream host tools
         run: sudo apt-get update && sudo apt-get install --yes fuse3 jq podman skopeo
-      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+      - uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
       - uses: oras-project/setup-oras@ac735097e22fe643015b0d19645f7c9a69942128 # v2.0.4
       - name: Generate BuildStream-native SPDX SBOM
         run: just sbom
